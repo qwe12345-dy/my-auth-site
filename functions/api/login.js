@@ -15,7 +15,7 @@ export async function onRequestPost(context) {
     return jsonResponse({ success: false, message: '账号和密码不能为空' }, 400);
   }
   if (env.TURNSTILE_SECRET_KEY) {
-    const turnstileOk = await verifyTurnstile(turnstileToken, env);
+    const turnstileOk = await verifyTurnstile(turnstileToken);
     if (!turnstileOk) {
       return jsonResponse({ success: false, message: '人机验证失败，请重试' }, 400);
     }
