@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>登录 - Cloudflare Auth</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="auth-page">
+<div class="auth-box">
+  <h2>登录</h2>
+  <div id="msg"></div>
+  <form onsubmit="doLogin(event)">
+    <input type="text" id="account" placeholder="用户名 / 邮箱" required>
+    <input type="password" id="password" placeholder="密码" required>
+    <button type="submit">登录</button>
+  </form>
+  <p>还没有账号？<a href="register.html">去注册</a></p>
+</div>
+<script>
+function showMsg(text,type){
+  const el=document.getElementById('msg');
+  el.innerHTML='<div class="msg '+type+'">'+text+'</div>';
+}
+async function doLogin(e){
+  e.preventDefault();
+  const r=await fetch('/api/login',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    credentials:'include',
+    body:JSON.stringify({
+      account:document.getElementById('account').value,
+      password:document.getElementById('password').value
+    })
+  });
+  const d=await r.json();
+  if(d.success){
+    showMsg('登录成功，正在跳转...','success');
+    setTimeout(()=>location.href='index.html',800);
+  }else{
+    showMsg(d.message,'error');
+  }
+}
+</script>
+</body>
+</html>

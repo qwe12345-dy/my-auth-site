@@ -1,0 +1,7 @@
+name = "cloudflare-auth-site"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "auth_db"
+database_id = "你的D1数据库ID"

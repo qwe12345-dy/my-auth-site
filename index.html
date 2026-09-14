@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>首页 - Cloudflare Auth</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="logo">Cloudflare Auth</div>
+  <nav>
+    <a href="index.html">首页</a>
+    <a href="profile.html" id="profileLink" style="display:none">个人中心</a>
+    <a href="login.html" id="loginLink">登录</a>
+    <a href="register.html" id="regLink">注册</a>
+    <a href="#" id="logoutLink" style="display:none" onclick="doLogout();return false;">退出</a>
+  </nav>
+</header>
+<main class="container">
+  <div id="welcomeBox">
+    <h1>欢迎使用 Cloudflare Pages + D1 注册登录系统</h1>
+    <p style="margin-top:12px;color:#666">基于 Cloudflare Pages Functions + D1 数据库 + GitHub 部署</p>
+  </div>
+  <div id="userBox" style="display:none" class="profile-card">
+    <h2>你好，<span id="userName"></span></h2>
+    <p>邮箱：<span id="userEmail"></span></p>
+    <p>注册时间：<span id="userTime"></span></p>
+  </div>
+</main>
+<script>
+async function checkLogin(){
+  try{
+    const r=await fetch('/api/user',{credentials:'include'});
+    const d=await r.json();
+    if(d.success){
+      document.getElementById('loginLink').style.display='none';
+      document.getElementById('regLink').style.display='none';
+      document.getElementById('logoutLink').style.display='inline';
+      document.getElementById('profileLink').style.display='inline';
+      document.getElementById('welcomeBox').style.display='none';
+      document.getElementById('userBox').style.display='block';
+      document.getElementById('userName').textContent=d.user.username;
+      document.getElementById('userEmail').textContent=d.user.email;
+      document.getElementById('userTime').textContent=d.user.created_at;
+    }
+  }catch(e){}
+}
+async function doLogout(){
+  await fetch('/api/logout',{method:'POST',credentials:'include'});
+  location.href='login.html';
+}
+checkLogin();
+</script>
+</body>
+</html>
