@@ -1,4 +1,4 @@
-import { verifyPassword, generateToken, jsonResponse } from '../_utils.js';
+import { verifyPassword, generateToken, jsonResponse, verifyTurnstile } from '../_utils.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -10,8 +10,15 @@ export async function onRequestPost(context) {
   }
   const account = (body.account || '').trim();
   const password = body.password || '';
+  const turnstileToken = body.turnstile_token || '';
   if (!account || !password) {
     return jsonResponse({ success: false, message: '账号和密码不能为空' }, 400);
+  }
+  if (env.TURNSTILE_SECRET_KEY) {
+    const turnstileOk = await verifyTurnstile(turnstileToken, env);
+    if (!turnstileOk) {
+      return jsonResponse({ success: false, message: '人机验证失败，请重试' }, 400);
+    }
   }
   try {
     const user = await env.DB.prepare('SELECT * FROM users WHERE username = ? OR email = ?').bind(account, account).first();
