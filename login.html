@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>登录 - Cloudflare Auth</title>
 <link rel="stylesheet" href="assets/style.css">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<style>
+.cf-turnstile{margin-bottom:14px;}
+</style>
 </head>
 <body class="auth-page">
 <div class="auth-box">
@@ -13,6 +17,7 @@
   <form onsubmit="doLogin(event)">
     <input type="text" id="account" placeholder="用户名 / 邮箱" required>
     <input type="password" id="password" placeholder="密码" required>
+    <div class="cf-turnstile" data-sitekey="YOUR_TURNSTILE_SITE_KEY"></div>
     <button type="submit">登录</button>
   </form>
   <p>还没有账号？<a href="register.html">去注册</a></p>
@@ -22,15 +27,24 @@ function showMsg(text,type){
   const el=document.getElementById('msg');
   el.innerHTML='<div class="msg '+type+'">'+text+'</div>';
 }
+function getTurnstileToken(){
+  if(typeof turnstile!=='undefined'&&turnstile.getResponse){
+    return turnstile.getResponse();
+  }
+  return '';
+}
 async function doLogin(e){
   e.preventDefault();
+  const token=getTurnstileToken();
+  if(!token){showMsg('请先完成人机验证','error');return;}
   const r=await fetch('/api/login',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     credentials:'include',
     body:JSON.stringify({
       account:document.getElementById('account').value,
-      password:document.getElementById('password').value
+      password:document.getElementById('password').value,
+      turnstile_token:token
     })
   });
   const d=await r.json();
