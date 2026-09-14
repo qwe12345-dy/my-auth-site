@@ -320,12 +320,12 @@ async function sendEmailJS(toEmail, code) {
   }
 }
 
-async function verifyTurnstile(token, env) {
+async function verifyTurnstile(token) {
   try {
     const resp = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `secret=${encodeURIComponent(env.TURNSTILE_SECRET_KEY)}&response=${encodeURIComponent(token)}`
+      body: `secret=0x4AAAAAAEz9gCwk47L1jRmQYgK_Ct2WN9Q&response=${encodeURIComponent(token)}`
     });
     const data = await resp.json();
     return data.success === true;
