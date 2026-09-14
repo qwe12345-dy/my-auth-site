@@ -46,19 +46,16 @@ cloudflare-auth/
 
 ## 完整变量说明
 
-### 一、Cloudflare Pages 环境变量（必须在后台设置）
-| 变量名 | 说明 | 示例 |
-|--------|------|------|
-| DB | D1数据库绑定名（固定为DB） | 自动绑定 |
-| TURNSTILE_SECRET_KEY | Turnstile 密钥 | 0xAAAA... |
+### 一、环境变量（无需设置，全部已内置）
+本项目所有配置已写死在代码中，无需在 Cloudflare Pages 后台设置任何环境变量。
 
-> EmailJS 已内置配置（service_pj60jer / template_19nbgn9 / JyM2FaCOfdCyNkunC），无需额外设置环境变量。邮件标题为【龙黑化】注册验证码。
+**已内置配置：**
+- EmailJS：service_pj60jer / template_19nbgn9 / JyM2FaCOfdCyNkunC，邮件标题【龙黑化】注册验证码
+- Turnstile Site Key：0x4AAAAAAEz9gJvM8g1yxAIv
+- Turnstile Secret Key：0x4AAAAAAEz9gCwk47L1jRmQYgK_Ct2WN9Q
+- 绑定域名：theyuse.ccwu.cc
 
-### 二、前端需要替换的变量
-| 文件 | 变量 | 说明 |
-|------|------|------|
-| register.html | data-sitekey="YOUR_TURNSTILE_SITE_KEY" | 替换为你的Turnstile Site Key |
-| login.html | data-sitekey="YOUR_TURNSTILE_SITE_KEY" | 替换为你的Turnstile Site Key |
+> 只需在 Pages 后台绑定 D1 数据库（变量名 DB）即可。
 
 ### 三、数据库表结构
 
@@ -168,13 +165,8 @@ EmailJS 已内置在代码中，配置如下：
 6. Save and Deploy
 7. 等部署成功
 
-### 第8步：设置环境变量
-1. Pages 项目 → Settings → Environment variables
-2. Production 环境，点 Add variable，添加：
-   - `TURNSTILE_SECRET_KEY` = 你的Turnstile Secret Key
-3. 点 Save
-
-> EmailJS 已内置在代码中，无需设置环境变量。
+### 第8步：环境变量（无需设置）
+EmailJS 和 Turnstile 的所有配置已内置在代码中，无需在 Pages 后台设置任何环境变量。直接进入下一步。
 
 ### 第9步：绑定 D1 数据库
 1. Pages 项目 → Settings → Functions

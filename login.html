@@ -8,6 +8,7 @@
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
 .cf-turnstile{margin-bottom:14px;}
+.turnstile-disabled{display:none!important;}
 </style>
 </head>
 <body class="auth-page">
@@ -17,17 +18,23 @@
   <form onsubmit="doLogin(event)">
     <input type="text" id="account" placeholder="用户名 / 邮箱" required>
     <input type="password" id="password" placeholder="密码" required>
-    <div class="cf-turnstile" data-sitekey="YOUR_TURNSTILE_SITE_KEY"></div>
+    <div class="cf-turnstile" id="turnstileWidget" data-sitekey="0x4AAAAAAEz9gJvM8g1yxAIv"></div>
     <button type="submit">登录</button>
   </form>
   <p>还没有账号？<a href="register.html">去注册</a></p>
 </div>
 <script>
+const TURNSTILE_SITE_KEY='0x4AAAAAAEz9gJvM8g1yxAIv';
+const turnstileEnabled=TURNSTILE_SITE_KEY&&TURNSTILE_SITE_KEY!=='YOUR_TURNSTILE_SITE_KEY';
+if(!turnstileEnabled){
+  document.getElementById('turnstileWidget').classList.add('turnstile-disabled');
+}
 function showMsg(text,type){
   const el=document.getElementById('msg');
   el.innerHTML='<div class="msg '+type+'">'+text+'</div>';
 }
 function getTurnstileToken(){
+  if(!turnstileEnabled)return '';
   if(typeof turnstile!=='undefined'&&turnstile.getResponse){
     return turnstile.getResponse();
   }
@@ -35,8 +42,10 @@ function getTurnstileToken(){
 }
 async function doLogin(e){
   e.preventDefault();
-  const token=getTurnstileToken();
-  if(!token){showMsg('请先完成人机验证','error');return;}
+  if(turnstileEnabled){
+    const token=getTurnstileToken();
+    if(!token){showMsg('请先完成人机验证','error');return;}
+  }
   const r=await fetch('/api/login',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -44,7 +53,7 @@ async function doLogin(e){
     body:JSON.stringify({
       account:document.getElementById('account').value,
       password:document.getElementById('password').value,
-      turnstile_token:token
+      turnstile_token:getTurnstileToken()
     })
   });
   const d=await r.json();
