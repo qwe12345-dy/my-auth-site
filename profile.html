@@ -2,31 +2,65 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>个人中心 - Cloudflare Auth</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>我的主页 - 创造工坊</title>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-<header class="topbar">
-  <div class="logo">Cloudflare Auth</div>
-  <nav>
-    <a href="index.html">首页</a>
-    <a href="profile.html">个人中心</a>
-    <a href="#" onclick="doLogout();return false;">退出登录</a>
-  </nav>
-</header>
-<main class="container">
-  <div id="loading" class="loading">加载中...</div>
-  <div id="profileCard" class="profile-card" style="display:none">
-    <div class="avatar" id="userAvatar"></div>
-    <h2 id="userName"></h2>
-    <p>用户ID：<span id="userId"></span></p>
-    <p>邮箱：<span id="userEmail"></span></p>
-    <p>个人简介：<span id="userBio">暂无</span></p>
-    <p>注册时间：<span id="userTime"></span></p>
+<div id="loading" class="loading">加载中...</div>
+
+<div id="profileContent" style="display:none">
+  <div class="profile-cover" id="coverBox">
+    <img id="coverImg" style="display:none" alt="封面">
+    <button class="menu-btn" onclick="toggleMenu()">⋮</button>
+    <div class="profile-dropdown" id="dropdown">
+      <a href="edit-profile.html">个人资料</a>
+      <a href="#" class="logout" onclick="doLogout();return false;">退出登录</a>
+    </div>
   </div>
-</main>
+
+  <div class="profile-header">
+    <div class="profile-avatar" id="avatarBox">
+      <img id="avatarImg" style="display:none" alt="头像">
+      <span id="avatarText"></span>
+    </div>
+    <div class="profile-name" id="userName"></div>
+    <div class="profile-bio" id="userBio"></div>
+    <div id="bioStatusBox"></div>
+  </div>
+
+  <div class="profile-stats">
+    <div class="stat"><div class="num">0</div><div class="label">作品</div></div>
+    <div class="stat"><div class="num">0</div><div class="label">粉丝</div></div>
+    <div class="stat"><div class="num">0</div><div class="label">获赞</div></div>
+  </div>
+
+  <div class="profile-section">
+    <h3>我的作品</h3>
+    <div class="empty-state">
+      <div class="icon">🎨</div>
+      <p>还没有作品，去创作吧！</p>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html"><span class="icon">🏠</span>首页</a>
+  <a href="create.html"><span class="icon">✏️</span>创作</a>
+  <a href="profile.html" class="active"><span class="icon">👤</span>主页</a>
+</nav>
+
 <script>
+function toggleMenu(){
+  document.getElementById('dropdown').classList.toggle('show');
+}
+document.addEventListener('click',function(e){
+  const dd=document.getElementById('dropdown');
+  const btn=document.querySelector('.menu-btn');
+  if(dd&&!dd.contains(e.target)&&!btn.contains(e.target)){
+    dd.classList.remove('show');
+  }
+});
 async function loadProfile(){
   try{
     const r=await fetch('/api/user',{credentials:'include'});
@@ -35,14 +69,32 @@ async function loadProfile(){
       location.href='login.html';
       return;
     }
+    const u=d.user;
     document.getElementById('loading').style.display='none';
-    document.getElementById('profileCard').style.display='block';
-    document.getElementById('userAvatar').textContent=d.user.username.charAt(0).toUpperCase();
-    document.getElementById('userName').textContent=d.user.username;
-    document.getElementById('userId').textContent=d.user.id;
-    document.getElementById('userEmail').textContent=d.user.email;
-    document.getElementById('userBio').textContent=d.user.bio||'暂无';
-    document.getElementById('userTime').textContent=d.user.created_at;
+    document.getElementById('profileContent').style.display='block';
+    document.getElementById('userName').textContent=u.username;
+    if(u.avatar&&u.avatar.startsWith('data:')){
+      document.getElementById('avatarImg').src=u.avatar;
+      document.getElementById('avatarImg').style.display='block';
+      document.getElementById('avatarText').style.display='none';
+    }else{
+      document.getElementById('avatarText').textContent=u.username.charAt(0).toUpperCase();
+    }
+    if(u.cover&&u.cover.startsWith('data:')){
+      document.getElementById('coverImg').src=u.cover;
+      document.getElementById('coverImg').style.display='block';
+    }
+    if(u.bio&&u.bio.trim()){
+      document.getElementById('userBio').textContent=u.bio;
+    }else{
+      document.getElementById('userBio').textContent='这个人很懒，什么都没写';
+    }
+    const statusBox=document.getElementById('bioStatusBox');
+    if(u.bio_status==='rejected'){
+      statusBox.innerHTML='<span class="bio-status rejected">介绍未通过审核：'+(u.bio_error||'')+'</span>';
+    }else if(u.bio_status==='pending'){
+      statusBox.innerHTML='<span class="bio-status pending">介绍审核中</span>';
+    }
   }catch(e){
     document.getElementById('loading').textContent='加载失败，请刷新重试';
   }

@@ -4,7 +4,10 @@ CREATE TABLE IF NOT EXISTS users (
   email TEXT NOT NULL UNIQUE,
   password TEXT NOT NULL,
   avatar TEXT DEFAULT '',
+  cover TEXT DEFAULT '',
   bio TEXT DEFAULT '',
+  bio_status TEXT DEFAULT 'pending',
+  bio_error TEXT DEFAULT '',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS sessions (
@@ -15,4 +18,16 @@ CREATE TABLE IF NOT EXISTS sessions (
   expires_at DATETIME NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
+CREATE TABLE IF NOT EXISTS email_codes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT NOT NULL,
+  code TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  expires_at DATETIME NOT NULL,
+  used INTEGER DEFAULT 0
+);
 CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token);
+CREATE INDEX IF NOT EXISTS idx_email_codes_email ON email_codes(email);
+ALTER TABLE users ADD COLUMN cover TEXT DEFAULT '';
+ALTER TABLE users ADD COLUMN bio_status TEXT DEFAULT 'pending';
+ALTER TABLE users ADD COLUMN bio_error TEXT DEFAULT '';

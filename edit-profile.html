@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>个人资料 - 创造工坊</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="edit-page">
+<div class="edit-header">
+  <span class="back" onclick="history.back()">←</span>
+  <h2>编辑个人资料</h2>
+</div>
+
+<div id="msg" style="margin:12px 16px 0"></div>
+
+<div class="edit-cover-upload" onclick="document.getElementById('coverInput').click()">
+  <img id="coverPreview" style="display:none" alt="封面预览">
+  <div class="overlay" id="coverOverlay">点击上传封面</div>
+</div>
+<input type="file" id="coverInput" accept="image/*" style="display:none" onchange="handleCover(event)">
+
+<div class="edit-avatar-wrap">
+  <div class="edit-avatar-upload" onclick="document.getElementById('avatarInput').click()">
+    <img id="avatarPreview" style="display:none" alt="头像预览">
+    <div class="overlay" id="avatarOverlay">上传头像</div>
+  </div>
+</div>
+<input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatar(event)">
+
+<div class="edit-form">
+  <label>个人介绍</label>
+  <textarea id="bioInput" placeholder="介绍一下你自己吧（不超过500字）" maxlength="500" oninput="updateCharCount()"></textarea>
+  <div class="char-count"><span id="charCount">0</span>/500</div>
+  <button class="save-btn" id="saveBtn" onclick="saveProfile()">确定</button>
+</div>
+
+<input type="hidden" id="avatarBase64" value="">
+<input type="hidden" id="coverBase64" value="">
+
+<script>
+let currentAvatar='',currentCover='';
+function showMsg(text,type){
+  const el=document.getElementById('msg');
+  el.innerHTML='<div class="msg '+type+'">'+text+'</div>';
+}
+function updateCharCount(){
+  document.getElementById('charCount').textContent=document.getElementById('bioInput').value.length;
+}
+function compressImage(file,maxWidth,callback){
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=new Image();
+    img.onload=function(){
+      const canvas=document.createElement('canvas');
+      let w=img.width,h=img.height;
+      if(w>maxWidth){h=h*maxWidth/w;w=maxWidth;}
+      canvas.width=w;canvas.height=h;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(img,0,0,w,h);
+      callback(canvas.toDataURL('image/jpeg',0.8));
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function handleAvatar(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  compressImage(file,300,function(base64){
+    currentAvatar=base64;
+    document.getElementById('avatarPreview').src=base64;
+    document.getElementById('avatarPreview').style.display='block';
+    document.getElementById('avatarOverlay').style.display='none';
+  });
+}
+function handleCover(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  compressImage(file,800,function(base64){
+    currentCover=base64;
+    document.getElementById('coverPreview').src=base64;
+    document.getElementById('coverPreview').style.display='block';
+    document.getElementById('coverOverlay').style.display='none';
+  });
+}
+async function loadCurrent(){
+  try{
+    const r=await fetch('/api/user',{credentials:'include'});
+    const d=await r.json();
+    if(!d.success){location.href='login.html';return;}
+    const u=d.user;
+    if(u.bio){
+      document.getElementById('bioInput').value=u.bio;
+      updateCharCount();
+    }
+    if(u.avatar&&u.avatar.startsWith('data:')){
+      currentAvatar=u.avatar;
+      document.getElementById('avatarPreview').src=u.avatar;
+      document.getElementById('avatarPreview').style.display='block';
+      document.getElementById('avatarOverlay').style.display='none';
+    }
+    if(u.cover&&u.cover.startsWith('data:')){
+      currentCover=u.cover;
+      document.getElementById('coverPreview').src=u.cover;
+      document.getElementById('coverPreview').style.display='block';
+      document.getElementById('coverOverlay').style.display='none';
+    }
+  }catch(e){}
+}
+async function saveProfile(){
+  const btn=document.getElementById('saveBtn');
+  btn.disabled=true;
+  btn.textContent='保存中...';
+  try{
+    const r=await fetch('/api/update_profile',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      credentials:'include',
+      body:JSON.stringify({
+        bio:document.getElementById('bioInput').value,
+        avatar:currentAvatar,
+        cover:currentCover
+      })
+    });
+    const d=await r.json();
+    if(d.success){
+      if(d.bio_status==='rejected'){
+        showMsg('保存成功，但介绍未通过审核：'+d.bio_error,'error');
+      }else{
+        showMsg('保存成功！','success');
+        setTimeout(()=>location.href='profile.html',1000);
+      }
+    }else{
+      showMsg(d.message,'error');
+    }
+  }catch(e){
+    showMsg('保存失败，请重试','error');
+  }
+  btn.disabled=false;
+  btn.textContent='确定';
+}
+loadCurrent();
+</script>
+</body>
+</html>
