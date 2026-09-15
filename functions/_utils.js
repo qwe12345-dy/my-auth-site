@@ -40,7 +40,7 @@ async function getUserFromRequest(request, env) {
   const match = cookieHeader.match(/session_token=([^;]+)/);
   if (!match) return null;
   const token = match[1];
-  const result = await env.DB.prepare('SELECT u.id, u.username, u.email, u.avatar, u.bio, u.created_at FROM sessions s JOIN users u ON s.user_id = u.id WHERE s.token = ? AND s.expires_at > datetime("now")').bind(token).first();
+  const result = await env.DB.prepare('SELECT u.id, u.username, u.email, u.avatar, u.cover, u.bio, u.bio_status, u.bio_error, u.created_at FROM sessions s JOIN users u ON s.user_id = u.id WHERE s.token = ? AND s.expires_at > datetime("now")').bind(token).first();
   return result || null;
 }
 
@@ -334,4 +334,36 @@ async function verifyTurnstile(token) {
   }
 }
 
-export { hashPassword, verifyPassword, generateToken, generateCode, jsonResponse, getUserFromRequest, getChinaTime, checkEmailDomain, sendEmailJS, verifyTurnstile };
+function moderateContent(text) {
+  if (!text || !text.trim()) {
+    return { passed: true, reason: '' };
+  }
+  const lower = text.toLowerCase();
+  const bannedWords = [
+    '操你妈','草你妈','傻逼','傻比','煞笔','脑残','智障','废物','垃圾','贱人',
+    '婊子','妓女','鸡巴','屌','睾丸','阴道','阴茎','乳头','胸部','屁股','肛门',
+    '色情','黄色','裸体','裸聊','约炮','一夜情','嫖娼','卖淫','自慰','手淫',
+    '赌博','博彩','赌场','六合彩','时时彩','赌球','网赌','棋牌',
+    '毒品','吸毒','贩毒','冰毒','海洛因','大麻','摇头丸','K粉',
+    '枪支','军火','炸药','炸弹','雷管','管制刀具',
+    '诈骗','骗子','传销','非法集资','洗钱',
+    '自杀','自残','杀人','放火','爆炸',
+    '反动','颠覆国家','分裂国家','台独','港独','疆独','藏独',
+    '习近平','毛泽东','周恩来','邓小平','江泽民','胡锦涛','温家宝','李克强',
+    '法轮功','法轮大法',
+    '加微信','加QQ','私聊','联系方式','代刷','代练','外挂','辅助',
+    'fuck','shit','bitch','asshole','porn','sex','nude','naked',
+    '赌博','博彩','casino','betting','lottery'
+  ];
+  for (const word of bannedWords) {
+    if (lower.includes(word.toLowerCase())) {
+      return { passed: false, reason: '包含违规内容：' + word };
+    }
+  }
+  if (text.length > 500) {
+    return { passed: false, reason: '介绍不能超过500字' };
+  }
+  return { passed: true, reason: '' };
+}
+
+export { hashPassword, verifyPassword, generateToken, generateCode, jsonResponse, getUserFromRequest, getChinaTime, checkEmailDomain, sendEmailJS, verifyTurnstile, moderateContent };
