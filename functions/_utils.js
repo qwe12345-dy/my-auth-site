@@ -40,7 +40,7 @@ async function getUserFromRequest(request, env) {
   const match = cookieHeader.match(/session_token=([^;]+)/);
   if (!match) return null;
   const token = match[1];
-  const result = await env.DB.prepare('SELECT u.id, u.username, u.email, u.avatar, u.cover, u.bio, u.bio_status, u.bio_error, u.created_at FROM sessions s JOIN users u ON s.user_id = u.id WHERE s.token = ? AND s.expires_at > datetime("now")').bind(token).first();
+  const result = await env.DB.prepare('SELECT u.id, u.username, u.email, u.avatar, u.cover, u.bio, u.bio_status, u.bio_error, u.r_coins, u.created_at FROM sessions s JOIN users u ON s.user_id = u.id WHERE s.token = ? AND s.expires_at > datetime("now")').bind(token).first();
   return result || null;
 }
 
