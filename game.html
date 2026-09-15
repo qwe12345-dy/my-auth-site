@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>游戏详情 - 创造工坊</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { -webkit-text-size-adjust:100%; }
+body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif; color:#1a1a1a; min-height:100vh; font-size:16px; line-height:1.5; background:#f0f2f8; padding-bottom:80px; }
+input,button,textarea { font-family:inherit; font-size:16px; }
+a { text-decoration:none; color:inherit; }
+.app-bg { position:fixed; inset:0; z-index:-1; background:linear-gradient(135deg,#e8ecf5 0%,#f0f2f8 40%,#f5f0f8 100%); overflow:hidden; }
+.app-bg::before { content:''; position:absolute; top:-100px; right:-80px; width:300px; height:300px; background:radial-gradient(circle,rgba(120,140,255,.25) 0%,transparent 70%); border-radius:50%; }
+.edit-header { background:rgba(255,255,255,.85); backdrop-filter:blur(10px); padding:14px 16px; display:flex; align-items:center; position:sticky; top:0; z-index:100; }
+.edit-header .back { font-size:20px; color:#333; margin-right:12px; cursor:pointer; }
+.edit-header h2 { font-size:17px; font-weight:600; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.game-detail { padding:16px; }
+.game-info-card { background:rgba(255,255,255,.8); backdrop-filter:blur(10px); border-radius:16px; padding:16px; margin-bottom:12px; }
+.game-top { display:flex; gap:14px; align-items:center; margin-bottom:12px; }
+.game-icon { width:72px; height:72px; border-radius:16px; background:linear-gradient(135deg,#667eea,#764ba2); display:flex; align-items:center; justify-content:center; font-size:28px; color:#fff; flex-shrink:0; overflow:hidden; }
+.game-icon img { width:100%; height:100%; object-fit:cover; }
+.game-meta { flex:1; min-width:0; }
+.game-title { font-size:20px; font-weight:700; margin-bottom:4px; }
+.game-author { font-size:13px; color:#999; display:flex; align-items:center; gap:6px; }
+.game-author .avatar { width:20px; height:20px; border-radius:50%; background:#ddd; }
+.game-desc { font-size:14px; color:#666; line-height:1.6; margin-bottom:14px; }
+.game-actions { display:flex; gap:10px; }
+.action-btn { flex:1; padding:12px; border-radius:10px; border:none; font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; }
+.action-btn.like { background:#fff; color:#333; border:1px solid #e0e0e0; }
+.action-btn.like.active { background:#ffe8e8; color:#e74c3c; border-color:#ffcdd2; }
+.action-btn.fav { background:#fff; color:#333; border:1px solid #e0e0e0; }
+.action-btn.fav.active { background:#fff8e1; color:#f39c12; border-color:#ffe082; }
+.play-btn { width:100%; padding:14px; background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; border:none; border-radius:10px; font-size:16px; font-weight:600; cursor:pointer; margin-bottom:12px; }
+.play-btn:active { transform:scale(.98); }
+.comments-section { background:rgba(255,255,255,.8); backdrop-filter:blur(10px); border-radius:16px; padding:16px; }
+.comments-title { font-size:16px; font-weight:600; margin-bottom:14px; }
+.comment-item { padding:12px 0; border-bottom:1px solid #f0f0f0; position:relative; }
+.comment-item:last-child { border-bottom:none; }
+.comment-header { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.comment-avatar { width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,#667eea,#764ba2); display:flex; align-items:center; justify-content:center; font-size:12px; color:#fff; flex-shrink:0; overflow:hidden; }
+.comment-avatar img { width:100%; height:100%; object-fit:cover; }
+.comment-user { font-size:14px; font-weight:600; }
+.comment-time { font-size:11px; color:#999; margin-left:auto; }
+.comment-content { font-size:14px; color:#333; line-height:1.5; padding-left:36px; }
+.comment-actions { position:absolute; right:0; top:8px; background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.1); padding:4px 0; display:none; z-index:10; }
+.comment-actions.show { display:block; }
+.comment-actions button { display:block; width:100%; padding:8px 16px; border:none; background:none; font-size:13px; cursor:pointer; text-align:left; }
+.comment-actions button.del { color:#e74c3c; }
+.comment-actions button.report { color:#666; }
+.comment-input-row { display:flex; gap:8px; margin-top:14px; padding-top:14px; border-top:1px solid #f0f0f0; }
+.comment-input-row input { flex:1; padding:10px 14px; border:1px solid #e0e0e0; border-radius:20px; font-size:14px; background:#fafafa; }
+.comment-input-row input:focus { outline:none; border-color:#4a7dff; background:#fff; }
+.comment-input-row button { padding:10px 18px; background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; border:none; border-radius:20px; font-size:14px; font-weight:600; cursor:pointer; }
+.msg { padding:12px 14px; border-radius:8px; margin-bottom:14px; font-size:14px; }
+.msg.error { background:#fee; color:#c33; }
+.msg.success { background:#efe; color:#2a2; }
+.loading { text-align:center; padding:60px 20px; color:#999; }
+.reject-tag { display:inline-block; padding:3px 10px; background:#f8d7da; color:#721c24; border-radius:6px; font-size:12px; margin-bottom:8px; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="app-bg"></div>
+<div class="edit-header">
+  <span class="back" onclick="history.back()">←</span>
+  <h2 id="headerTitle">游戏详情</h2>
+</div>
+<div id="msg"></div>
+<div id="loading" class="loading">加载中...</div>
+<div id="gameContent" style="display:none">
+  <div class="game-detail">
+    <div class="game-info-card">
+      <div id="rejectTag" style="display:none"></div>
+      <div class="game-top">
+        <div class="game-icon" id="gameIcon"><span id="iconText">🎮</span><img id="iconImg" style="display:none"></div>
+        <div class="game-meta">
+          <div class="game-title" id="gameTitle"></div>
+          <div class="game-author">
+            <span class="avatar" id="authorAvatar"></span>
+            <span id="authorName"></span>
+          </div>
+        </div>
+      </div>
+      <div class="game-desc" id="gameDesc"></div>
+      <div class="game-actions">
+        <button class="action-btn like" id="likeBtn" onclick="toggleLike()">
+          <span id="likeIcon">🤍</span><span id="likeCount">0</span>
+        </button>
+        <button class="action-btn fav" id="favBtn" onclick="toggleFav()">
+          <span id="favIcon">⭐</span><span id="favCount">0</span>
+        </button>
+      </div>
+    </div>
+    <button class="play-btn" onclick="startPlay()">▶ 开始游玩吧</button>
+    <div class="comments-section">
+      <div class="comments-title">评论 <span id="commentCount" style="color:#999;font-weight:normal;font-size:13px"></span></div>
+      <div id="commentList"></div>
+      <div class="comment-input-row">
+        <input type="text" id="commentInput" placeholder="说点什么..." maxlength="500">
+        <button onclick="sendComment()">发送</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let gameId = null;
+let currentUserId = null;
+let commentActionTimer = null;
+
+const urlParams = new URLSearchParams(window.location.search);
+gameId = urlParams.get('id');
+
+async function loadGame() {
+  if (!gameId) { document.getElementById('loading').textContent = '游戏不存在'; return; }
+  try {
+    const r = await fetch('/api/game?id=' + gameId, { credentials: 'include' });
+    const d = await r.json();
+    if (!d.success) {
+      document.getElementById('loading').textContent = d.message;
+      return;
+    }
+    const g = d.game;
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('gameContent').style.display = 'block';
+    document.getElementById('headerTitle').textContent = g.title;
+    document.getElementById('gameTitle').textContent = g.title;
+    document.getElementById('gameDesc').textContent = g.description || '暂无介绍';
+    document.getElementById('authorName').textContent = g.author_name;
+    document.getElementById('likeCount').textContent = g.likes_count;
+    document.getElementById('favCount').textContent = g.favorites_count;
+    document.getElementById('commentCount').textContent = g.comments_count + '条';
+    if (g.icon) {
+      document.getElementById('iconImg').src = g.icon;
+      document.getElementById('iconImg').style.display = 'block';
+      document.getElementById('iconText').style.display = 'none';
+    }
+    if (g.liked) {
+      document.getElementById('likeBtn').classList.add('active');
+      document.getElementById('likeIcon').textContent = '❤️';
+    }
+    if (g.favorited) {
+      document.getElementById('favBtn').classList.add('active');
+      document.getElementById('favIcon').textContent = '🌟';
+    }
+    if (g.status === 'rejected') {
+      const rt = document.getElementById('rejectTag');
+      rt.style.display = 'inline-block';
+      rt.className = 'reject-tag';
+      rt.textContent = '⚠️ 违规：点击查看原因';
+      rt.onclick = function() { alert('违规原因：' + (g.reject_reason || '未知')); };
+    }
+    loadComments();
+  } catch (e) {
+    document.getElementById('loading').textContent = '加载失败';
+  }
+}
+
+async function loadComments() {
+  try {
+    const r = await fetch('/api/comments?game_id=' + gameId);
+    const d = await r.json();
+    if (d.success) {
+      const list = document.getElementById('commentList');
+      if (d.comments.length === 0) {
+        list.innerHTML = '<div style="text-align:center;padding:20px;color:#bbb;font-size:13px">暂无评论，快来抢沙发</div>';
+        return;
+      }
+      list.innerHTML = d.comments.map(c => {
+        const initial = c.username ? c.username.charAt(0).toUpperCase() : '?';
+        const avatarHtml = c.avatar ? '<img src="' + c.avatar + '">' : initial;
+        return '<div class="comment-item" data-id="' + c.id + '" data-uid="' + c.user_id + '">' +
+          '<div class="comment-header">' +
+            '<div class="comment-avatar">' + avatarHtml + '</div>' +
+            '<span class="comment-user">' + c.username + '</span>' +
+            '<span class="comment-time">' + (c.created_at || '').substring(5, 16) + '</span>' +
+          '</div>' +
+          '<div class="comment-content">' + escapeHtml(c.content) + '</div>' +
+          '<div class="comment-actions" id="actions_' + c.id + '">' +
+            (c.is_self ? '<button class="del" onclick="deleteComment(' + c.id + ')">删除</button>' : '<button class="report" onclick="reportComment(' + c.id + ')">举报</button>') +
+          '</div>' +
+        '</div>';
+      }).join('');
+      document.querySelectorAll('.comment-item').forEach(item => {
+        item.addEventListener('touchstart', handleLongPress);
+        item.addEventListener('mousedown', handleLongPress);
+      });
+    }
+  } catch (e) {}
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+let pressTimer = null;
+function handleLongPress(e) {
+  const item = e.currentTarget;
+  const id = item.dataset.id;
+  clearTimeout(pressTimer);
+  pressTimer = setTimeout(() => {
+    document.querySelectorAll('.comment-actions').forEach(a => a.classList.remove('show'));
+    document.getElementById('actions_' + id).classList.add('show');
+    clearTimeout(commentActionTimer);
+    commentActionTimer = setTimeout(() => {
+      document.getElementById('actions_' + id).classList.remove('show');
+    }, 2500);
+  }, 500);
+}
+document.addEventListener('touchend', () => clearTimeout(pressTimer));
+document.addEventListener('mouseup', () => clearTimeout(pressTimer));
+
+async function toggleLike() {
+  const r = await fetch('/api/like', {
+    method: 'POST', headers: {'Content-Type':'application/json'}, credentials:'include',
+    body: JSON.stringify({game_id: gameId})
+  });
+  const d = await r.json();
+  if (d.success) {
+    const btn = document.getElementById('likeBtn');
+    const icon = document.getElementById('likeIcon');
+    const count = document.getElementById('likeCount');
+    if (d.liked) { btn.classList.add('active'); icon.textContent='❤️'; count.textContent = parseInt(count.textContent)+1; }
+    else { btn.classList.remove('active'); icon.textContent='🤍'; count.textContent = parseInt(count.textContent)-1; }
+  }
+}
+
+async function toggleFav() {
+  const r = await fetch('/api/favorite', {
+    method: 'POST', headers: {'Content-Type':'application/json'}, credentials:'include',
+    body: JSON.stringify({game_id: gameId})
+  });
+  const d = await r.json();
+  if (d.success) {
+    const btn = document.getElementById('favBtn');
+    const icon = document.getElementById('favIcon');
+    const count = document.getElementById('favCount');
+    if (d.favorited) { btn.classList.add('active'); icon.textContent='🌟'; count.textContent = parseInt(count.textContent)+1; }
+    else { btn.classList.remove('active'); icon.textContent='⭐'; count.textContent = parseInt(count.textContent)-1; }
+  }
+}
+
+async function sendComment() {
+  const input = document.getElementById('commentInput');
+  const content = input.value.trim();
+  if (!content) return;
+  const r = await fetch('/api/add_comment', {
+    method: 'POST', headers: {'Content-Type':'application/json'}, credentials:'include',
+    body: JSON.stringify({game_id: gameId, content: content})
+  });
+  const d = await r.json();
+  if (d.success) {
+    input.value = '';
+    loadComments();
+  } else {
+    alert(d.message);
+  }
+}
+
+async function deleteComment(id) {
+  if (!confirm('确定删除这条评论？')) return;
+  const r = await fetch('/api/delete_comment', {
+    method: 'POST', headers: {'Content-Type':'application/json'}, credentials:'include',
+    body: JSON.stringify({comment_id: id})
+  });
+  const d = await r.json();
+  if (d.success) { loadComments(); }
+  else { alert(d.message); }
+}
+
+async function reportComment(id) {
+  const r = await fetch('/api/report_comment', {
+    method: 'POST', headers: {'Content-Type':'application/json'}, credentials:'include',
+    body: JSON.stringify({comment_id: id})
+  });
+  const d = await r.json();
+  alert(d.message);
+  document.getElementById('actions_' + id).classList.remove('show');
+}
+
+function startPlay() {
+  location.href = 'play.html?id=' + gameId;
+}
+
+loadGame();
+</script>
+</body>
+</html>

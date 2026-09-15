@@ -10,37 +10,35 @@ html { -webkit-text-size-adjust:100%; }
 body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif; color:#1a1a1a; min-height:100vh; font-size:16px; line-height:1.5; padding-bottom:90px; background:#f0f2f8; }
 input,button,textarea { font-family:inherit; font-size:16px; }
 a { text-decoration:none; color:inherit; }
-
 .app-bg { position:fixed; inset:0; z-index:-1; background:linear-gradient(135deg,#e8ecf5 0%,#f0f2f8 40%,#f5f0f8 100%); overflow:hidden; }
 .app-bg::before { content:''; position:absolute; top:-100px; right:-80px; width:300px; height:300px; background:radial-gradient(circle,rgba(120,140,255,.25) 0%,transparent 70%); border-radius:50%; }
 .app-bg::after { content:''; position:absolute; bottom:100px; left:-60px; width:280px; height:280px; background:radial-gradient(circle,rgba(255,200,120,.2) 0%,transparent 70%); border-radius:50%; }
-
 .hamburger { position:absolute; top:16px; left:16px; width:32px; height:32px; display:flex; flex-direction:column; justify-content:center; gap:5px; cursor:pointer; z-index:10; }
-.hamburger span { display:block; width:22px; height:2.5px; background:#333; border-radius:2px; }
-
-.profile-page { padding:60px 20px 20px; position:relative; }
-.profile-top { display:flex; align-items:center; gap:16px; margin-bottom:16px; }
-.profile-avatar-lg { width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg,#667eea,#764ba2); display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:700; color:#fff; flex-shrink:0; overflow:hidden; border:3px solid rgba(255,255,255,.8); box-shadow:0 4px 12px rgba(0,0,0,.1); }
+.hamburger span { display:block; width:22px; height:2.5px; background:#fff; border-radius:2px; box-shadow:0 1px 3px rgba(0,0,0,.3); }
+.profile-cover { width:100%; height:180px; background:linear-gradient(135deg,#667eea,#764ba2); position:relative; overflow:hidden; }
+.profile-cover img { width:100%; height:100%; object-fit:cover; }
+.profile-body { padding:0 20px 20px; position:relative; margin-top:-36px; }
+.profile-top { display:flex; align-items:flex-end; gap:16px; margin-bottom:14px; }
+.profile-avatar-lg { width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg,#667eea,#764ba2); display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:700; color:#fff; flex-shrink:0; overflow:hidden; border:3px solid #fff; box-shadow:0 4px 12px rgba(0,0,0,.1); }
 .profile-avatar-lg img { width:100%; height:100%; object-fit:cover; }
-.profile-stats { flex:1; display:flex; justify-content:space-around; text-align:center; }
-.profile-stats .stat .num { font-size:22px; font-weight:700; color:#1a1a1a; }
-.profile-stats .stat .label { font-size:13px; color:#999; margin-top:2px; }
-.profile-name-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
-.profile-name { font-size:20px; font-weight:700; color:#1a1a1a; }
-.profile-tag { display:inline-block; padding:3px 10px; border-radius:6px; font-size:12px; font-weight:600; background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; }
-.profile-bio-text { font-size:14px; color:#666; margin-bottom:16px; line-height:1.6; }
-
-.tabs { display:flex; gap:24px; margin-bottom:16px; border-bottom:1px solid rgba(0,0,0,.06); padding-bottom:0; }
+.profile-stats { flex:1; display:flex; justify-content:space-around; text-align:center; padding-bottom:8px; }
+.profile-stats .stat .num { font-size:20px; font-weight:700; color:#1a1a1a; }
+.profile-stats .stat .label { font-size:12px; color:#999; margin-top:2px; }
+.profile-name { font-size:20px; font-weight:700; color:#1a1a1a; margin-bottom:4px; }
+.profile-bio-text { font-size:14px; color:#666; margin-bottom:12px; line-height:1.6; }
+.tabs { display:flex; gap:24px; margin-bottom:14px; border-bottom:1px solid rgba(0,0,0,.06); }
 .tabs .tab { font-size:16px; color:#999; padding:8px 0; position:relative; cursor:pointer; font-weight:500; }
 .tabs .tab.active { color:#1a1a1a; font-weight:700; }
 .tabs .tab.active::after { content:''; position:absolute; bottom:-1px; left:0; right:0; height:3px; background:#333; border-radius:2px; }
-
 .work-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
-.work-card { background:#fff; border-radius:16px; overflow:hidden; aspect-ratio:1; box-shadow:0 2px 10px rgba(0,0,0,.05); position:relative; }
-.work-card img { width:100%; height:100%; object-fit:cover; }
-.work-card .work-placeholder { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:40px; background:#f8f9fb; }
+.work-card { background:#fff; border-radius:16px; overflow:hidden; aspect-ratio:1; box-shadow:0 2px 10px rgba(0,0,0,.05); position:relative; cursor:pointer; }
+.work-card .work-icon { width:100%; height:70%; display:flex; align-items:center; justify-content:center; font-size:40px; background:#f8f9fb; overflow:hidden; }
+.work-card .work-icon img { width:100%; height:100%; object-fit:cover; }
+.work-card .work-info { padding:8px 10px; }
+.work-card .work-title { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.work-card .work-meta { font-size:11px; color:#999; margin-top:2px; }
+.work-card .reject-badge { position:absolute; top:8px; left:8px; background:#e74c3c; color:#fff; font-size:10px; padding:2px 8px; border-radius:4px; cursor:pointer; z-index:5; }
 .work-empty { grid-column:1/-1; text-align:center; padding:40px 20px; color:#bbb; font-size:14px; }
-
 .bottom-nav { position:fixed; bottom:12px; left:12px; right:12px; background:rgba(255,255,255,.75); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-radius:24px; display:flex; justify-content:space-around; align-items:center; padding:10px 8px; padding-bottom:calc(10px + env(safe-area-inset-bottom)); box-shadow:0 4px 20px rgba(0,0,0,.08); z-index:200; }
 .bottom-nav a { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px 4px; color:#999; font-size:11px; text-decoration:none; border-radius:16px; transition:all .2s; }
 .bottom-nav a .icon { font-size:22px; margin-bottom:2px; }
@@ -48,83 +46,15 @@ a { text-decoration:none; color:inherit; }
 .bottom-nav a:active { opacity:.7; }
 .bottom-nav .fab { flex:0 0 auto; width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; display:flex; align-items:center; justify-content:center; font-size:28px; box-shadow:0 4px 12px rgba(74,125,255,.4); margin:0 4px; }
 .bottom-nav .fab:active { transform:scale(.95); }
-
-.auth-page { display:flex; align-items:center; justify-content:center; min-height:100vh; min-height:100dvh; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); padding:16px; }
-.auth-box { background:#fff; padding:28px 24px; border-radius:16px; box-shadow:0 8px 30px rgba(0,0,0,.15); width:100%; max-width:400px; }
-.auth-box h2 { text-align:center; margin-bottom:24px; color:#333; font-size:22px; }
-.auth-box input { width:100%; padding:14px 16px; margin-bottom:14px; border:1px solid #e0e0e0; border-radius:10px; font-size:16px; background:#fafafa; transition:border-color .2s,background .2s; }
-.auth-box input:focus { outline:none; border-color:#667eea; background:#fff; }
-.auth-box button { width:100%; padding:14px; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; border:none; border-radius:10px; font-size:17px; font-weight:600; cursor:pointer; transition:transform .1s; }
-.auth-box button:active { transform:scale(.98); }
-.auth-box button:disabled { background:#ccc; }
-.auth-box p { text-align:center; margin-top:18px; font-size:14px; color:#666; }
-.auth-box a { color:#667eea; text-decoration:none; font-weight:500; }
-.code-row { display:flex; gap:8px; margin-bottom:14px; }
-.code-row input { flex:1; margin-bottom:0; min-width:0; }
-.code-row button { width:auto; min-width:110px; white-space:nowrap; font-size:14px; padding:0 12px; background:#667eea; }
-.cf-turnstile { margin-bottom:14px; display:flex; justify-content:center; }
-
-.home-page { padding:60px 20px 20px; }
-.home-title { font-size:24px; font-weight:700; margin-bottom:4px; }
-.home-subtitle { font-size:14px; color:#999; margin-bottom:20px; }
-.home-card { background:rgba(255,255,255,.7); backdrop-filter:blur(10px); border-radius:16px; padding:16px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.04); }
-.home-card h3 { font-size:16px; margin-bottom:12px; }
-.card-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
-.mini-card { background:#fff; border-radius:12px; padding:14px; text-align:center; }
-.mini-card .icon { font-size:28px; margin-bottom:6px; }
-.mini-card .title { font-size:13px; color:#555; }
-
-.create-page { padding:60px 20px 20px; }
-.create-hero { text-align:center; padding:30px 0; }
-.create-hero .icon { font-size:56px; margin-bottom:12px; }
-.create-hero h2 { font-size:22px; margin-bottom:6px; }
-.create-hero p { font-size:14px; color:#999; }
-
-.edit-page { background:#f0f2f8; min-height:100vh; padding-bottom:30px; }
-.edit-header { background:rgba(255,255,255,.8); backdrop-filter:blur(10px); padding:14px 16px; display:flex; align-items:center; position:sticky; top:0; z-index:100; }
-.edit-header .back { font-size:20px; color:#333; margin-right:12px; cursor:pointer; }
-.edit-header h2 { font-size:17px; font-weight:600; }
-.edit-cover-upload { position:relative; width:100%; height:160px; background:#ddd; overflow:hidden; cursor:pointer; }
-.edit-cover-upload img { width:100%; height:100%; object-fit:cover; }
-.edit-cover-upload .overlay { position:absolute; inset:0; background:rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; }
-.edit-avatar-wrap { padding:0 16px; margin-top:-36px; position:relative; z-index:5; }
-.edit-avatar-upload { width:72px; height:72px; border-radius:50%; border:4px solid #fff; background:#ddd; overflow:hidden; cursor:pointer; position:relative; }
-.edit-avatar-upload img { width:100%; height:100%; object-fit:cover; }
-.edit-avatar-upload .overlay { position:absolute; inset:0; background:rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; }
-.edit-form { padding:16px; }
-.edit-form label { display:block; font-size:14px; color:#666; margin-bottom:6px; margin-top:16px; }
-.edit-form textarea { width:100%; padding:12px; border:1px solid #e0e0e0; border-radius:10px; font-size:15px; resize:vertical; min-height:100px; background:#fafafa; }
-.edit-form textarea:focus { outline:none; border-color:#667eea; background:#fff; }
-.edit-form .char-count { text-align:right; font-size:12px; color:#999; margin-top:4px; }
-.edit-form .save-btn { width:100%; padding:14px; background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; border:none; border-radius:10px; font-size:16px; font-weight:600; margin-top:20px; cursor:pointer; }
-.edit-form .save-btn:active { transform:scale(.98); }
-.edit-form .save-btn:disabled { background:#ccc; }
-
 .msg { padding:12px 14px; border-radius:8px; margin-bottom:14px; font-size:14px; }
 .msg.error { background:#fee; color:#c33; }
-.msg.success { background:#efe; color:#2a2; }
 .loading { text-align:center; padding:60px 20px; color:#999; font-size:15px; }
-.bio-status { display:inline-block; padding:2px 8px; border-radius:4px; font-size:12px; margin-top:6px; }
-.bio-status.pending { background:#fff3cd; color:#856404; }
+.bio-status { display:inline-block; padding:2px 8px; border-radius:4px; font-size:12px; margin-bottom:8px; }
 .bio-status.rejected { background:#f8d7da; color:#721c24; }
-.bio-status.approved { background:#d4edda; color:#155724; }
-
-@media (max-width:480px) {
-  .profile-page { padding:50px 16px 16px; }
-  .profile-avatar-lg { width:64px; height:64px; font-size:24px; }
-  .profile-stats .stat .num { font-size:20px; }
-  .profile-name { font-size:18px; }
-  .work-grid { gap:10px; }
-  .bottom-nav { bottom:8px; left:8px; right:8px; border-radius:20px; padding:8px 6px; }
-  .bottom-nav a .icon { font-size:20px; }
-  .bottom-nav .fab { width:48px; height:48px; font-size:24px; }
-  .home-page,.create-page { padding:50px 16px 16px; }
-}
-@media (max-width:360px) {
-  .code-row { flex-direction:column; }
-  .code-row button { width:100%; min-width:0; padding:12px; }
-}
-
+.work-action-menu { position:fixed; background:#fff; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,.15); padding:6px 0; z-index:300; display:none; min-width:120px; }
+.work-action-menu button { display:block; width:100%; padding:10px 16px; border:none; background:none; font-size:14px; cursor:pointer; text-align:left; }
+.work-action-menu button.edit { color:#333; }
+.work-action-menu button.del { color:#e74c3c; }
 </style>
 </head>
 <body>
@@ -143,39 +73,45 @@ a { text-decoration:none; color:inherit; }
 
 <div id="loading" class="loading">加载中...</div>
 
-<div id="profileContent" class="profile-page" style="display:none">
-  <div class="profile-top">
-    <div class="profile-avatar-lg" id="avatarBox">
-      <img id="avatarImg" style="display:none" alt="头像">
-      <span id="avatarText"></span>
+<div id="profileContent" style="display:none">
+  <div class="profile-cover" id="coverBox">
+    <img id="coverImg" style="display:none" alt="封面">
+  </div>
+  <div class="profile-body">
+    <div class="profile-top">
+      <div class="profile-avatar-lg" id="avatarBox">
+        <img id="avatarImg" style="display:none" alt="头像">
+        <span id="avatarText"></span>
+      </div>
+      <div class="profile-stats">
+        <div class="stat"><div class="num">0</div><div class="label">关注</div></div>
+        <div class="stat"><div class="num">0</div><div class="label">粉丝</div></div>
+        <div class="stat"><div class="num" id="workCount">0</div><div class="label">作品</div></div>
+      </div>
     </div>
-    <div class="profile-stats">
-      <div class="stat"><div class="num">0</div><div class="label">关注</div></div>
-      <div class="stat"><div class="num">0</div><div class="label">粉丝</div></div>
-      <div class="stat"><div class="num" id="workCount">0</div><div class="label">作品</div></div>
+    <div class="profile-name" id="userName"></div>
+    <div class="profile-bio-text" id="userBio"></div>
+    <div id="bioStatusBox"></div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('works',this)">作品</div>
+      <div class="tab" onclick="switchTab('dynamic',this)">动态</div>
+    </div>
+
+    <div id="worksTab">
+      <div class="work-grid" id="workGrid">
+        <div class="work-empty">还没有作品，去创作吧</div>
+      </div>
+    </div>
+    <div id="dynamicTab" style="display:none">
+      <div class="work-empty">暂无动态</div>
     </div>
   </div>
+</div>
 
-  <div class="profile-name-row">
-    <span class="profile-name" id="userName"></span>
-    <span class="profile-tag">创作者</span>
-  </div>
-  <div class="profile-bio-text" id="userBio"></div>
-  <div id="bioStatusBox"></div>
-
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('works',this)">作品</div>
-    <div class="tab" onclick="switchTab('dynamic',this)">动态</div>
-  </div>
-
-  <div id="worksTab">
-    <div class="work-grid">
-      <div class="work-empty">还没有作品，去创作吧</div>
-    </div>
-  </div>
-  <div id="dynamicTab" style="display:none">
-    <div class="work-empty">暂无动态</div>
-  </div>
+<div class="work-action-menu" id="workActionMenu">
+  <button class="edit" onclick="editGame()">✏️ 更新与编辑</button>
+  <button class="del" onclick="deleteGame()">🗑️ 删除作品</button>
 </div>
 
 <nav class="bottom-nav">
@@ -187,16 +123,15 @@ a { text-decoration:none; color:inherit; }
 </nav>
 
 <script>
+let currentUserId = null;
+let selectedGameId = null;
+let pressTimer = null;
+
 function toggleSidebar(){
   const sb=document.getElementById('sidebar');
   const mask=document.getElementById('sidebarMask');
-  if(sb.style.left==='0px'){
-    sb.style.left='-260px';
-    mask.style.display='none';
-  }else{
-    sb.style.left='0px';
-    mask.style.display='block';
-  }
+  if(sb.style.left==='0px'){sb.style.left='-260px';mask.style.display='none';}
+  else{sb.style.left='0px';mask.style.display='block';}
 }
 function switchTab(tab,el){
   document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));
@@ -204,12 +139,14 @@ function switchTab(tab,el){
   document.getElementById('worksTab').style.display=tab==='works'?'block':'none';
   document.getElementById('dynamicTab').style.display=tab==='dynamic'?'block':'none';
 }
+
 async function loadProfile(){
   try{
     const r=await fetch('/api/user',{credentials:'include'});
     const d=await r.json();
     if(!d.success){location.href='login.html';return;}
     const u=d.user;
+    currentUserId=u.id;
     document.getElementById('loading').style.display='none';
     document.getElementById('profileContent').style.display='block';
     document.getElementById('userName').textContent=u.username;
@@ -220,6 +157,10 @@ async function loadProfile(){
     }else{
       document.getElementById('avatarText').textContent=u.username.charAt(0).toUpperCase();
     }
+    if(u.cover&&u.cover.startsWith('data:')){
+      document.getElementById('coverImg').src=u.cover;
+      document.getElementById('coverImg').style.display='block';
+    }
     if(u.bio&&u.bio.trim()){
       document.getElementById('userBio').textContent=u.bio;
     }else{
@@ -229,14 +170,101 @@ async function loadProfile(){
     if(u.bio_status==='rejected'){
       sb.innerHTML='<div class="bio-status rejected">介绍未通过：'+(u.bio_error||'')+'</div>';
     }
+    loadGames();
   }catch(e){
     document.getElementById('loading').textContent='加载失败，请刷新';
   }
 }
+
+async function loadGames(){
+  try{
+    const r=await fetch('/api/games?user_id='+currentUserId,{credentials:'include'});
+    const d=await r.json();
+    const grid=document.getElementById('workGrid');
+    if(!d.success||d.games.length===0){
+      grid.innerHTML='<div class="work-empty">还没有作品，去创作吧</div>';
+      document.getElementById('workCount').textContent='0';
+      return;
+    }
+    document.getElementById('workCount').textContent=d.games.length;
+    grid.innerHTML=d.games.map(g=>{
+      const iconHtml=g.icon?'<img src="'+g.icon+'">':'<span>🎮</span>';
+      const rejectBadge=g.status==='rejected'?'<div class="reject-badge" onclick="event.stopPropagation();showReject(\''+(g.reject_reason||'').replace(/'/g,"\\'")+'\')">违规</div>':'';
+      return '<div class="work-card" data-id="'+g.id+'" onclick="openGame('+g.id+')">'+
+        rejectBadge+
+        '<div class="work-icon">'+iconHtml+'</div>'+
+        '<div class="work-info">'+
+          '<div class="work-title">'+escapeHtml(g.title)+'</div>'+
+          '<div class="work-meta">❤️'+g.likes_count+' 💬'+g.comments_count+'</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+    grid.querySelectorAll('.work-card').forEach(card=>{
+      card.addEventListener('touchstart',handleLongPress);
+      card.addEventListener('mousedown',handleLongPress);
+    });
+  }catch(e){}
+}
+
+function escapeHtml(text){
+  const div=document.createElement('div');
+  div.textContent=text;
+  return div.innerHTML;
+}
+
+function handleLongPress(e){
+  const card=e.currentTarget;
+  const id=card.dataset.id;
+  clearTimeout(pressTimer);
+  pressTimer=setTimeout(()=>{
+    selectedGameId=id;
+    const menu=document.getElementById('workActionMenu');
+    const rect=card.getBoundingClientRect();
+    menu.style.display='block';
+    menu.style.left=Math.min(rect.left,window.innerWidth-140)+'px';
+    menu.style.top=(rect.bottom+8)+'px';
+    setTimeout(()=>{menu.style.display='none';},2500);
+  },500);
+}
+document.addEventListener('touchend',()=>clearTimeout(pressTimer));
+document.addEventListener('mouseup',()=>clearTimeout(pressTimer));
+document.addEventListener('click',(e)=>{
+  if(!e.target.closest('.work-action-menu')){
+    document.getElementById('workActionMenu').style.display='none';
+  }
+});
+
+function openGame(id){
+  if(pressTimer){clearTimeout(pressTimer);}
+  location.href='game.html?id='+id;
+}
+
+function editGame(){
+  document.getElementById('workActionMenu').style.display='none';
+  location.href='create.html?id='+selectedGameId;
+}
+
+async function deleteGame(){
+  document.getElementById('workActionMenu').style.display='none';
+  if(!confirm('确定删除这个作品？删除后不可恢复'))return;
+  const r=await fetch('/api/delete_game',{
+    method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',
+    body:JSON.stringify({game_id:selectedGameId})
+  });
+  const d=await r.json();
+  if(d.success){loadGames();}
+  else{alert(d.message);}
+}
+
+function showReject(reason){
+  alert('违规原因：'+(reason||'内容不符合规范'));
+}
+
 async function doLogout(){
   await fetch('/api/logout',{method:'POST',credentials:'include'});
   location.href='login.html';
 }
+
 loadProfile();
 </script>
 </body>

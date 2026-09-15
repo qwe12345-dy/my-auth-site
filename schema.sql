@@ -26,8 +26,53 @@ CREATE TABLE IF NOT EXISTS email_codes (
   expires_at DATETIME NOT NULL,
   used INTEGER DEFAULT 0
 );
+CREATE TABLE IF NOT EXISTS games (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT DEFAULT '',
+  icon TEXT DEFAULT '',
+  html_code TEXT NOT NULL,
+  status TEXT DEFAULT 'approved',
+  reject_reason TEXT DEFAULT '',
+  likes_count INTEGER DEFAULT 0,
+  favorites_count INTEGER DEFAULT 0,
+  comments_count INTEGER DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+CREATE TABLE IF NOT EXISTS likes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  game_id INTEGER NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, game_id)
+);
+CREATE TABLE IF NOT EXISTS favorites (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  game_id INTEGER NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, game_id)
+);
+CREATE TABLE IF NOT EXISTS comments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  game_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  content TEXT NOT NULL,
+  status TEXT DEFAULT 'normal',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (game_id) REFERENCES games(id),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
 CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token);
 CREATE INDEX IF NOT EXISTS idx_email_codes_email ON email_codes(email);
+CREATE INDEX IF NOT EXISTS idx_games_user ON games(user_id);
+CREATE INDEX IF NOT EXISTS idx_games_status ON games(status);
+CREATE INDEX IF NOT EXISTS idx_likes_game ON likes(game_id);
+CREATE INDEX IF NOT EXISTS idx_favorites_game ON favorites(game_id);
+CREATE INDEX IF NOT EXISTS idx_comments_game ON comments(game_id);
 ALTER TABLE users ADD COLUMN cover TEXT DEFAULT '';
 ALTER TABLE users ADD COLUMN bio_status TEXT DEFAULT 'pending';
 ALTER TABLE users ADD COLUMN bio_error TEXT DEFAULT '';
