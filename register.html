@@ -126,10 +126,6 @@ a { text-decoration:none; color:inherit; }
 }
 
 </style>
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<style>
-.turnstile-disabled{display:none!important;}
-</style>
 </head>
 <body class="auth-page">
 <div class="auth-box">
@@ -143,36 +139,19 @@ a { text-decoration:none; color:inherit; }
       <button type="button" id="sendCodeBtn" onclick="sendCode()">发送验证码</button>
     </div>
     <input type="password" id="password" placeholder="密码(至少6位)" required>
-    <div class="cf-turnstile" id="turnstileWidget" data-sitekey="0x4AAAAAAEz9gJvM8g1yxAIv"></div>
     <button type="submit">注册</button>
   </form>
   <p>已有账号？<a href="login.html">去登录</a></p>
 </div>
 <script>
-const TURNSTILE_SITE_KEY='0x4AAAAAAEz9gJvM8g1yxAIv';
-const turnstileEnabled=TURNSTILE_SITE_KEY&&TURNSTILE_SITE_KEY!=='YOUR_TURNSTILE_SITE_KEY';
-if(!turnstileEnabled){
-  document.getElementById('turnstileWidget').classList.add('turnstile-disabled');
-}
 let countdown=0;
 function showMsg(text,type){
   const el=document.getElementById('msg');
   el.innerHTML='<div class="msg '+type+'">'+text+'</div>';
 }
-function getTurnstileToken(){
-  if(!turnstileEnabled)return '';
-  if(typeof turnstile!=='undefined'&&turnstile.getResponse){
-    return turnstile.getResponse();
-  }
-  return '';
-}
 async function sendCode(){
   const email=document.getElementById('email').value.trim();
   if(!email){showMsg('请先输入邮箱','error');return;}
-  if(turnstileEnabled){
-    const token=getTurnstileToken();
-    if(!token){showMsg('请先完成人机验证','error');return;}
-  }
   const btn=document.getElementById('sendCodeBtn');
   btn.disabled=true;
   btn.textContent='发送中...';
@@ -180,7 +159,7 @@ async function sendCode(){
     const r=await fetch('/api/send_code',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({email:email,turnstile_token:getTurnstileToken()})
+      body:JSON.stringify({email:email})
     });
     const d=await r.json();
     if(d.success){
@@ -209,10 +188,6 @@ async function sendCode(){
 }
 async function doRegister(e){
   e.preventDefault();
-  if(turnstileEnabled){
-    const token=getTurnstileToken();
-    if(!token){showMsg('请先完成人机验证','error');return;}
-  }
   const r=await fetch('/api/register',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -221,8 +196,7 @@ async function doRegister(e){
       username:document.getElementById('username').value,
       email:document.getElementById('email').value,
       password:document.getElementById('password').value,
-      code:document.getElementById('code').value,
-      turnstile_token:getTurnstileToken()
+      code:document.getElementById('code').value
     })
   });
   const d=await r.json();
