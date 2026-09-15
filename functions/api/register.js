@@ -1,4 +1,4 @@
-import { hashPassword, generateToken, jsonResponse, checkEmailDomain, verifyTurnstile, getChinaTime } from '../_utils.js';
+import { hashPassword, generateToken, jsonResponse, checkEmailDomain, getChinaTime } from '../_utils.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -12,7 +12,6 @@ export async function onRequestPost(context) {
   const email = (body.email || '').trim();
   const password = body.password || '';
   const code = (body.code || '').trim();
-  const turnstileToken = body.turnstile_token || '';
   if (!username || !email || !password || !code) {
     return jsonResponse({ success: false, message: '用户名、邮箱、密码、验证码不能为空' }, 400);
   }
@@ -28,12 +27,6 @@ export async function onRequestPost(context) {
   const domainCheck = checkEmailDomain(email);
   if (!domainCheck.valid) {
     return jsonResponse({ success: false, message: domainCheck.message }, 400);
-  }
-  if (env.TURNSTILE_SECRET_KEY) {
-    const turnstileOk = await verifyTurnstile(turnstileToken);
-    if (!turnstileOk) {
-      return jsonResponse({ success: false, message: '人机验证失败，请重试' }, 400);
-    }
   }
   try {
     const codeRecord = await env.DB.prepare('SELECT * FROM email_codes WHERE email = ? AND code = ? AND used = 0 AND expires_at > datetime("now") ORDER BY id DESC LIMIT 1').bind(email, code).first();

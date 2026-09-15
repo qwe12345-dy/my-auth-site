@@ -1,4 +1,4 @@
-import { generateCode, jsonResponse, checkEmailDomain, sendEmailJS, verifyTurnstile } from '../_utils.js';
+import { generateCode, jsonResponse, checkEmailDomain, sendEmailJS } from '../_utils.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -9,7 +9,6 @@ export async function onRequestPost(context) {
     return jsonResponse({ success: false, message: '请求格式错误' }, 400);
   }
   const email = (body.email || '').trim();
-  const turnstileToken = body.turnstile_token || '';
   if (!email) {
     return jsonResponse({ success: false, message: '邮箱不能为空' }, 400);
   }
@@ -19,12 +18,6 @@ export async function onRequestPost(context) {
   const domainCheck = checkEmailDomain(email);
   if (!domainCheck.valid) {
     return jsonResponse({ success: false, message: domainCheck.message }, 400);
-  }
-  if (env.TURNSTILE_SECRET_KEY) {
-    const turnstileOk = await verifyTurnstile(turnstileToken);
-    if (!turnstileOk) {
-      return jsonResponse({ success: false, message: '人机验证失败，请重试' }, 400);
-    }
   }
   try {
     const exist = await env.DB.prepare('SELECT id FROM users WHERE email = ?').bind(email).first();
