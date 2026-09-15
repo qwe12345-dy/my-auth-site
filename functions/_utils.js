@@ -320,20 +320,6 @@ async function sendEmailJS(toEmail, code) {
   }
 }
 
-async function verifyTurnstile(token) {
-  try {
-    const resp = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `secret=0x4AAAAAAEz9gCwk47L1jRmQYgK_Ct2WN9Q&response=${encodeURIComponent(token)}`
-    });
-    const data = await resp.json();
-    return data.success === true;
-  } catch (e) {
-    return false;
-  }
-}
-
 function moderateContent(text) {
   if (!text || !text.trim()) {
     return { passed: true, reason: '' };
@@ -366,4 +352,4 @@ function moderateContent(text) {
   return { passed: true, reason: '' };
 }
 
-export { hashPassword, verifyPassword, generateToken, generateCode, jsonResponse, getUserFromRequest, getChinaTime, checkEmailDomain, sendEmailJS, verifyTurnstile, moderateContent };
+export { hashPassword, verifyPassword, generateToken, generateCode, jsonResponse, getUserFromRequest, getChinaTime, checkEmailDomain, sendEmailJS, moderateContent };
