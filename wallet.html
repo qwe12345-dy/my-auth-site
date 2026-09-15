@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>我的钱包 - 创造工坊</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { -webkit-text-size-adjust:100%; }
+body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif; color:#1a1a1a; min-height:100vh; font-size:16px; line-height:1.5; background:#f0f2f8; }
+input,button { font-family:inherit; font-size:16px; }
+a { text-decoration:none; color:inherit; }
+.app-bg { position:fixed; inset:0; z-index:-1; background:linear-gradient(135deg,#e8ecf5 0%,#f0f2f8 40%,#f5f0f8 100%); overflow:hidden; }
+.app-bg::before { content:''; position:absolute; top:-100px; right:-80px; width:300px; height:300px; background:radial-gradient(circle,rgba(120,140,255,.25) 0%,transparent 70%); border-radius:50%; }
+.edit-header { background:rgba(255,255,255,.85); backdrop-filter:blur(10px); padding:14px 16px; display:flex; align-items:center; position:sticky; top:0; z-index:100; }
+.edit-header .back { font-size:20px; color:#333; margin-right:12px; cursor:pointer; }
+.edit-header h2 { font-size:17px; font-weight:600; }
+.wallet-content { padding:20px 16px; }
+.balance-card { background:linear-gradient(135deg,#1a237e,#283593); border-radius:20px; padding:30px 24px; color:#fff; box-shadow:0 8px 24px rgba(26,35,126,.3); margin-bottom:20px; position:relative; overflow:hidden; }
+.balance-card::after { content:''; position:absolute; top:-30px; right:-30px; width:120px; height:120px; background:radial-gradient(circle,rgba(255,215,0,.2) 0%,transparent 70%); border-radius:50%; }
+.balance-label { font-size:14px; opacity:.8; margin-bottom:8px; }
+.balance-row { display:flex; align-items:center; gap:12px; }
+.balance-icon { width:48px; height:48px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:700; color:#1a237e; box-shadow:0 2px 8px rgba(0,0,0,.2); }
+.balance-icon img { width:100%; height:100%; border-radius:50%; object-fit:cover; }
+.balance-num { font-size:36px; font-weight:700; }
+.balance-unit { font-size:16px; opacity:.8; margin-left:4px; }
+.get-btn { width:100%; padding:16px; background:linear-gradient(135deg,#ffd700,#ffb300); color:#1a237e; border:none; border-radius:12px; font-size:17px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(255,179,0,.4); margin-bottom:16px; }
+.get-btn:active { transform:scale(.98); }
+.get-btn:disabled { background:#ccc; color:#999; box-shadow:none; }
+.tip-card { background:rgba(255,255,255,.8); backdrop-filter:blur(10px); border-radius:12px; padding:14px 16px; font-size:13px; color:#666; line-height:1.6; }
+.tip-card b { color:#333; }
+.ad-overlay { display:none; position:fixed; inset:0; background:#000; z-index:999; }
+.ad-overlay.show { display:block; }
+.ad-header { position:absolute; top:0; left:0; right:0; background:rgba(0,0,0,.8); color:#fff; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; font-size:14px; z-index:10; }
+.ad-header .countdown { font-weight:700; font-size:16px; }
+.ad-container { position:absolute; top:44px; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center; overflow:auto; background:#fff; }
+.ad-container iframe { max-width:100%; }
+.ad-bottom { position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,.8); padding:12px 16px; z-index:10; }
+.ad-reward-btn { width:100%; padding:14px; background:linear-gradient(135deg,#4caf50,#388e3c); color:#fff; border:none; font-size:16px; font-weight:600; cursor:pointer; border-radius:8px; }
+.ad-reward-btn:active { transform:scale(.98); }
+.ad-reward-btn:disabled { background:#555; color:#888; }
+.ad-close-btn { width:100%; padding:10px; background:transparent; color:#999; border:none; font-size:14px; cursor:pointer; margin-top:8px; }
+.ad-hint { text-align:center; color:#fff; font-size:13px; margin-bottom:8px; }
+.custom-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
+.custom-modal.show { display:flex; }
+.custom-modal-box { background:#fff; border-radius:16px; padding:24px; width:80%; max-width:300px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,.2); }
+.custom-modal-box h3 { font-size:17px; margin-bottom:12px; color:#333; }
+.custom-modal-box p { font-size:14px; color:#666; margin-bottom:20px; line-height:1.5; }
+.custom-modal-btns { display:flex; gap:10px; justify-content:center; }
+.custom-modal-btns button { padding:10px 20px; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; }
+.custom-modal-btns .btn-ok { background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; }
+.reward-amount { font-size:40px; font-weight:700; color:#ff9800; margin:10px 0; }
+</style>
+</head>
+<body>
+<div class="app-bg"></div>
+<div class="edit-header">
+  <span class="back" onclick="history.back()">←</span>
+  <h2>我的钱包</h2>
+</div>
+<div class="wallet-content">
+  <div class="balance-card">
+    <div class="balance-label">R币余额</div>
+    <div class="balance-row">
+      <div class="balance-icon"><img src="assets/rcoin.png" onerror="this.style.display='none';this.parentElement.textContent='$'"></div>
+      <div>
+        <span class="balance-num" id="balance">0</span>
+        <span class="balance-unit">R币</span>
+      </div>
+    </div>
+  </div>
+  <button class="get-btn" onclick="showAd()">🎬 看广告获取R币</button>
+  <div class="tip-card">
+    <b>获取规则：</b><br>
+    · 每观看1次广告，可获得 <b>20~60</b> 随机R币<br>
+    · 广告时长约30秒，看完后即可领取奖励<br>
+    · 未满30秒关闭无法获得奖励<br>
+    · R币可用于平台内各种消费和兑换
+  </div>
+</div>
+
+<div class="ad-overlay" id="adOverlay">
+  <div class="ad-header">
+    <span>广告</span>
+    <span class="countdown" id="adCountdown">30s</span>
+  </div>
+  <div class="ad-container" id="adContainer"></div>
+  <div class="ad-bottom">
+    <div class="ad-hint" id="adHint">观看满30秒可领取奖励</div>
+    <button class="ad-reward-btn" id="adRewardBtn" disabled onclick="claimReward()">🎉 领取奖励</button>
+    <button class="ad-close-btn" id="adCloseBtn" style="display:none" onclick="closeAd()">关闭</button>
+  </div>
+</div>
+
+<div class="custom-modal" id="rewardModal">
+  <div class="custom-modal-box">
+    <h3>🎉 恭喜获得</h3>
+    <div class="reward-amount" id="rewardAmount">+0</div>
+    <p>R币已存入钱包</p>
+    <div class="custom-modal-btns">
+      <button class="btn-ok" onclick="closeRewardModal()">确定</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentBalance = 0;
+
+async function loadBalance() {
+  try {
+    const r = await fetch('/api/get_balance', { credentials: 'include' });
+    const d = await r.json();
+    if (d.success) {
+      currentBalance = d.balance;
+      document.getElementById('balance').textContent = d.balance;
+    }
+  } catch (e) {}
+}
+
+const adCodes = [
+  '<script async="async" data-cfasync="false" src="https://pl31356914.profitableratecpmnetwork.com/f5dd40fadb29d86f55fdcb0a98d37cef/invoke.js"><\/script><div id="container-f5dd40fadb29d86f55fdcb0a98d37cef"></div>',
+  '<script>atOptions={key:"137e04638c29bad86e022b2ca0643d61",format:"iframe",height:600,width:160,params:{}};<\/script><script src="https://www.highrevenueformat.com/137e04638c29bad86e022b2ca0643d61/invoke.js"><\/script>',
+  '<script src="https://pl31356911.profitableratecpmnetwork.com/48/c6/15/48c6156abe3b9260340ebb331f2e6782.js"><\/script>'
+];
+
+let adTimer = null;
+let adFinished = false;
+
+function showAd() {
+  adFinished = false;
+  document.getElementById('adOverlay').classList.add('show');
+  document.getElementById('adRewardBtn').disabled = true;
+  document.getElementById('adRewardBtn').textContent = '🎉 领取奖励';
+  document.getElementById('adCloseBtn').style.display = 'none';
+  document.getElementById('adHint').textContent = '观看满30秒可领取奖励';
+
+  const container = document.getElementById('adContainer');
+  const randomAd = adCodes[Math.floor(Math.random() * adCodes.length)];
+  container.innerHTML = randomAd;
+
+  const scripts = container.querySelectorAll('script');
+  scripts.forEach(oldScript => {
+    const newScript = document.createElement('script');
+    if (oldScript.src) newScript.src = oldScript.src;
+    if (oldScript.async) newScript.async = true;
+    if (oldScript.getAttribute('data-cfasync')) newScript.setAttribute('data-cfasync', oldScript.getAttribute('data-cfasync'));
+    newScript.textContent = oldScript.textContent;
+    oldScript.parentNode.replaceChild(newScript, oldScript);
+  });
+
+  let count = 30;
+  document.getElementById('adCountdown').textContent = count + 's';
+  if (adTimer) clearInterval(adTimer);
+  adTimer = setInterval(() => {
+    count--;
+    document.getElementById('adCountdown').textContent = count + 's';
+    if (count <= 0) {
+      clearInterval(adTimer);
+      adFinished = true;
+      document.getElementById('adCountdown').textContent = '完成';
+      document.getElementById('adHint').textContent = '广告观看完成，可领取奖励';
+      document.getElementById('adRewardBtn').disabled = false;
+      document.getElementById('adCloseBtn').style.display = 'block';
+    }
+  }, 1000);
+}
+
+async function claimReward() {
+  if (!adFinished) {
+    showAlert('请观看满30秒广告后再领取奖励');
+    return;
+  }
+  const btn = document.getElementById('adRewardBtn');
+  btn.disabled = true;
+  btn.textContent = '领取中...';
+  try {
+    const r = await fetch('/api/add_coins', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include'
+    });
+    const d = await r.json();
+    if (d.success) {
+      currentBalance = d.balance;
+      document.getElementById('balance').textContent = d.balance;
+      document.getElementById('rewardAmount').textContent = '+' + d.amount;
+      document.getElementById('rewardModal').classList.add('show');
+      document.getElementById('adOverlay').classList.remove('show');
+    } else {
+      showAlert(d.message);
+    }
+  } catch (e) {
+    showAlert('领取失败，请重试');
+  }
+  btn.disabled = false;
+  btn.textContent = '🎉 领取奖励';
+}
+
+function closeAd() {
+  if (adTimer) clearInterval(adTimer);
+  document.getElementById('adOverlay').classList.remove('show');
+  document.getElementById('adContainer').innerHTML = '';
+}
+
+function closeRewardModal() {
+  document.getElementById('rewardModal').classList.remove('show');
+}
+
+loadBalance();
+</script>
+</body>
+</html>
