@@ -57,10 +57,27 @@ a { text-decoration:none; color:inherit; }
 .msg.success { background:#efe; color:#2a2; }
 .loading { text-align:center; padding:60px 20px; color:#999; }
 .reject-tag { display:inline-block; padding:3px 10px; background:#f8d7da; color:#721c24; border-radius:6px; font-size:12px; margin-bottom:8px; cursor:pointer; }
+.custom-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:999; align-items:center; justify-content:center; }
+.custom-modal.show { display:flex; }
+.custom-modal-box { background:#fff; border-radius:16px; padding:24px; width:80%; max-width:300px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,.2); }
+.custom-modal-box h3 { font-size:17px; margin-bottom:12px; color:#333; }
+.custom-modal-box p { font-size:14px; color:#666; margin-bottom:20px; line-height:1.5; }
+.custom-modal-btns { display:flex; gap:10px; justify-content:center; }
+.custom-modal-btns button { padding:10px 20px; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; }
+.custom-modal-btns .btn-ok { background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; }
+.custom-modal-btns .btn-cancel { background:#f0f0f0; color:#666; }
+.custom-modal-btns .btn-danger { background:#e74c3c; color:#fff; }
 </style>
 </head>
 <body>
 <div class="app-bg"></div>
+<div class="custom-modal" id="customModal">
+  <div class="custom-modal-box">
+    <h3 id="modalTitle">提示</h3>
+    <p id="modalText"></p>
+    <div class="custom-modal-btns" id="modalBtns"></div>
+  </div>
+</div>
 <div class="edit-header">
   <span class="back" onclick="history.back()">←</span>
   <h2 id="headerTitle">游戏详情</h2>
@@ -111,8 +128,39 @@ let commentActionTimer = null;
 const urlParams = new URLSearchParams(window.location.search);
 gameId = urlParams.get('id');
 
+function showAlert(text, title) {
+  document.getElementById('modalTitle').textContent = title || '提示';
+  document.getElementById('modalText').textContent = text;
+  document.getElementById('modalBtns').innerHTML = '<button class="btn-ok" onclick="closeModal()">确定</button>';
+  document.getElementById('customModal').classList.add('show');
+}
+function showConfirm(text, onOk, title) {
+  document.getElementById('modalTitle').textContent = title || '确认';
+  document.getElementById('modalText').textContent = text;
+  document.getElementById('modalBtns').innerHTML =
+    '<button class="btn-cancel" onclick="closeModal()">取消</button>' +
+    '<button class="btn-danger" id="confirmOkBtn">确定</button>';
+  document.getElementById('customModal').classList.add('show');
+  document.getElementById('confirmOkBtn').onclick = function() {
+    closeModal();
+    if (onOk) onOk();
+  };
+}
+function closeModal() {
+  document.getElementById('customModal').classList.remove('show');
+}
+
+async function loadCurrentUser() {
+  try {
+    const r = await fetch('/api/user', { credentials: 'include' });
+    const d = await r.json();
+    if (d.success) currentUserId = d.user.id;
+  } catch (e) {}
+}
+
 async function loadGame() {
   if (!gameId) { document.getElementById('loading').textContent = '游戏不存在'; return; }
+  await loadCurrentUser();
   try {
     const r = await fetch('/api/game?id=' + gameId, { credentials: 'include' });
     const d = await r.json();
@@ -148,7 +196,7 @@ async function loadGame() {
       rt.style.display = 'inline-block';
       rt.className = 'reject-tag';
       rt.textContent = '⚠️ 违规：点击查看原因';
-      rt.onclick = function() { alert('违规原因：' + (g.reject_reason || '未知')); };
+      rt.onclick = function() { showAlert('违规原因：' + (g.reject_reason || '未知'), '违规详情'); };
     }
     loadComments();
   } catch (e) {
@@ -167,6 +215,7 @@ async function loadComments() {
         return;
       }
       list.innerHTML = d.comments.map(c => {
+        const isSelf = currentUserId && c.user_id === currentUserId;
         const initial = c.username ? c.username.charAt(0).toUpperCase() : '?';
         const avatarHtml = c.avatar ? '<img src="' + c.avatar + '">' : initial;
         return '<div class="comment-item" data-id="' + c.id + '" data-uid="' + c.user_id + '">' +
@@ -177,7 +226,7 @@ async function loadComments() {
           '</div>' +
           '<div class="comment-content">' + escapeHtml(c.content) + '</div>' +
           '<div class="comment-actions" id="actions_' + c.id + '">' +
-            (c.is_self ? '<button class="del" onclick="deleteComment(' + c.id + ')">删除</button>' : '<button class="report" onclick="reportComment(' + c.id + ')">举报</button>') +
+            (isSelf ? '<button class="del" onclick="deleteComment(' + c.id + ')">删除</button>' : '<button class="report" onclick="reportComment(' + c.id + ')">举报</button>') +
           '</div>' +
         '</div>';
       }).join('');
@@ -255,19 +304,20 @@ async function sendComment() {
     input.value = '';
     loadComments();
   } else {
-    alert(d.message);
+    showAlert(d.message);
   }
 }
 
 async function deleteComment(id) {
-  if (!confirm('确定删除这条评论？')) return;
-  const r = await fetch('/api/delete_comment', {
-    method: 'POST', headers: {'Content-Type':'application/json'}, credentials:'include',
-    body: JSON.stringify({comment_id: id})
+  showConfirm('确定删除这条评论？', function() {
+    fetch('/api/delete_comment', {
+      method: 'POST', headers: {'Content-Type':'application/json'}, credentials:'include',
+      body: JSON.stringify({comment_id: id})
+    }).then(r=>r.json()).then(d=>{
+      if (d.success) { loadComments(); }
+      else { showAlert(d.message); }
+    });
   });
-  const d = await r.json();
-  if (d.success) { loadComments(); }
-  else { alert(d.message); }
 }
 
 async function reportComment(id) {
@@ -276,7 +326,7 @@ async function reportComment(id) {
     body: JSON.stringify({comment_id: id})
   });
   const d = await r.json();
-  alert(d.message);
+  showAlert(d.message);
   document.getElementById('actions_' + id).classList.remove('show');
 }
 
