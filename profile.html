@@ -3,72 +3,91 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>我的主页 - 创造工坊</title>
+<title>我的 - 创造工坊</title>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
+<div class="app-bg"></div>
+
+<div class="hamburger" onclick="toggleSidebar()">
+  <span></span><span></span><span></span>
+</div>
+
+<div id="sidebarMask" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;" onclick="toggleSidebar()"></div>
+<div id="sidebar" style="position:fixed;top:0;left:-260px;width:260px;height:100%;background:#fff;z-index:301;transition:left .3s;padding:60px 20px 20px;box-shadow:2px 0 20px rgba(0,0,0,.1);">
+  <div style="font-size:18px;font-weight:700;margin-bottom:24px;">菜单</div>
+  <a href="edit-profile.html" style="display:block;padding:14px 0;border-bottom:1px solid #f0f0f0;font-size:15px;color:#333;">个人资料</a>
+  <a href="#" onclick="doLogout();return false;" style="display:block;padding:14px 0;border-bottom:1px solid #f0f0f0;font-size:15px;color:#e74c3c;">退出登录</a>
+</div>
+
 <div id="loading" class="loading">加载中...</div>
 
-<div id="profileContent" style="display:none">
-  <div class="profile-cover" id="coverBox">
-    <img id="coverImg" style="display:none" alt="封面">
-    <button class="menu-btn" onclick="toggleMenu()">⋮</button>
-    <div class="profile-dropdown" id="dropdown">
-      <a href="edit-profile.html">个人资料</a>
-      <a href="#" class="logout" onclick="doLogout();return false;">退出登录</a>
-    </div>
-  </div>
-
-  <div class="profile-header">
-    <div class="profile-avatar" id="avatarBox">
+<div id="profileContent" class="profile-page" style="display:none">
+  <div class="profile-top">
+    <div class="profile-avatar-lg" id="avatarBox">
       <img id="avatarImg" style="display:none" alt="头像">
       <span id="avatarText"></span>
     </div>
-    <div class="profile-name" id="userName"></div>
-    <div class="profile-bio" id="userBio"></div>
-    <div id="bioStatusBox"></div>
-  </div>
-
-  <div class="profile-stats">
-    <div class="stat"><div class="num">0</div><div class="label">作品</div></div>
-    <div class="stat"><div class="num">0</div><div class="label">粉丝</div></div>
-    <div class="stat"><div class="num">0</div><div class="label">获赞</div></div>
-  </div>
-
-  <div class="profile-section">
-    <h3>我的作品</h3>
-    <div class="empty-state">
-      <div class="icon">🎨</div>
-      <p>还没有作品，去创作吧！</p>
+    <div class="profile-stats">
+      <div class="stat"><div class="num">0</div><div class="label">关注</div></div>
+      <div class="stat"><div class="num">0</div><div class="label">粉丝</div></div>
+      <div class="stat"><div class="num" id="workCount">0</div><div class="label">作品</div></div>
     </div>
+  </div>
+
+  <div class="profile-name-row">
+    <span class="profile-name" id="userName"></span>
+    <span class="profile-tag">创作者</span>
+  </div>
+  <div class="profile-bio-text" id="userBio"></div>
+  <div id="bioStatusBox"></div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('works',this)">作品</div>
+    <div class="tab" onclick="switchTab('dynamic',this)">动态</div>
+  </div>
+
+  <div id="worksTab">
+    <div class="work-grid">
+      <div class="work-empty">还没有作品，去创作吧</div>
+    </div>
+  </div>
+  <div id="dynamicTab" style="display:none">
+    <div class="work-empty">暂无动态</div>
   </div>
 </div>
 
 <nav class="bottom-nav">
-  <a href="index.html"><span class="icon">🏠</span>首页</a>
-  <a href="create.html"><span class="icon">✏️</span>创作</a>
-  <a href="profile.html" class="active"><span class="icon">👤</span>主页</a>
+  <a href="index.html"><span class="icon">🏠</span>主页</a>
+  <a href="#"><span class="icon">📊</span>动态</a>
+  <a href="#"><span class="icon">👥</span>社区</a>
+  <a href="profile.html" class="active"><span class="icon">👤</span>我的</a>
+  <a href="create.html" class="fab">+</a>
 </nav>
 
 <script>
-function toggleMenu(){
-  document.getElementById('dropdown').classList.toggle('show');
-}
-document.addEventListener('click',function(e){
-  const dd=document.getElementById('dropdown');
-  const btn=document.querySelector('.menu-btn');
-  if(dd&&!dd.contains(e.target)&&!btn.contains(e.target)){
-    dd.classList.remove('show');
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  const mask=document.getElementById('sidebarMask');
+  if(sb.style.left==='0px'){
+    sb.style.left='-260px';
+    mask.style.display='none';
+  }else{
+    sb.style.left='0px';
+    mask.style.display='block';
   }
-});
+}
+function switchTab(tab,el){
+  document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('worksTab').style.display=tab==='works'?'block':'none';
+  document.getElementById('dynamicTab').style.display=tab==='dynamic'?'block':'none';
+}
 async function loadProfile(){
   try{
     const r=await fetch('/api/user',{credentials:'include'});
     const d=await r.json();
-    if(!d.success){
-      location.href='login.html';
-      return;
-    }
+    if(!d.success){location.href='login.html';return;}
     const u=d.user;
     document.getElementById('loading').style.display='none';
     document.getElementById('profileContent').style.display='block';
@@ -80,23 +99,17 @@ async function loadProfile(){
     }else{
       document.getElementById('avatarText').textContent=u.username.charAt(0).toUpperCase();
     }
-    if(u.cover&&u.cover.startsWith('data:')){
-      document.getElementById('coverImg').src=u.cover;
-      document.getElementById('coverImg').style.display='block';
-    }
     if(u.bio&&u.bio.trim()){
       document.getElementById('userBio').textContent=u.bio;
     }else{
       document.getElementById('userBio').textContent='这个人很懒，什么都没写';
     }
-    const statusBox=document.getElementById('bioStatusBox');
+    const sb=document.getElementById('bioStatusBox');
     if(u.bio_status==='rejected'){
-      statusBox.innerHTML='<span class="bio-status rejected">介绍未通过审核：'+(u.bio_error||'')+'</span>';
-    }else if(u.bio_status==='pending'){
-      statusBox.innerHTML='<span class="bio-status pending">介绍审核中</span>';
+      sb.innerHTML='<div class="bio-status rejected">介绍未通过：'+(u.bio_error||'')+'</div>';
     }
   }catch(e){
-    document.getElementById('loading').textContent='加载失败，请刷新重试';
+    document.getElementById('loading').textContent='加载失败，请刷新';
   }
 }
 async function doLogout(){

@@ -3,62 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>首页 - 创造工坊</title>
+<title>主页 - 创造工坊</title>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-<header class="topbar">
-  <div class="logo">创造工坊</div>
-  <nav>
-    <a href="login.html" id="loginLink" style="display:none">登录</a>
-    <a href="register.html" id="regLink" style="display:none">注册</a>
-  </nav>
-</header>
+<div class="app-bg"></div>
 
-<div class="home-hero">
-  <h1>创造工坊</h1>
-  <p>分享你的创作，发现精彩作品</p>
-</div>
+<div class="home-page">
+  <div class="home-title">创造工坊</div>
+  <div class="home-subtitle">发现精彩，分享创作</div>
 
-<div class="home-section">
-  <h3>热门分类</h3>
-  <div class="card-grid">
-    <div class="card"><div class="icon">🎮</div><div class="title">游戏</div></div>
-    <div class="card"><div class="icon">🎨</div><div class="title">绘画</div></div>
-    <div class="card"><div class="icon">📝</div><div class="title">文章</div></div>
-    <div class="card"><div class="icon">🎵</div><div class="title">音乐</div></div>
+  <div class="home-card">
+    <h3>热门分类</h3>
+    <div class="card-grid">
+      <div class="mini-card"><div class="icon">🎮</div><div class="title">游戏</div></div>
+      <div class="mini-card"><div class="icon">🎨</div><div class="title">绘画</div></div>
+      <div class="mini-card"><div class="icon">📝</div><div class="title">文章</div></div>
+      <div class="mini-card"><div class="icon">🎵</div><div class="title">音乐</div></div>
+    </div>
   </div>
-</div>
 
-<div class="home-section">
-  <h3>最新作品</h3>
-  <div class="empty-state">
-    <div class="icon">📭</div>
-    <p>暂无作品，快去创作吧！</p>
+  <div class="home-card">
+    <h3>推荐作品</h3>
+    <div class="work-grid">
+      <div class="work-empty">暂无推荐作品</div>
+    </div>
   </div>
 </div>
 
 <nav class="bottom-nav">
-  <a href="index.html" class="active"><span class="icon">🏠</span>首页</a>
-  <a href="create.html"><span class="icon">✏️</span>创作</a>
-  <a href="profile.html"><span class="icon">👤</span>主页</a>
+  <a href="index.html" class="active"><span class="icon">🏠</span>主页</a>
+  <a href="#"><span class="icon">📊</span>动态</a>
+  <a href="#"><span class="icon">👥</span>社区</a>
+  <a href="profile.html"><span class="icon">👤</span>我的</a>
+  <a href="create.html" class="fab">+</a>
 </nav>
-
-<script>
-async function checkLogin(){
-  try{
-    const r=await fetch('/api/user',{credentials:'include'});
-    const d=await r.json();
-    if(!d.success){
-      document.getElementById('loginLink').style.display='inline';
-      document.getElementById('regLink').style.display='inline';
-    }
-  }catch(e){
-    document.getElementById('loginLink').style.display='inline';
-    document.getElementById('regLink').style.display='inline';
-  }
-}
-checkLogin();
-</script>
 </body>
 </html>
