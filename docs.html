@@ -10,25 +10,43 @@ html{-webkit-text-size-adjust:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;color:#2c3e50;min-height:100vh;font-size:16px;line-height:1.8;background:#fafbfc;overflow-x:hidden}
 input,button{font-family:inherit;font-size:16px}
 a{text-decoration:none;color:inherit}
+
 .doc-header{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #eaecef;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.doc-header .menu-btn{font-size:20px;color:#586069;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px}
+.doc-header .menu-btn:active{background:#f6f8fa}
 .doc-header .back{font-size:20px;color:#586069;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px}
 .doc-header .back:active{background:#f6f8fa}
-.doc-header h1{font-size:17px;font-weight:600;color:#24292e}
+.doc-header h1{font-size:17px;font-weight:600;color:#24292e;flex:1}
+
+.sidebar-mask{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none}
+.sidebar-mask.show{display:block}
+.sidebar{position:fixed;top:0;left:-280px;width:280px;height:100%;background:#fff;z-index:201;transition:left .3s ease;box-shadow:2px 0 20px rgba(0,0,0,.1);overflow-y:auto;padding-bottom:40px}
+.sidebar.show{left:0}
+.sidebar-title{padding:20px 16px 12px;font-size:13px;color:#6a737d;text-transform:uppercase;letter-spacing:.5px;font-weight:600;border-bottom:1px solid #eaecef}
+.sidebar-item{padding:14px 16px;border-bottom:1px solid #f6f8fa;cursor:pointer;transition:background .15s}
+.sidebar-item:active{background:#f6f8fa}
+.sidebar-item.active{background:#f1f8ff;border-left:3px solid #0366d6;padding-left:13px}
+.sidebar-item .s-title{font-size:15px;font-weight:600;color:#24292e;margin-bottom:2px}
+.sidebar-item.active .s-title{color:#0366d6}
+.sidebar-item .s-desc{font-size:12px;color:#6a737d;line-height:1.4}
+.sidebar-item .s-num{display:inline-block;font-size:11px;background:#e1e4e8;color:#586069;padding:1px 7px;border-radius:10px;margin-right:6px}
+.sidebar-item.active .s-num{background:#0366d6;color:#fff}
+
 .doc-container{max-width:720px;margin:0 auto;padding:20px 16px 100px}
-.doc-list{margin-bottom:24px}
-.doc-list-title{font-size:13px;color:#6a737d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;font-weight:600}
-.doc-item{background:#fff;border:1px solid #eaecef;border-radius:8px;padding:16px;margin-bottom:10px;cursor:pointer;transition:box-shadow .2s}
-.doc-item:active{box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.doc-item .item-title{font-size:16px;font-weight:600;color:#24292e;margin-bottom:4px}
-.doc-item .item-desc{font-size:13px;color:#6a737d}
-.doc-item .item-tag{display:inline-block;font-size:11px;background:#f1f8ff;color:#0366d6;padding:2px 8px;border-radius:10px;margin-top:8px}
-.article{background:#fff;border:1px solid #eaecef;border-radius:8px;padding:28px 24px}
+.article{background:#fff;border:1px solid #eaecef;border-radius:8px;padding:28px 24px;display:none}
+.article.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
 .article h2{font-size:22px;font-weight:700;color:#24292e;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #eaecef}
 .article h3{font-size:17px;font-weight:600;color:#24292e;margin:24px 0 12px}
+.article h4{font-size:15px;font-weight:600;color:#24292e;margin:18px 0 8px}
 .article p{font-size:15px;color:#444d56;margin-bottom:14px;line-height:1.8}
+.article ul,.article ol{margin:0 0 14px 24px;font-size:15px;color:#444d56;line-height:1.8}
+.article li{margin-bottom:6px}
 .article .highlight{background:#fff5b1;padding:2px 6px;border-radius:3px}
 .article .warn-box{background:#fff8e6;border-left:4px solid #f9c513;padding:12px 16px;border-radius:0 6px 6px 0;margin:16px 0;font-size:14px;color:#735c0f}
 .article .info-box{background:#f1f8ff;border-left:4px solid #0366d6;padding:12px 16px;border-radius:0 6px 6px 0;margin:16px 0;font-size:14px;color:#032f62}
+.article .tip-box{background:#f0fff4;border-left:4px solid #28a745;padding:12px 16px;border-radius:0 6px 6px 0;margin:16px 0;font-size:14px;color:#166534}
+
 .code-block{position:relative;background:#0d1117;border-radius:8px;margin:16px 0;overflow:hidden}
 .code-block .code-header{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:#161b22;border-bottom:1px solid #30363d}
 .code-block .code-lang{font-size:12px;color:#8b949e;font-weight:600}
@@ -36,82 +54,82 @@ a{text-decoration:none;color:inherit}
 .code-block .copy-btn:active{background:#21262d}
 .code-block pre{margin:0;padding:16px;overflow-x:auto;font-size:13px;line-height:1.6;font-family:"SF Mono",Consolas,"Liberation Mono",Menlo,monospace;color:#c9d1d9}
 .code-block code{font-family:inherit}
-.tok-kw{color:#ff7b72}
-.tok-fn{color:#d2a8ff}
-.tok-str{color:#a5d6ff}
-.tok-cm{color:#8b949e;font-style:italic}
-.tok-num{color:#79c0ff}
+.tok-kw{color:#ff7b72}.tok-fn{color:#d2a8ff}.tok-str{color:#a5d6ff}.tok-cm{color:#8b949e;font-style:italic}.tok-num{color:#79c0ff}.tok-tag{color:#7ee787}.tok-attr{color:#79c0ff}
+
 .api-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
 .api-table th,.api-table td{border:1px solid #eaecef;padding:8px 12px;text-align:left}
 .api-table th{background:#f6f8fa;font-weight:600;color:#24292e}
 .api-table td{color:#444d56}
 .api-table code{background:#f6f8fa;padding:2px 6px;border-radius:4px;font-size:13px;color:#032f62}
+
+.page-nav{display:flex;justify-content:space-between;margin-top:24px;gap:10px}
+.page-nav button{flex:1;padding:10px;border:1px solid #eaecef;background:#fff;border-radius:8px;font-size:14px;cursor:pointer;color:#586069}
+.page-nav button:active{background:#f6f8fa}
+.page-nav button:disabled{opacity:.4;cursor:default}
+.page-indicator{text-align:center;font-size:13px;color:#959da5;margin-top:12px}
+
 .bottom-nav{position:fixed;bottom:12px;left:12px;right:12px;background:rgba(255,255,255,.9);backdrop-filter:blur(20px);border-radius:24px;display:flex;justify-content:space-around;align-items:center;padding:10px 8px;padding-bottom:calc(10px + env(safe-area-inset-bottom));box-shadow:0 4px 20px rgba(0,0,0,.08);z-index:200}
 .bottom-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px;color:#999;font-size:11px;text-decoration:none;border-radius:16px}
 .bottom-nav a .icon{font-size:22px;margin-bottom:2px}
 .bottom-nav a.active{color:#1a1a1a;background:rgba(0,0,0,.06)}
 .bottom-nav .fab{flex:0 0 auto;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#4a7dff,#3b5fe0);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 4px 12px rgba(74,125,255,.4);margin:0 4px}
+
+.swipe-hint{position:fixed;top:50%;left:8px;transform:translateY(-50%);z-index:90;font-size:11px;color:#bbb;writing-mode:vertical-rl;opacity:.6;pointer-events:none}
 </style>
 </head>
 <body>
 <div class="doc-header">
+  <span class="menu-btn" onclick="toggleSidebar()">☰</span>
   <span class="back" onclick="history.back()">←</span>
   <h1>创造工坊使用接口</h1>
 </div>
 
-<div class="doc-container">
-  <div class="doc-list">
-    <div class="doc-list-title">接口文档</div>
-    <div class="doc-item" onclick="scrollToArticle()">
-      <div class="item-title">创造工坊充值/打赏R币接口</div>
-      <div class="item-desc">在你的HTML游戏中嵌入打赏功能，玩家可直接打赏R币给创作者</div>
-      <span class="item-tag">R币接口</span>
-    </div>
+<div class="swipe-hint">← 左滑打开目录</div>
+
+<div class="sidebar-mask" id="sidebarMask" onclick="toggleSidebar()"></div>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-title">文档目录</div>
+  <div class="sidebar-item active" onclick="switchPage(0)">
+    <span class="s-num">1</span><span class="s-title">充值/打赏R币接口</span>
+    <div class="s-desc">在游戏中嵌入打赏功能，玩家直接打赏R币</div>
   </div>
+  <div class="sidebar-item" onclick="switchPage(1)">
+    <span class="s-num">2</span><span class="s-title">开始你的编程</span>
+    <div class="s-desc">第一次接触HTML？从最基础的标签开始讲起</div>
+  </div>
+  <div class="sidebar-item" onclick="switchPage(2)">
+    <span class="s-num">3</span><span class="s-title">变量与创建</span>
+    <div class="s-desc">学会用变量存数据，让游戏动起来</div>
+  </div>
+  <div class="sidebar-item" onclick="switchPage(3)">
+    <span class="s-num">4</span><span class="s-title">成为创作者</span>
+    <div class="s-desc">创作者有什么好处？怎么开始创作？</div>
+  </div>
+  <div class="sidebar-item" onclick="switchPage(4)">
+    <span class="s-num">5</span><span class="s-title">扩展HTML与JS</span>
+    <div class="s-desc">进阶技巧，做出更复杂的交互和效果</div>
+  </div>
+</div>
 
-  <article class="article" id="article1">
-    <h2>创造工坊充值/打赏R币接口</h2>
+<div class="doc-container">
 
-    <p>亲爱的创作者，众所周知，想要获得R币使用的时候却总是只想着看广告，而广告每一天只有十次。呃，如果你是创作者的话，你可以应用上HTML代码中的充值接口，应用于打赏等等使用。</p>
-
-    <div class="warn-box">
-      <b>注意：</b>最多只能充值或打赏 <b>15000 R币</b>，并且打赏之后会直接到账给开发者。使用的时候请在 Received user name/id 填上自己的名字或者ID，否则将无法打赏给你。
-    </div>
-
-    <h3>接口说明</h3>
-    <table class="api-table">
-      <tr><th>项目</th><th>说明</th></tr>
-      <tr><td>请求方式</td><td><code>POST</code></td></tr>
-      <tr><td>接口地址</td><td><code>/api/rc</code></td></tr>
-      <tr><td>内容类型</td><td><code>application/json</code></td></tr>
-    </table>
-
-    <h3>请求参数</h3>
-    <table class="api-table">
-      <tr><th>参数</th><th>类型</th><th>说明</th></tr>
-      <tr><td><code>amt</code></td><td>整数</td><td>打赏金额，范围 1~15000</td></tr>
-      <tr><td><code>tu</code></td><td>字符串</td><td>接收者用户名或用户ID</td></tr>
-    </table>
-
-    <h3>返回字段</h3>
-    <table class="api-table">
-      <tr><th>字段</th><th>说明</th></tr>
-      <tr><td><code>s</code></td><td>是否成功（true/false）</td></tr>
-      <tr><td><code>m</code></td><td>状态码（OK=成功，NB=余额不足，TU=用户不存在，SF=不能打赏自己）</td></tr>
-      <tr><td><code>nb</code></td><td>打赏后你的剩余R币</td></tr>
-      <tr><td><code>tn</code></td><td>接收者用户名</td></tr>
-    </table>
-
-    <h3>以下是代码</h3>
-    <p>将下面的代码复制到你的游戏HTML中，修改 <code>RECEIVER_NAME</code> 为你的用户名或ID即可：</p>
-
-    <div class="code-block">
-      <div class="code-header">
-        <span class="code-lang">HTML + JavaScript</span>
-        <button class="copy-btn" onclick="copyCode(this)">复制</button>
-      </div>
-      <pre><code><span class="tok-cm">&lt;!-- 打赏按钮样式 --></span>
-<span class="tok-kw">&lt;style&gt;</span>
+<!-- 第1页 -->
+<article class="article active" id="page0">
+  <h2>创造工坊充值/打赏R币接口</h2>
+  <p>亲爱的创作者，众所周知，想要获得R币使用的时候却总是只想着看广告，而广告每一天只有十次。呃，如果你是创作者的话，你可以应用上HTML代码中的充值接口，应用于打赏等等使用。</p>
+  <div class="warn-box"><b>注意：</b>最多只能充值或打赏 <b>15000 R币</b>，并且打赏之后会直接到账给开发者。使用的时候请在 Received user name/id 填上自己的名字或者ID，否则将无法打赏给你。</div>
+  <h3>接口说明</h3>
+  <table class="api-table"><tr><th>项目</th><th>说明</th></tr><tr><td>请求方式</td><td><code>POST</code></td></tr><tr><td>接口地址</td><td><code>/api/rc</code></td></tr><tr><td>内容类型</td><td><code>application/json</code></td></tr></table>
+  <h3>请求参数</h3>
+  <table class="api-table"><tr><th>参数</th><th>类型</th><th>说明</th></tr><tr><td><code>amt</code></td><td>整数</td><td>打赏金额，范围 1~15000</td></tr><tr><td><code>tu</code></td><td>字符串</td><td>接收者用户名或用户ID</td></tr></table>
+  <h3>返回字段</h3>
+  <table class="api-table"><tr><th>字段</th><th>说明</th></tr><tr><td><code>s</code></td><td>是否成功</td></tr><tr><td><code>m</code></td><td>状态码</td></tr><tr><td><code>nb</code></td><td>打赏后剩余R币</td></tr><tr><td><code>tn</code></td><td>接收者用户名</td></tr></table>
+  <h3>以下是代码</h3>
+  <p>将下面的代码复制到你的游戏HTML中，修改 <code>RECEIVER_NAME</code> 为你的用户名或ID：</p>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">HTML + JavaScript</span><button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+    <pre><code><span class="tok-cm">&lt;!-- 打赏按钮样式 --></span>
+<span class="tok-tag">&lt;style&gt;</span>
   .tip-btn{position:fixed;bottom:20px;right:20px;z-index:9999;
     padding:10px 18px;background:linear-gradient(135deg,#ffd700,#ffb300);
     color:#1a237e;border:none;border-radius:24px;font-size:14px;
@@ -125,70 +143,414 @@ a{text-decoration:none;color:inherit}
   .tip-card button{width:100%;padding:12px;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px}
   .tip-ok{background:linear-gradient(135deg,#4a7dff,#3b5fe0);color:#fff}
   .tip-cancel{background:#f0f0f0;color:#666}
-<span class="tok-kw">&lt;/style&gt;</span>
+<span class="tok-tag">&lt;/style&gt;</span>
 
-<span class="tok-cm">&lt;!-- 打赏按钮 --></span>
-<span class="tok-kw">&lt;button</span> <span class="tok-fn">class</span>=<span class="tok-str">"tip-btn"</span> <span class="tok-fn">onclick</span>=<span class="tok-str">"showTip()"</span><span class="tok-kw">&gt;</span>💰 打赏作者<span class="tok-kw">&lt;/button&gt;</span>
+<span class="tok-tag">&lt;button</span> <span class="tok-attr">class</span>=<span class="tok-str">"tip-btn"</span> <span class="tok-attr">onclick</span>=<span class="tok-str">"showTip()"</span><span class="tok-tag">&gt;</span>💰 打赏作者<span class="tok-tag">&lt;/button&gt;</span>
 
-<span class="tok-cm">&lt;!-- 打赏弹窗 --></span>
-<span class="tok-kw">&lt;div</span> <span class="tok-fn">class</span>=<span class="tok-str">"tip-box"</span> <span class="tok-fn">id</span>=<span class="tok-str">"tipBox"</span><span class="tok-kw">&gt;</span>
-  <span class="tok-kw">&lt;div</span> <span class="tok-fn">class</span>=<span class="tok-str">"tip-card"</span><span class="tok-kw">&gt;</span>
-    <span class="tok-kw">&lt;h3&gt;</span>打赏作者<span class="tok-kw">&lt;/h3&gt;</span>
-    <span class="tok-kw">&lt;input</span> <span class="tok-fn">type</span>=<span class="tok-str">"number"</span> <span class="tok-fn">id</span>=<span class="tok-str">"tipAmt"</span> <span class="tok-fn">placeholder</span>=<span class="tok-str">"打赏R币数量（1-15000）"</span> <span class="tok-fn">min</span>=<span class="tok-str">"1"</span> <span class="tok-fn">max</span>=<span class="tok-str">"15000"</span><span class="tok-kw">&gt;</span>
-    <span class="tok-kw">&lt;button</span> <span class="tok-fn">class</span>=<span class="tok-str">"tip-ok"</span> <span class="tok-fn">onclick</span>=<span class="tok-str">"doTip()"</span><span class="tok-kw">&gt;</span>确认打赏<span class="tok-kw">&lt;/button&gt;</span>
-    <span class="tok-kw">&lt;button</span> <span class="tok-fn">class</span>=<span class="tok-str">"tip-cancel"</span> <span class="tok-fn">onclick</span>=<span class="tok-str">"closeTip()"</span><span class="tok-kw">&gt;</span>取消<span class="tok-kw">&lt;/button&gt;</span>
-  <span class="tok-kw">&lt;/div&gt;</span>
-<span class="tok-kw">&lt;/div&gt;</span>
+<span class="tok-tag">&lt;div</span> <span class="tok-attr">class</span>=<span class="tok-str">"tip-box"</span> <span class="tok-attr">id</span>=<span class="tok-str">"tipBox"</span><span class="tok-tag">&gt;</span>
+  <span class="tok-tag">&lt;div</span> <span class="tok-attr">class</span>=<span class="tok-str">"tip-card"</span><span class="tok-tag">&gt;</span>
+    <span class="tok-tag">&lt;h3&gt;</span>打赏作者<span class="tok-tag">&lt;/h3&gt;</span>
+    <span class="tok-tag">&lt;input</span> <span class="tok-attr">type</span>=<span class="tok-str">"number"</span> <span class="tok-attr">id</span>=<span class="tok-str">"tipAmt"</span> <span class="tok-attr">placeholder</span>=<span class="tok-str">"打赏R币数量（1-15000）"</span> <span class="tok-attr">min</span>=<span class="tok-str">"1"</span> <span class="tok-attr">max</span>=<span class="tok-str">"15000"</span><span class="tok-tag">&gt;</span>
+    <span class="tok-tag">&lt;button</span> <span class="tok-attr">class</span>=<span class="tok-str">"tip-ok"</span> <span class="tok-attr">onclick</span>=<span class="tok-str">"doTip()"</span><span class="tok-tag">&gt;</span>确认打赏<span class="tok-tag">&lt;/button&gt;</span>
+    <span class="tok-tag">&lt;button</span> <span class="tok-attr">class</span>=<span class="tok-str">"tip-cancel"</span> <span class="tok-attr">onclick</span>=<span class="tok-str">"closeTip()"</span><span class="tok-tag">&gt;</span>取消<span class="tok-tag">&lt;/button&gt;</span>
+  <span class="tok-tag">&lt;/div&gt;</span>
+<span class="tok-tag">&lt;/div&gt;</span>
 
-<span class="tok-kw">&lt;script&gt;</span>
-<span class="tok-cm">// 替换为你的用户名或ID</span>
+<span class="tok-tag">&lt;script&gt;</span>
 <span class="tok-kw">const</span> RECEIVER_NAME = <span class="tok-str">"你的用户名"</span>;
-
-<span class="tok-kw">function</span> <span class="tok-fn">showTip</span>(){
-  document.getElementById(<span class="tok-str">"tipBox"</span>).classList.add(<span class="tok-str">"show"</span>);
-}
-<span class="tok-kw">function</span> <span class="tok-fn">closeTip</span>(){
-  document.getElementById(<span class="tok-str">"tipBox"</span>).classList.remove(<span class="tok-str">"show"</span>);
-}
+<span class="tok-kw">function</span> <span class="tok-fn">showTip</span>(){document.getElementById(<span class="tok-str">"tipBox"</span>).classList.add(<span class="tok-str">"show"</span>);}
+<span class="tok-kw">function</span> <span class="tok-fn">closeTip</span>(){document.getElementById(<span class="tok-str">"tipBox"</span>).classList.remove(<span class="tok-str">"show"</span>);}
 <span class="tok-kw">async function</span> <span class="tok-fn">doTip</span>(){
   <span class="tok-kw">const</span> amt = parseInt(document.getElementById(<span class="tok-str">"tipAmt"</span>).value);
-  <span class="tok-kw">if</span>(!amt || amt &lt; <span class="tok-num">1</span> || amt &gt; <span class="tok-num">15000</span>){
-    alert(<span class="tok-str">"请输入1-15000之间的数量"</span>); <span class="tok-kw">return</span>;
-  }
+  <span class="tok-kw">if</span>(!amt||amt&lt;<span class="tok-num">1</span>||amt&gt;<span class="tok-num">15000</span>){alert(<span class="tok-str">"请输入1-15000之间的数量"</span>);<span class="tok-kw">return</span>;}
   <span class="tok-kw">try</span>{
-    <span class="tok-kw">const</span> r = <span class="tok-kw">await</span> fetch(<span class="tok-str">"/api/rc"</span>,{
-      method:<span class="tok-str">"POST"</span>,
-      headers:{<span class="tok-str">"Content-Type"</span>:<span class="tok-str">"application/json"</span>},
-      credentials:<span class="tok-str">"include"</span>,
-      body:JSON.stringify({amt:amt, tu:RECEIVER_NAME})
-    });
-    <span class="tok-kw">const</span> d = <span class="tok-kw">await</span> r.json();
-    <span class="tok-kw">if</span>(d.s){
-      alert(<span class="tok-str">"打赏成功！感谢支持"</span>);
-      closeTip();
-    }<span class="tok-kw">else</span>{
-      <span class="tok-kw">const</span> msg = {NB:<span class="tok-str">"R币余额不足"</span>,TU:<span class="tok-str">"接收者不存在"</span>,SF:<span class="tok-str">"不能打赏给自己"</span>,AR:<span class="tok-str">"金额超出范围"</span>,NL:<span class="tok-str">"请先登录"</span>};
-      alert(msg[d.m] || <span class="tok-str">"打赏失败"</span>);
-    }
-  }<span class="tok-kw">catch</span>(e){ alert(<span class="tok-str">"网络错误，请重试"</span>); }
+    <span class="tok-kw">const</span> r=<span class="tok-kw">await</span> fetch(<span class="tok-str">"/api/rc"</span>,{method:<span class="tok-str">"POST"</span>,headers:{<span class="tok-str">"Content-Type"</span>:<span class="tok-str">"application/json"</span>},credentials:<span class="tok-str">"include"</span>,body:JSON.stringify({amt:amt,tu:RECEIVER_NAME})});
+    <span class="tok-kw">const</span> d=<span class="tok-kw">await</span> r.json();
+    <span class="tok-kw">if</span>(d.s){alert(<span class="tok-str">"打赏成功！感谢支持"</span>);closeTip();}
+    <span class="tok-kw">else</span>{<span class="tok-kw">const</span> msg={NB:<span class="tok-str">"R币余额不足"</span>,TU:<span class="tok-str">"接收者不存在"</span>,SF:<span class="tok-str">"不能打赏给自己"</span>,AR:<span class="tok-str">"金额超出范围"</span>,NL:<span class="tok-str">"请先登录"</span>};alert(msg[d.m]||<span class="tok-str">"打赏失败"</span>);}
+  }<span class="tok-kw">catch</span>(e){alert(<span class="tok-str">"网络错误，请重试"</span>);}
 }
-<span class="tok-kw">&lt;/script&gt;</span></code></pre>
-    </div>
+<span class="tok-tag">&lt;/script&gt;</span></code></pre>
+  </div>
+  <div class="info-box"><b>提示：</b>玩家必须登录并拥有足够R币才能打赏。打赏成功后R币立即转入你的账户。</div>
+  <h3>错误码说明</h3>
+  <table class="api-table"><tr><th>错误码</th><th>含义</th></tr><tr><td><code>NL</code></td><td>未登录</td></tr><tr><td><code>AR</code></td><td>金额超出范围</td></tr><tr><td><code>NB</code></td><td>余额不足</td></tr><tr><td><code>TU</code></td><td>接收者不存在</td></tr><tr><td><code>SF</code></td><td>不能打赏给自己</td></tr></table>
+</article>
 
-    <div class="info-box">
-      <b>提示：</b>玩家必须登录创造工坊账号并拥有足够R币才能打赏。打赏成功后R币会立即转入你的账户，可在钱包页面查看余额。
-    </div>
+<!-- 第2页 -->
+<article class="article" id="page1">
+  <h2>开始你的编程</h2>
+  <p>欢迎创作者，你第一次熟悉这个游戏的编程，很多代码都不懂，没关系，谁都是从这一步过来的。接下来我们会教你一些HTML代码，看完这一页你就能写出自己的第一个网页了。</p>
+  
+  <h3>HTML到底是什么？</h3>
+  <p>HTML就像是盖房子的图纸。你写一行代码，浏览器就照着图纸搭出一个元素。比如你写一个按钮的代码，屏幕上就真的出现一个按钮。它不是什么高深的东西，就是一堆标签拼起来的。</p>
+  
+  <h3>最基本的结构</h3>
+  <p>每一个HTML文件都长这样，你可以直接复制用：</p>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">HTML</span><button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+    <pre><code><span class="tok-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="tok-tag">&lt;html&gt;</span>
+<span class="tok-tag">&lt;head&gt;</span>
+  <span class="tok-tag">&lt;meta</span> <span class="tok-attr">charset</span>=<span class="tok-str">"UTF-8"</span><span class="tok-tag">&gt;</span>
+  <span class="tok-tag">&lt;title&gt;</span>我的第一个游戏<span class="tok-tag">&lt;/title&gt;</span>
+<span class="tok-tag">&lt;/head&gt;</span>
+<span class="tok-tag">&lt;body&gt;</span>
+  <span class="tok-cm">&lt;!-- 这里写你想显示的内容 --></span>
+  <span class="tok-tag">&lt;h1&gt;</span>你好世界<span class="tok-tag">&lt;/h1&gt;</span>
+<span class="tok-tag">&lt;/body&gt;</span>
+<span class="tok-tag">&lt;/html&gt;</span></code></pre>
+  </div>
+  <p>你看，就这么简单。<code>&lt;head&gt;</code>里放一些设置，<code>&lt;body&gt;</code>里放玩家能看到的东西。</p>
 
-    <h3>错误码说明</h3>
-    <table class="api-table">
-      <tr><th>错误码</th><th>含义</th></tr>
-      <tr><td><code>NL</code></td><td>未登录</td></tr>
-      <tr><td><code>AR</code></td><td>金额超出1~15000范围</td></tr>
-      <tr><td><code>NB</code></td><td>R币余额不足</td></tr>
-      <tr><td><code>TU</code></td><td>接收者用户不存在</td></tr>
-      <tr><td><code>SF</code></td><td>不能打赏给自己</td></tr>
-    </table>
-  </article>
+  <h3>常用标签一览</h3>
+  <p>做游戏常用的就这几个，记住它们够用了：</p>
+  <ul>
+    <li><code>&lt;h1&gt;</code> 到 <code>&lt;h6&gt;</code>：标题，h1最大，h6最小</li>
+    <li><code>&lt;p&gt;</code>：一段文字</li>
+    <li><code>&lt;button&gt;</code>：按钮，玩家可以点</li>
+    <li><code>&lt;div&gt;</code>：一个盒子，用来装其他东西，最常用</li>
+    <li><code>&lt;img&gt;</code>：放图片</li>
+    <li><code>&lt;input&gt;</code>：输入框，让玩家打字</li>
+    <li><code>&lt;canvas&gt;</code>：画布，做2D游戏全靠它</li>
+  </ul>
+
+  <h3>给元素加样式</h3>
+  <p>光有标签不够，还得好看。样式写在 <code>&lt;style&gt;</code> 标签里，放在 <code>&lt;head&gt;</code> 中：</p>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">CSS</span><button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+    <pre><code><span class="tok-tag">&lt;style&gt;</span>
+  <span class="tok-fn">body</span>{
+    <span class="tok-attr">background</span>: <span class="tok-str">#87CEEB</span>; <span class="tok-cm">/* 天蓝色背景 */</span>
+    <span class="tok-attr">margin</span>: <span class="tok-num">0</span>; <span class="tok-cm">/* 去掉默认边距 */</span>
+  }
+  <span class="tok-fn">.my-btn</span>{
+    <span class="tok-attr">padding</span>: <span class="tok-num">12px 24px</span>;
+    <span class="tok-attr">background</span>: <span class="tok-str">#ff6b6b</span>;
+    <span class="tok-attr">color</span>: <span class="tok-str">white</span>;
+    <span class="tok-attr">border</span>: <span class="tok-num">none</span>;
+    <span class="tok-attr">border-radius</span>: <span class="tok-num">8px</span>;
+    <span class="tok-attr">font-size</span>: <span class="tok-num">16px</span>;
+    <span class="tok-attr">cursor</span>: <span class="tok-str">pointer</span>; <span class="tok-cm">/* 鼠标移上去变小手 */</span>
+  }
+<span class="tok-tag">&lt;/style&gt;</span></code></pre>
+  </div>
+  <p>注意，样式里用 <code>.类名</code> 来选择元素，然后在HTML里用 <code>class="my-btn"</code> 关联起来。这是最基本的用法。</p>
+
+  <h3>让按钮能点击</h3>
+  <p>按钮点了没反应可不行。这时候需要一点点JavaScript，写在 <code>&lt;script&gt;</code> 里：</p>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">HTML + JS</span><button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+    <pre><code><span class="tok-tag">&lt;button</span> <span class="tok-attr">onclick</span>=<span class="tok-str">"sayHi()"</span><span class="tok-tag">&gt;</span>点我<span class="tok-tag">&lt;/button&gt;</span>
+
+<span class="tok-tag">&lt;script&gt;</span>
+<span class="tok-kw">function</span> <span class="tok-fn">sayHi</span>(){
+  <span class="tok-fn">alert</span>(<span class="tok-str">"你点了我！"</span>);
+}
+<span class="tok-tag">&lt;/script&gt;</span></code></pre>
+  </div>
+  <p>就这么简单。<code>onclick</code> 是说点击的时候执行哪个函数，函数里写你想做的事。</p>
+
+  <div class="tip-box"><b>小建议：</b>刚开始不用记所有标签，用到哪个查哪个。先把上面的代码复制到创作页跑起来，看到效果了再慢慢改，比死记硬背快得多。</div>
+</article>
+
+<!-- 第3页 -->
+<article class="article" id="page2">
+  <h2>变量与创建</h2>
+  <p>你已经学会了基础的编程，能写出静态的页面了。但游戏是会动的，得分会变、血量会掉、时间会走，这些都靠变量来存。接下来教你如何使用变量和创建。</p>
+
+  <h3>变量是什么？</h3>
+  <p>你可以把变量想象成一个贴了标签的盒子。盒子里可以放数字、文字、真假。你随时可以打开看看里面是什么，也可以换掉里面的东西。做游戏离不开它。</p>
+
+  <h3>怎么创建变量</h3>
+  <p>用 <code>let</code> 或者 <code>const</code> 来创建：</p>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+    <pre><code><span class="tok-cm">// let 创建的变量可以改</span>
+<span class="tok-kw">let</span> score = <span class="tok-num">0</span>;        <span class="tok-cm">// 分数，一开始是0</span>
+<span class="tok-kw">let</span> playerName = <span class="tok-str">"小明"</span>; <span class="tok-cm">// 玩家名字</span>
+<span class="tok-kw">let</span> isGameOver = <span class="tok-kw">false</span>; <span class="tok-cm">// 游戏结束了吗？</span>
+
+<span class="tok-cm">// const 创建的变量不能改，用来存固定值</span>
+<span class="tok-kw">const</span> MAX_TIME = <span class="tok-num">120</span>; <span class="tok-cm">// 游戏最多120秒</span>
+
+<span class="tok-cm">// 改值直接赋值就行</span>
+score = score + <span class="tok-num">1</span>; <span class="tok-cm">// 分数加1</span>
+score++;              <span class="tok-cm">// 这也是加1，更简洁</span></code></pre>
+  </div>
+
+  <h3>变量能存哪些东西</h3>
+  <table class="api-table">
+    <tr><th>类型</th><th>例子</th><th>用途</th></tr>
+    <tr><td>数字</td><td><code>let hp = 100;</code></td><td>分数、血量、时间、坐标</td></tr>
+    <tr><td>字符串</td><td><code>let name = "勇者";</code></td><td>名字、提示文字</td></tr>
+    <tr><td>布尔</td><td><code>let alive = true;</code></td><td>判断状态，只有真或假</td></tr>
+    <tr><td>数组</td><td><code>let items = [1,2,3];</code></td><td>存一堆东西，比如子弹列表</td></tr>
+    <tr><td>对象</td><td><code>let p = {x:10,y:20};</code></td><td>存一个东西的多个属性</td></tr>
+  </table>
+
+  <h3>用变量做个计数器</h3>
+  <p>光说不练假把式，下面是一个完整的点击计数例子，看懂了变量你就入门了：</p>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">完整例子</span><button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+    <pre><code><span class="tok-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="tok-tag">&lt;html&gt;</span>
+<span class="tok-tag">&lt;head&gt;&lt;meta</span> <span class="tok-attr">charset</span>=<span class="tok-str">"UTF-8"</span><span class="tok-tag">&gt;&lt;/head&gt;</span>
+<span class="tok-tag">&lt;body&gt;</span>
+  <span class="tok-tag">&lt;h1&gt;</span>点击次数：<span class="tok-tag">&lt;span</span> <span class="tok-attr">id</span>=<span class="tok-str">"count"</span><span class="tok-tag">&gt;</span>0<span class="tok-tag">&lt;/span&gt;&lt;/h1&gt;</span>
+  <span class="tok-tag">&lt;button</span> <span class="tok-attr">onclick</span>=<span class="tok-str">"addOne()"</span><span class="tok-tag">&gt;</span>点我+1<span class="tok-tag">&lt;/button&gt;</span>
+  <span class="tok-tag">&lt;button</span> <span class="tok-attr">onclick</span>=<span class="tok-str">"reset()"</span><span class="tok-tag">&gt;</span>清零<span class="tok-tag">&lt;/button&gt;</span>
+
+  <span class="tok-tag">&lt;script&gt;</span>
+  <span class="tok-kw">let</span> count = <span class="tok-num">0</span>; <span class="tok-cm">// 创建变量，存点击次数</span>
+
+  <span class="tok-kw">function</span> <span class="tok-fn">addOne</span>(){
+    count++; <span class="tok-cm">// 变量加1</span>
+    document.getElementById(<span class="tok-str">"count"</span>).innerText = count; <span class="tok-cm">// 更新屏幕显示</span>
+  }
+
+  <span class="tok-kw">function</span> <span class="tok-fn">reset</span>(){
+    count = <span class="tok-num">0</span>; <span class="tok-cm">// 变量归零</span>
+    document.getElementById(<span class="tok-str">"count"</span>).innerText = count;
+  }
+  <span class="tok-tag">&lt;/script&gt;</span>
+<span class="tok-tag">&lt;/body&gt;</span>
+<span class="tok-tag">&lt;/html&gt;</span></code></pre>
+  </div>
+  <p>注意看，<code>document.getElementById("count")</code> 是找到页面上那个id为count的元素，然后 <code>.innerText = count</code> 把变量的值显示上去。这是JS操作页面最常用的写法。</p>
+
+  <h3>条件判断：让游戏有脑子</h3>
+  <p>光有变量不够，还得根据变量的值做不同的事。用 <code>if</code>：</p>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+    <pre><code><span class="tok-kw">if</span>(score >= <span class="tok-num">100</span>){
+  <span class="tok-fn">alert</span>(<span class="tok-str">"恭喜通关！"</span>);
+}<span class="tok-kw">else if</span>(score >= <span class="tok-num">50</span>){
+  <span class="tok-fn">alert</span>(<span class="tok-str">"继续加油！"</span>);
+}<span class="tok-kw">else</span>{
+  <span class="tok-fn">alert</span>(<span class="tok-str">"才刚开始呢"</span>);
+}</code></pre>
+  </div>
+
+  <h3>循环：批量做事</h3>
+  <p>比如你要在屏幕上放10只小鸡，总不能写10遍代码吧？用循环：</p>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+    <pre><code><span class="tok-kw">for</span>(<span class="tok-kw">let</span> i=<span class="tok-num">0</span>; i&lt;<span class="tok-num">10</span>; i++){
+  console.log(<span class="tok-str">"这是第"</span> + i + <span class="tok-str">"只小鸡"</span>);
+}</code></pre>
+  </div>
+
+  <div class="info-box"><b>记住：</b>变量是盒子，if是判断，for是重复。这三样东西掌握了，大部分小游戏逻辑都能写出来。剩下的就是熟练度问题，多写几个自然就会了。</div>
+</article>
+
+<!-- 第4页 -->
+<article class="article" id="page3">
+  <h2>成为创作者</h2>
+  <p>很多人问，成为创作者有什么好处？我为啥要花时间做游戏？这一页把话说清楚。</p>
+
+  <h3>成为创作者有什么好处？</h3>
+  <ol>
+    <li><b>你可以使用充值接口来让玩家们打赏，给你获得收益。</b>玩家喜欢你的游戏，点一下打赏按钮，R币就直接进你账户了。R币虽然是平台货币，但积少成多，而且这是对你作品的认可。</li>
+    <li><b>你可以创建HTML内容，可以包含JS。</b>也就是说你能做的不只是简单的网页，而是完整的交互游戏、小工具、动画，甚至是复杂的应用。上限很高，就看你本事。</li>
+    <li><b>让更多人查看你的作品。</b>上传之后游戏会出现在首页，所有玩家都能看到、能玩、能评论。做得好还会上排行榜，曝光量更大。</li>
+  </ol>
+
+  <h3>知道这些好处之后，如何成为创作者？</h3>
+  <p>其实根本没有什么申请流程。<b>一开始进入的玩家就是创作者</b>，只需要点击底部中间的加号按钮，就能进入创作页面开始上传你的第一个作品。</p>
+
+  <div class="tip-box"><b>没错，零门槛。</b>不需要审核身份，不需要交押金，注册登录之后直接就能创作。平台相信每一个人都有做出好东西的潜力。</div>
+
+  <h3>第一次上传的步骤</h3>
+  <ol>
+    <li>点底部中间的 <b>➕</b> 按钮，进入创作页</li>
+    <li>上传一个游戏图标（正方形图片就行）</li>
+    <li>填写游戏介绍，告诉玩家这游戏怎么玩</li>
+    <li>把你的HTML代码粘贴进去，或者直接上传HTML文件</li>
+    <li>点上传按钮，等1.5秒审核</li>
+    <li>审核通过就自动出现在首页了</li>
+  </ol>
+
+  <h3>审核是怎么回事？</h3>
+  <p>上传之后系统会自动检查你的代码和介绍里有没有违规内容。没有的话秒过，直接展示。如果有问题，游戏不会在首页出现，但你在个人主页里能看到它标着"违规"标签，点一下能看到具体原因，改完重新上传就行。</p>
+
+  <h3>怎么让更多人玩你的游戏？</h3>
+  <ul>
+    <li><b>图标做好看点</b>：首页那么多游戏，玩家第一眼看到的就是图标，好看的图标点击率高很多</li>
+    <li><b>介绍写清楚</b>：一句话说清玩法，别写一堆废话</li>
+    <li><b>加入打赏按钮</b>：参考第一页的接口代码，让喜欢你的玩家能支持你</li>
+    <li><b>多更新</b>：在个人主页长按作品可以更新，每次更新相当于重新曝光</li>
+    <li><b>冲排行榜</b>：点赞过100、游玩过1000就能上排行榜，那是流量最大的地方</li>
+  </ul>
+
+  <h3>创作者的收益从哪来？</h3>
+  <p>目前主要是玩家打赏。你在游戏里嵌入打赏按钮（第一页有完整代码），玩家消耗自己的R币打赏，R币直接到你账户。你可以用这些R币打赏别的创作者，或者在平台内消费。</p>
+  <p>后续平台还会开放更多变现方式，比如广告分成、付费游戏等，创作者越早入驻越有优势。</p>
+
+  <div class="warn-box"><b>提醒：</b>不要用刷赞、刷游玩量的手段，系统会检测。老老实实做游戏，好作品自然有人玩。</div>
+</article>
+
+<!-- 第5页 -->
+<article class="article" id="page4">
+  <h2>扩展HTML与JS</h2>
+  <p>基础的东西你都会了，这一页讲点进阶的。掌握了这些，你做出来的东西就不像是练习作品，而是真正能拿得出手的游戏。</p>
+
+  <h3>Canvas画布：做2D游戏的核心</h3>
+  <p>之前我们用div拼元素，做简单界面还行，但做游戏就不够用了。Canvas是一块画布，你可以在上面画任何东西，而且速度很快。</p>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Canvas基础</span><button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+    <pre><code><span class="tok-tag">&lt;canvas</span> <span class="tok-attr">id</span>=<span class="tok-str">"game"</span> <span class="tok-attr">width</span>=<span class="tok-str">"400"</span> <span class="tok-attr">height</span>=<span class="tok-str">"600"</span><span class="tok-tag">&gt;&lt;/canvas&gt;</span>
+
+<span class="tok-tag">&lt;script&gt;</span>
+<span class="tok-kw">const</span> canvas = document.getElementById(<span class="tok-str">"game"</span>);
+<span class="tok-kw">const</span> ctx = canvas.getContext(<span class="tok-str">"2d"</span>);
+
+<span class="tok-cm">// 画一个红色矩形</span>
+ctx.fillStyle = <span class="tok-str">"red"</span>;
+ctx.fillRect(<span class="tok-num">50</span>, <span class="tok-num">50</span>, <span class="tok-num">100</span>, <span class="tok-num">80</span>); <span class="tok-cm">// x, y, 宽, 高</span>
+
+<span class="tok-cm">// 画一个圆</span>
+ctx.beginPath();
+ctx.arc(<span class="tok-num">200</span>, <span class="tok-num">300</span>, <span class="tok-num">30</span>, <span class="tok-num">0</span>, Math.PI*<span class="tok-num">2</span>); <span class="tok-cm">// x, y, 半径, 起始角, 结束角</span>
+ctx.fillStyle = <span class="tok-str">"blue"</span>;
+ctx.fill();
+
+<span class="tok-cm">// 写文字</span>
+ctx.fillStyle = <span class="tok-str">"black"</span>;
+ctx.font = <span class="tok-str">"20px Arial"</span>;
+ctx.fillText(<span class="tok-str">"得分: 0"</span>, <span class="tok-num">10</span>, <span class="tok-num">30</span>);
+<span class="tok-tag">&lt;/script&gt;</span></code></pre>
+  </div>
+
+  <h3>游戏循环：让画面动起来</h3>
+  <p>游戏本质上就是一张一张快速切换的画面。用 <code>requestAnimationFrame</code> 做游戏循环，浏览器会自动帮你调到60帧：</p>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">游戏循环</span><button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+    <pre><code><span class="tok-kw">let</span> x = <span class="tok-num">0</span>;
+
+<span class="tok-kw">function</span> <span class="tok-fn">update</span>(){
+  x += <span class="tok-num">2</span>; <span class="tok-cm">// 每帧x加2，方块就向右移动了</span>
+  <span class="tok-kw">if</span>(x > <span class="tok-num">400</span>) x = <span class="tok-num">0</span>;
+}
+
+<span class="tok-kw">function</span> <span class="tok-fn">draw</span>(){
+  ctx.clearRect(<span class="tok-num">0</span>,<span class="tok-num">0</span>,<span class="tok-num">400</span>,<span class="tok-num">600</span>); <span class="tok-cm">// 清屏</span>
+  ctx.fillStyle = <span class="tok-str">"red"</span>;
+  ctx.fillRect(x, <span class="tok-num">200</span>, <span class="tok-num">50</span>, <span class="tok-num">50</span>);
+}
+
+<span class="tok-kw">function</span> <span class="tok-fn">loop</span>(){
+  update(); <span class="tok-cm">// 更新数据</span>
+  draw();   <span class="tok-cm">// 画出来</span>
+  requestAnimationFrame(loop); <span class="tok-cm">// 下一帧继续</span>
+}
+loop(); <span class="tok-cm">// 启动</span></code></pre>
+  </div>
+  <p>记住这个结构：<b>update改数据，draw画画面，loop循环调用</b>。几乎所有2D游戏都是这个套路。</p>
+
+  <h3>键盘和触摸控制</h3>
+  <p>玩家怎么操作游戏？监听事件就行：</p>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">控制</span><button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+    <pre><code><span class="tok-kw">let</span> keys = {};
+
+<span class="tok-cm">// 键盘按下</span>
+document.addEventListener(<span class="tok-str">"keydown"</span>, <span class="tok-kw">function</span>(e){
+  keys[e.key] = <span class="tok-kw">true</span>;
+});
+document.addEventListener(<span class="tok-str">"keyup"</span>, <span class="tok-kw">function</span>(e){
+  keys[e.key] = <span class="tok-kw">false</span>;
+});
+
+<span class="tok-cm">// 在update里判断</span>
+<span class="tok-kw">function</span> <span class="tok-fn">update</span>(){
+  <span class="tok-kw">if</span>(keys[<span class="tok-str">"ArrowLeft"</span>]) x -= <span class="tok-num">5</span>;
+  <span class="tok-kw">if</span>(keys[<span class="tok-str">"ArrowRight"</span>]) x += <span class="tok-num">5</span>;
+}
+
+<span class="tok-cm">// 手机触摸</span>
+canvas.addEventListener(<span class="tok-str">"touchstart"</span>, <span class="tok-kw">function</span>(e){
+  e.preventDefault();
+  <span class="tok-kw">const</span> touch = e.touches[<span class="tok-num">0</span>];
+  <span class="tok-kw">const</span> rect = canvas.getBoundingClientRect();
+  <span class="tok-kw">const</span> tx = touch.clientX - rect.left;
+  <span class="tok-kw">const</span> ty = touch.clientY - rect.top;
+  <span class="tok-cm">// tx, ty 就是玩家点的位置</span>
+});</code></pre>
+  </div>
+
+  <h3>碰撞检测</h3>
+  <p>游戏里最常见的逻辑就是"碰到了没"。矩形碰撞最简单：</p>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">碰撞检测</span><button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+    <pre><code><span class="tok-kw">function</span> <span class="tok-fn">isCollide</span>(a, b){
+  <span class="tok-kw">return</span> a.x &lt; b.x + b.w &amp;&amp;
+         a.x + a.w &gt; b.x &amp;&amp;
+         a.y &lt; b.y + b.h &amp;&amp;
+         a.y + a.h &gt; b.y;
+}
+
+<span class="tok-cm">// 用法</span>
+<span class="tok-kw">if</span>(isCollide(player, enemy)){
+  <span class="tok-fn">alert</span>(<span class="tok-str">"撞到了！"</span>);
+}</code></pre>
+  </div>
+
+  <h3>用对象管理游戏元素</h3>
+  <p>游戏里有很多子弹、敌人，一个个写变量会疯掉。用数组存对象：</p>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">对象数组</span><button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+    <pre><code><span class="tok-kw">let</span> bullets = [];
+
+<span class="tok-cm">// 发射子弹</span>
+<span class="tok-kw">function</span> <span class="tok-fn">shoot</span>(){
+  bullets.push({x: player.x, y: player.y, speed: <span class="tok-num">8</span>});
+}
+
+<span class="tok-cm">// 更新所有子弹</span>
+<span class="tok-kw">function</span> <span class="tok-fn">updateBullets</span>(){
+  <span class="tok-kw">for</span>(<span class="tok-kw">let</span> i = bullets.length-<span class="tok-num">1</span>; i &gt;= <span class="tok-num">0</span>; i--){
+    bullets[i].y -= bullets[i].speed;
+    <span class="tok-kw">if</span>(bullets[i].y &lt; <span class="tok-num">0</span>){
+      bullets.splice(i, <span class="tok-num">1</span>); <span class="tok-cm">// 飞出屏幕就删掉</span>
+    }
+  }
+}</code></pre>
+  </div>
+  <p>注意循环要从后往前删，不然删元素的时候索引会乱。这是新手最容易踩的坑。</p>
+
+  <h3>本地存储：记住玩家的数据</h3>
+  <p>想让玩家关掉网页再打开，分数还在？用 localStorage：</p>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">存储</span><button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+    <pre><code><span class="tok-cm">// 存</span>
+localStorage.setItem(<span class="tok-str">"highScore"</span>, score);
+
+<span class="tok-cm">// 取</span>
+<span class="tok-kw">let</span> highScore = localStorage.getItem(<span class="tok-str">"highScore"</span>) || <span class="tok-num">0</span>;
+
+<span class="tok-cm">// 删</span>
+localStorage.removeItem(<span class="tok-str">"highScore"</span>);</code></pre>
+  </div>
+
+  <h3>几个实用技巧</h3>
+  <ul>
+    <li><b>图片预加载</b>：游戏开始前把所有图片加载完，避免玩的时候卡顿</li>
+    <li><b>用deltaTime</b>：不同手机帧率不一样，用时间差计算移动距离，保证速度一致</li>
+    <li><b>音效用Audio</b>：<code>new Audio("xxx.mp3").play()</code> 就能播放</li>
+    <li><b>防止页面滚动</b>：游戏里加 <code>touchmove</code> 事件阻止默认行为</li>
+    <li><b>适配屏幕</b>：用 <code>window.innerWidth</code> 获取屏幕宽，动态调整canvas大小</li>
+  </ul>
+
+  <div class="tip-box"><b>最后说一句：</b>编程这东西，看十遍不如写一遍。把上面的例子一个个复制到创作页跑起来，改改参数看看效果，比看任何教程都管用。遇到bug很正常，打印日志一步步查，每个大神都是从bug堆里爬出来的。</div>
+</article>
+
+<div class="page-nav">
+  <button id="prevBtn" onclick="prevPage()">← 上一页</button>
+  <button id="nextBtn" onclick="nextPage()">下一页 →</button>
+</div>
+<div class="page-indicator" id="pageIndicator">第 1 / 5 页</div>
+
 </div>
 
 <nav class="bottom-nav">
@@ -198,9 +560,56 @@ a{text-decoration:none;color:inherit}
 </nav>
 
 <script>
-function scrollToArticle(){
-  document.getElementById('article1').scrollIntoView({behavior:'smooth'});
+let currentPage = 0;
+const totalPages = 5;
+const articles = document.querySelectorAll('.article');
+const sidebarItems = document.querySelectorAll('.sidebar-item');
+
+function switchPage(idx){
+  if(idx < 0 || idx >= totalPages) return;
+  articles[currentPage].classList.remove('active');
+  sidebarItems[currentPage].classList.remove('active');
+  currentPage = idx;
+  articles[currentPage].classList.add('active');
+  sidebarItems[currentPage].classList.add('active');
+  document.getElementById('pageIndicator').textContent = '第 ' + (currentPage+1) + ' / ' + totalPages + ' 页';
+  document.getElementById('prevBtn').disabled = currentPage === 0;
+  document.getElementById('nextBtn').disabled = currentPage === totalPages - 1;
+  closeSidebar();
+  window.scrollTo({top:0, behavior:'smooth'});
 }
+
+function prevPage(){ switchPage(currentPage - 1); }
+function nextPage(){ switchPage(currentPage + 1); }
+
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('show');
+  document.getElementById('sidebarMask').classList.toggle('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('show');
+  document.getElementById('sidebarMask').classList.remove('show');
+}
+
+let touchStartX = 0;
+let touchStartY = 0;
+document.addEventListener('touchstart', function(e){
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, {passive:true});
+
+document.addEventListener('touchend', function(e){
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)){
+    if(dx > 0 && touchStartX < 40){
+      toggleSidebar();
+    } else if(dx < 0 && document.getElementById('sidebar').classList.contains('show')){
+      closeSidebar();
+    }
+  }
+}, {passive:true});
+
 function copyCode(btn){
   const pre = btn.closest('.code-block').querySelector('pre');
   const text = pre.innerText;
@@ -218,6 +627,8 @@ function copyCode(btn){
     setTimeout(()=>{btn.textContent = '复制';},1500);
   });
 }
+
+switchPage(0);
 </script>
 </body>
 </html>
