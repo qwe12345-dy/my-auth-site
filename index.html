@@ -102,6 +102,16 @@ async function loadGames(){
 
 loadRcoin();
 loadGames();
+
+setInterval(loadRcoin, 30000);
+setInterval(loadGames, 60000);
+
+document.addEventListener('visibilitychange', function(){
+  if(!document.hidden){
+    loadRcoin();
+    loadGames();
+  }
+});
 </script>
 </body>
 </html>

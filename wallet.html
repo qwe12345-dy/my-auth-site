@@ -34,7 +34,8 @@ a { text-decoration:none; color:inherit; }
 .ad-header { position:absolute; top:0; left:0; right:0; background:rgba(0,0,0,.8); color:#fff; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; font-size:14px; z-index:10; }
 .ad-header .countdown { font-weight:700; font-size:16px; }
 .ad-container { position:absolute; top:44px; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center; overflow:auto; background:#fff; }
-.ad-container iframe { max-width:100%; }
+.ad-container iframe { transform:scale(1.8); transform-origin:center center; max-width:none !important; }
+.ad-container > div { transform:scale(1.8); transform-origin:center center; }
 .ad-bottom { position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,.8); padding:12px 16px; z-index:10; }
 .ad-reward-btn { width:100%; padding:14px; background:linear-gradient(135deg,#4caf50,#388e3c); color:#fff; border:none; font-size:16px; font-weight:600; cursor:pointer; border-radius:8px; }
 .ad-reward-btn:active { transform:scale(.98); }
@@ -120,7 +121,11 @@ async function loadBalance() {
 const adCodes = [
   '<script async="async" data-cfasync="false" src="https://pl31356914.profitableratecpmnetwork.com/f5dd40fadb29d86f55fdcb0a98d37cef/invoke.js"><\/script><div id="container-f5dd40fadb29d86f55fdcb0a98d37cef"></div>',
   '<script>atOptions={key:"137e04638c29bad86e022b2ca0643d61",format:"iframe",height:600,width:160,params:{}};<\/script><script src="https://www.highrevenueformat.com/137e04638c29bad86e022b2ca0643d61/invoke.js"><\/script>',
-  '<script src="https://pl31356911.profitableratecpmnetwork.com/48/c6/15/48c6156abe3b9260340ebb331f2e6782.js"><\/script>'
+  '<script src="https://pl31356911.profitableratecpmnetwork.com/48/c6/15/48c6156abe3b9260340ebb331f2e6782.js"><\/script>',
+  '<script src="https://pl31364013.profitableratecpmnetwork.com/80/b6/9a/80b69a0f6a8171774f8aae8068f29220.js"><\/script>',
+  '<script>atOptions={key:"299db08c2e7264690bedb334429bf691",format:"iframe",height:300,width:160,params:{}};<\/script><script src="https://www.highrevenueformat.com/299db08c2e7264690bedb334429bf691/invoke.js"><\/script>',
+  '<script>atOptions={key:"de836417d6f07c050ca49b339970b284",format:"iframe",height:60,width:468,params:{}};<\/script><script src="https://www.highrevenueformat.com/de836417d6f07c050ca49b339970b284/invoke.js"><\/script>',
+  '<script>atOptions={key:"31f7e7ff227bc01476f96e9f66adf3ad",format:"iframe",height:250,width:300,params:{}};<\/script><script src="https://www.highrevenueformat.com/31f7e7ff227bc01476f96e9f66adf3ad/invoke.js"><\/script>'
 ];
 
 let adTimer = null;
