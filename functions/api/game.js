@@ -35,6 +35,7 @@ export async function onRequestGet(context) {
         likes_count: game.likes_count,
         favorites_count: game.favorites_count,
         comments_count: game.comments_count,
+        play_count: game.play_count || 0,
         created_at: game.created_at,
         updated_at: game.updated_at,
         author_name: game.author_name,
