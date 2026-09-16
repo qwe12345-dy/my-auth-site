@@ -33,9 +33,11 @@ a { text-decoration:none; color:inherit; }
 .ad-overlay.show { display:block; }
 .ad-header { position:absolute; top:0; left:0; right:0; background:rgba(0,0,0,.8); color:#fff; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; font-size:14px; z-index:10; }
 .ad-header .countdown { font-weight:700; font-size:16px; }
-.ad-container { position:absolute; top:44px; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center; overflow:auto; background:#fff; }
-.ad-container iframe { transform:scale(1.8); transform-origin:center center; max-width:none !important; }
-.ad-container > div { transform:scale(1.8); transform-origin:center center; }
+.ad-container { position:absolute; top:44px; left:0; right:0; bottom:0; overflow:hidden; background:#fff; touch-action:pan-y; }
+.ad-slide { position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; transition:transform .3s ease; }
+.ad-slide iframe { transform:scale(1.8); transform-origin:center center; max-width:none !important; }
+.ad-slide > div { transform:scale(1.8); transform-origin:center center; }
+.ad-hint-swipe { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:#ccc; font-size:14px; pointer-events:none; z-index:1; }
 .ad-bottom { position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,.8); padding:12px 16px; z-index:10; }
 .ad-reward-btn { width:100%; padding:14px; background:linear-gradient(135deg,#4caf50,#388e3c); color:#fff; border:none; font-size:16px; font-weight:600; cursor:pointer; border-radius:8px; }
 .ad-reward-btn:active { transform:scale(.98); }
@@ -85,7 +87,9 @@ a { text-decoration:none; color:inherit; }
     <span>广告</span>
     <span class="countdown" id="adCountdown">30s</span>
   </div>
-  <div class="ad-container" id="adContainer"></div>
+  <div class="ad-container" id="adContainer">
+    <div class="ad-slide" id="adSlide"></div>
+  </div>
   <div class="ad-bottom">
     <div class="ad-hint" id="adHint">观看满30秒可领取奖励</div>
     <button class="ad-reward-btn" id="adRewardBtn" disabled onclick="claimReward()">🎉 领取奖励</button>
@@ -130,28 +134,38 @@ const adCodes = [
 
 let adTimer = null;
 let adFinished = false;
+let currentAdIndex = 0;
+let touchStartX = 0;
+let touchStartY = 0;
+
+function loadAd(index) {
+  const slide = document.getElementById('adSlide');
+  slide.style.opacity = '0';
+  setTimeout(() => {
+    slide.innerHTML = adCodes[index];
+    const scripts = slide.querySelectorAll('script');
+    scripts.forEach(oldScript => {
+      const newScript = document.createElement('script');
+      if (oldScript.src) newScript.src = oldScript.src;
+      if (oldScript.async) newScript.async = true;
+      if (oldScript.getAttribute('data-cfasync')) newScript.setAttribute('data-cfasync', oldScript.getAttribute('data-cfasync'));
+      newScript.textContent = oldScript.textContent;
+      oldScript.parentNode.replaceChild(newScript, oldScript);
+    });
+    slide.style.opacity = '1';
+  }, 150);
+}
 
 function showAd() {
   adFinished = false;
+  currentAdIndex = Math.floor(Math.random() * adCodes.length);
   document.getElementById('adOverlay').classList.add('show');
   document.getElementById('adRewardBtn').disabled = true;
   document.getElementById('adRewardBtn').textContent = '🎉 领取奖励';
   document.getElementById('adCloseBtn').style.display = 'none';
-  document.getElementById('adHint').textContent = '观看满30秒可领取奖励';
+  document.getElementById('adHint').textContent = '观看满30秒可领取奖励，左右滑动切换广告';
 
-  const container = document.getElementById('adContainer');
-  const randomAd = adCodes[Math.floor(Math.random() * adCodes.length)];
-  container.innerHTML = randomAd;
-
-  const scripts = container.querySelectorAll('script');
-  scripts.forEach(oldScript => {
-    const newScript = document.createElement('script');
-    if (oldScript.src) newScript.src = oldScript.src;
-    if (oldScript.async) newScript.async = true;
-    if (oldScript.getAttribute('data-cfasync')) newScript.setAttribute('data-cfasync', oldScript.getAttribute('data-cfasync'));
-    newScript.textContent = oldScript.textContent;
-    oldScript.parentNode.replaceChild(newScript, oldScript);
-  });
+  loadAd(currentAdIndex);
 
   let count = 30;
   document.getElementById('adCountdown').textContent = count + 's';
@@ -169,6 +183,26 @@ function showAd() {
     }
   }, 1000);
 }
+
+const adContainer = document.getElementById('adContainer');
+adContainer.addEventListener('touchstart', function(e) {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+adContainer.addEventListener('touchend', function(e) {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  const absDx = Math.abs(dx);
+  const absDy = Math.abs(dy);
+  if (Math.max(absDx, absDy) < 50) return;
+  if (absDx > absDy) {
+    currentAdIndex = dx < 0 ? (currentAdIndex + 1) % adCodes.length : (currentAdIndex - 1 + adCodes.length) % adCodes.length;
+  } else {
+    currentAdIndex = dy < 0 ? (currentAdIndex + 1) % adCodes.length : (currentAdIndex - 1 + adCodes.length) % adCodes.length;
+  }
+  loadAd(currentAdIndex);
+}, { passive: true });
 
 async function claimReward() {
   if (!adFinished) {
@@ -204,7 +238,7 @@ async function claimReward() {
 function closeAd() {
   if (adTimer) clearInterval(adTimer);
   document.getElementById('adOverlay').classList.remove('show');
-  document.getElementById('adContainer').innerHTML = '';
+  document.getElementById('adSlide').innerHTML = '';
 }
 
 function closeRewardModal() {

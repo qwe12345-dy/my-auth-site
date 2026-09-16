@@ -34,6 +34,9 @@ a { text-decoration:none; color:inherit; }
 .rcoin-display { position:absolute; top:14px; right:16px; display:flex; align-items:center; gap:6px; background:rgba(255,255,255,.85); backdrop-filter:blur(10px); padding:6px 12px; border-radius:20px; cursor:pointer; z-index:10; box-shadow:0 2px 8px rgba(0,0,0,.1); }
 .rcoin-display img { width:22px; height:22px; border-radius:50%; }
 .rcoin-display .num { font-size:14px; font-weight:700; color:#1a237e; }
+.search-box { margin:0 16px 12px; position:relative; z-index:5; }
+.search-box input { width:100%; padding:10px 14px 10px 38px; border:none; border-radius:12px; background:rgba(255,255,255,.9); font-size:14px; outline:none; box-shadow:0 2px 8px rgba(0,0,0,.06); }
+.search-box::before { content:'🔍'; position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px; }
 </style>
 </head>
 <body>
@@ -45,16 +48,17 @@ a { text-decoration:none; color:inherit; }
 <div class="home-page">
   <div class="home-title">创造工坊</div>
   <div class="home-subtitle">发现精彩游戏，分享你的创作</div>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索游戏..." oninput="doSearch()">
+  </div>
   <div id="loading" class="loading">加载中...</div>
   <div class="game-grid" id="gameGrid" style="display:none"></div>
 </div>
 
 <nav class="bottom-nav">
   <a href="index.html" class="active"><span class="icon">🏠</span>主页</a>
-  <a href="#"><span class="icon">📊</span>动态</a>
-  <a href="#"><span class="icon">👥</span>社区</a>
-  <a href="profile.html"><span class="icon">👤</span>我的</a>
   <a href="create.html" class="fab">+</a>
+  <a href="profile.html"><span class="icon">👤</span>我的</a>
 </nav>
 
 <script>
@@ -74,15 +78,18 @@ async function loadRcoin(){
   }catch(e){}
 }
 
+let searchKeyword = '';
+
 async function loadGames(){
   try{
-    const r=await fetch('/api/games');
+    const url = searchKeyword ? '/api/games?search=' + encodeURIComponent(searchKeyword) : '/api/games';
+    const r=await fetch(url);
     const d=await r.json();
     document.getElementById('loading').style.display='none';
     const grid=document.getElementById('gameGrid');
     grid.style.display='grid';
     if(!d.success||d.games.length===0){
-      grid.innerHTML='<div class="game-empty">暂无游戏，点击下方+号创作第一个游戏吧</div>';
+      grid.innerHTML='<div class="game-empty">'+(searchKeyword?'没有找到相关游戏':'暂无游戏，点击下方+号创作第一个游戏吧')+'</div>';
       return;
     }
     grid.innerHTML=d.games.map(g=>{
@@ -91,7 +98,7 @@ async function loadGames(){
         '<div class="game-icon">'+iconHtml+'</div>'+
         '<div class="game-info">'+
           '<div class="game-title">'+escapeHtml(g.title)+'</div>'+
-          '<div class="game-meta"><span>❤️'+g.likes_count+'</span><span>💬'+g.comments_count+'</span></div>'+
+          '<div class="game-meta"><span>❤️'+g.likes_count+'</span><span>🎮'+(g.play_count||0)+'</span><span>💬'+g.comments_count+'</span></div>'+
         '</div>'+
       '</div>';
     }).join('');
@@ -100,11 +107,22 @@ async function loadGames(){
   }
 }
 
+let searchTimer = null;
+function doSearch(){
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(()=>{
+    searchKeyword = document.getElementById('searchInput').value.trim();
+    loadGames();
+  }, 300);
+}
+
 loadRcoin();
 loadGames();
 
-setInterval(loadRcoin, 2500);
-setInterval(loadGames, 2500);
+setInterval(loadRcoin, 1100);
+setInterval(()=>{
+  if(!searchKeyword) loadGames();
+}, 1100);
 
 document.addEventListener('visibilitychange', function(){
   if(!document.hidden){

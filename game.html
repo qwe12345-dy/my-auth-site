@@ -31,6 +31,7 @@ a { text-decoration:none; color:inherit; }
 .action-btn.like.active { background:#ffe8e8; color:#e74c3c; border-color:#ffcdd2; }
 .action-btn.fav { background:#fff; color:#333; border:1px solid #e0e0e0; }
 .action-btn.fav.active { background:#fff8e1; color:#f39c12; border-color:#ffe082; }
+.action-btn.play-count { background:#f0f2f8; color:#666; border:1px solid #e0e0e0; cursor:default; }
 .play-btn { width:100%; padding:14px; background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; border:none; border-radius:10px; font-size:16px; font-weight:600; cursor:pointer; margin-bottom:12px; }
 .play-btn:active { transform:scale(.98); }
 .comments-section { background:rgba(255,255,255,.8); backdrop-filter:blur(10px); border-radius:16px; padding:16px; }
@@ -106,6 +107,9 @@ a { text-decoration:none; color:inherit; }
         <button class="action-btn fav" id="favBtn" onclick="toggleFav()">
           <span id="favIcon">⭐</span><span id="favCount">0</span>
         </button>
+        <div class="action-btn play-count">
+          <span>🎮</span><span id="playCount">0</span>
+        </div>
       </div>
     </div>
     <button class="play-btn" onclick="startPlay()">▶ 开始游玩吧</button>
@@ -177,6 +181,7 @@ async function loadGame() {
     document.getElementById('authorName').textContent = g.author_name;
     document.getElementById('likeCount').textContent = g.likes_count;
     document.getElementById('favCount').textContent = g.favorites_count;
+    document.getElementById('playCount').textContent = g.play_count || 0;
     document.getElementById('commentCount').textContent = g.comments_count + '条';
     if (g.icon) {
       document.getElementById('iconImg').src = g.icon;
@@ -330,7 +335,14 @@ async function reportComment(id) {
   document.getElementById('actions_' + id).classList.remove('show');
 }
 
-function startPlay() {
+async function startPlay() {
+  try {
+    await fetch('/api/add_play', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ game_id: gameId })
+    });
+  } catch (e) {}
   location.href = 'play.html?id=' + gameId;
 }
 
