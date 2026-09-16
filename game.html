@@ -7,7 +7,7 @@
 <style>
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html { -webkit-text-size-adjust:100%; }
-body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif; color:#1a1a1a; min-height:100vh; font-size:16px; line-height:1.5; background:#f0f2f8; padding-bottom:80px; }
+body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif; color:#1a1a1a; min-height:100vh; font-size:16px; line-height:1.5; background:#f0f2f8; overflow-x:hidden; }
 input,button,textarea { font-family:inherit; font-size:16px; }
 a { text-decoration:none; color:inherit; }
 .app-bg { position:fixed; inset:0; z-index:-1; background:linear-gradient(135deg,#e8ecf5 0%,#f0f2f8 40%,#f5f0f8 100%); overflow:hidden; }
@@ -25,8 +25,8 @@ a { text-decoration:none; color:inherit; }
 .game-author { font-size:13px; color:#999; display:flex; align-items:center; gap:6px; }
 .game-author .avatar { width:20px; height:20px; border-radius:50%; background:#ddd; }
 .game-desc { font-size:14px; color:#666; line-height:1.6; margin-bottom:14px; }
-.game-actions { display:flex; gap:10px; }
-.action-btn { flex:1; padding:12px; border-radius:10px; border:none; font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; }
+.game-actions { display:flex; gap:8px; }
+.action-btn { flex:1; min-width:0; padding:12px 6px; border-radius:10px; border:none; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px; white-space:nowrap; }
 .action-btn.like { background:#fff; color:#333; border:1px solid #e0e0e0; }
 .action-btn.like.active { background:#ffe8e8; color:#e74c3c; border-color:#ffcdd2; }
 .action-btn.fav { background:#fff; color:#333; border:1px solid #e0e0e0; }
@@ -42,17 +42,17 @@ a { text-decoration:none; color:inherit; }
 .comment-avatar { width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,#667eea,#764ba2); display:flex; align-items:center; justify-content:center; font-size:12px; color:#fff; flex-shrink:0; overflow:hidden; }
 .comment-avatar img { width:100%; height:100%; object-fit:cover; }
 .comment-user { font-size:14px; font-weight:600; }
-.comment-time { font-size:11px; color:#999; margin-left:auto; }
-.comment-content { font-size:14px; color:#333; line-height:1.5; padding-left:36px; }
+.comment-time { font-size:11px; color:#999; margin-left:auto; flex-shrink:0; }
+.comment-content { font-size:14px; color:#333; line-height:1.5; padding-left:36px; word-break:break-word; overflow-wrap:anywhere; }
 .comment-actions { position:absolute; right:0; top:8px; background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.1); padding:4px 0; display:none; z-index:10; }
 .comment-actions.show { display:block; }
 .comment-actions button { display:block; width:100%; padding:8px 16px; border:none; background:none; font-size:13px; cursor:pointer; text-align:left; }
 .comment-actions button.del { color:#e74c3c; }
 .comment-actions button.report { color:#666; }
 .comment-input-row { display:flex; gap:8px; margin-top:14px; padding-top:14px; border-top:1px solid #f0f0f0; }
-.comment-input-row input { flex:1; padding:10px 14px; border:1px solid #e0e0e0; border-radius:20px; font-size:14px; background:#fafafa; }
+.comment-input-row input { flex:1; min-width:0; padding:10px 14px; border:1px solid #e0e0e0; border-radius:20px; font-size:14px; background:#fafafa; }
 .comment-input-row input:focus { outline:none; border-color:#4a7dff; background:#fff; }
-.comment-input-row button { padding:10px 18px; background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; border:none; border-radius:20px; font-size:14px; font-weight:600; cursor:pointer; }
+.comment-input-row button { flex-shrink:0; padding:10px 16px; background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; border:none; border-radius:20px; font-size:14px; font-weight:600; cursor:pointer; white-space:nowrap; }
 .msg { padding:12px 14px; border-radius:8px; margin-bottom:14px; font-size:14px; }
 .msg.error { background:#fee; color:#c33; }
 .msg.success { background:#efe; color:#2a2; }
