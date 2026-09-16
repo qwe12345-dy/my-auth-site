@@ -68,6 +68,14 @@ a { text-decoration:none; color:inherit; }
 .custom-modal-btns .btn-ok { background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; }
 .custom-modal-btns .btn-cancel { background:#f0f0f0; color:#666; }
 .custom-modal-btns .btn-danger { background:#e74c3c; color:#fff; }
+.bottom-nav { position:fixed; bottom:12px; left:12px; right:12px; background:rgba(255,255,255,.75); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-radius:24px; display:flex; justify-content:space-around; align-items:center; padding:10px 8px; padding-bottom:calc(10px + env(safe-area-inset-bottom)); box-shadow:0 4px 20px rgba(0,0,0,.08); z-index:200; }
+.bottom-nav a { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px 4px; color:#999; font-size:11px; text-decoration:none; border-radius:16px; transition:all .2s; }
+.bottom-nav a .icon { font-size:22px; margin-bottom:2px; }
+.bottom-nav a.active { color:#1a1a1a; background:rgba(0,0,0,.06); }
+.bottom-nav a:active { opacity:.7; }
+.bottom-nav .fab { flex:0 0 auto; width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; display:flex; align-items:center; justify-content:center; font-size:28px; box-shadow:0 4px 12px rgba(74,125,255,.4); margin:0 4px; }
+.bottom-nav .fab:active { transform:scale(.95); }
+.game-detail { padding-bottom:90px; }
 </style>
 </head>
 <body>
@@ -347,6 +355,12 @@ async function startPlay() {
 }
 
 loadGame();
+setInterval(loadGame, 1100);
 </script>
+<nav class="bottom-nav">
+  <a href="index.html"><span class="icon">🏠</span>主页</a>
+  <a href="create.html" class="fab">+</a>
+  <a href="profile.html"><span class="icon">👤</span>我的</a>
+</nav>
 </body>
 </html>
