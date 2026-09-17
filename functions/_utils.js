@@ -305,7 +305,7 @@ async function sendEmailJS(toEmail, code) {
     '<p style="margin:0;color:#999;font-size:12px;">10分钟内有效，请勿泄露给他人。</p>' +
     '</div></div>';
   const params = new URLSearchParams({
-    apikey: 'F2AB58ABF8ABD0750583091F768C971012B3',
+    apikey: '25267332D7D113C6C2A2A0EFEF4EAD3F7B8CD5AFC852F9F25AF616BD04B6778AEDD63454A6B9CA4E2C8D172094FB738B',
     from: 'longhei2026@theyuse.ccwu.cc',
     fromName: '创造工坊',
     to: toEmail,
