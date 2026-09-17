@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>主页 - 创造工坊</title>
+<script src="assets/auth.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html { -webkit-text-size-adjust:100%; }
@@ -37,6 +38,29 @@ a { text-decoration:none; color:inherit; }
 .search-box { margin:0 16px 12px; position:relative; z-index:5; }
 .search-box input { width:100%; padding:10px 14px 10px 38px; border:none; border-radius:12px; background:rgba(255,255,255,.9); font-size:14px; outline:none; box-shadow:0 2px 8px rgba(0,0,0,.06); }
 .search-box::before { content:'🔍'; position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px; }
+.checkin-card { margin:0 16px 14px; background:linear-gradient(135deg,#c0392b,#e74c3c 50%,#d35400); border-radius:16px; padding:16px; color:#fff; position:relative; overflow:hidden; cursor:pointer; box-shadow:0 6px 18px rgba(192,57,43,.35); z-index:5; }
+.checkin-card::after { content:'🌕'; position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:42px; opacity:.85; }
+.checkin-card .ci-title { font-size:17px; font-weight:700; margin-bottom:4px; }
+.checkin-card .ci-sub { font-size:13px; opacity:.92; }
+.checkin-card .ci-days { display:flex; gap:8px; margin-top:10px; position:relative; z-index:2; }
+.checkin-card .ci-day { background:rgba(255,255,255,.2); border-radius:8px; padding:4px 10px; font-size:12px; }
+.checkin-card .ci-day.done { background:rgba(255,215,0,.9); color:#7b3f00; font-weight:700; }
+.checkin-mask { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:400; display:none; align-items:center; justify-content:center; }
+.checkin-mask.show { display:flex; }
+.checkin-modal { background:#fff; border-radius:18px; width:86%; max-width:340px; padding:24px 20px; text-align:center; }
+.checkin-modal h3 { font-size:20px; color:#c0392b; margin-bottom:6px; }
+.checkin-modal .cm-sub { font-size:13px; color:#999; margin-bottom:18px; }
+.checkin-days { display:flex; justify-content:space-between; gap:8px; margin-bottom:18px; }
+.checkin-day-item { flex:1; border:2px solid #eee; border-radius:12px; padding:12px 4px; font-size:12px; color:#999; }
+.checkin-day-item .cd-date { font-weight:700; font-size:14px; color:#333; margin-bottom:4px; }
+.checkin-day-item .cd-reward { color:#e67e22; font-weight:600; }
+.checkin-day-item.done { border-color:#f1c40f; background:#fffbe6; }
+.checkin-day-item.done .cd-date { color:#b7950b; }
+.checkin-day-item.done::after { content:'✓ 已签'; display:block; color:#27ae60; font-size:11px; margin-top:2px; }
+.checkin-day-item.today { border-color:#e74c3c; background:#fdf0ef; }
+.checkin-btn { width:100%; padding:13px; border:none; border-radius:10px; font-size:16px; font-weight:700; cursor:pointer; background:linear-gradient(135deg,#e74c3c,#c0392b); color:#fff; }
+.checkin-btn:disabled { background:#ccc; }
+.checkin-close { width:100%; padding:10px; border:none; background:none; color:#999; font-size:14px; cursor:pointer; margin-top:6px; }
 </style>
 </head>
 <body>
@@ -51,6 +75,11 @@ a { text-decoration:none; color:inherit; }
   <div class="search-box">
     <input type="text" id="searchInput" placeholder="搜索游戏..." oninput="doSearch()">
   </div>
+  <div class="checkin-card" id="checkinCard" style="display:none" onclick="openCheckin()">
+    <div class="ci-title">🥮 中秋签到活动</div>
+    <div class="ci-sub" id="checkinSub">点击签到，领取R币奖励</div>
+    <div class="ci-days" id="checkinMiniDays"></div>
+  </div>
   <div id="loading" class="loading">加载中...</div>
   <div class="game-grid" id="gameGrid" style="display:none"></div>
 </div>
@@ -61,11 +90,86 @@ a { text-decoration:none; color:inherit; }
   <a href="profile.html"><span class="icon">👤</span>我的</a>
 </nav>
 
+<div class="checkin-mask" id="checkinMask">
+  <div class="checkin-modal">
+    <h3>🥮 中秋签到</h3>
+    <div class="cm-sub">9月17日 - 9月20日 限时活动</div>
+    <div class="checkin-days" id="checkinDays"></div>
+    <button class="checkin-btn" id="checkinBtn" onclick="doCheckin()">今日签到</button>
+    <button class="checkin-close" onclick="closeCheckin()">关闭</button>
+  </div>
+</div>
+
 <script>
 function escapeHtml(text){
   const div=document.createElement('div');
   div.textContent=text;
   return div.innerHTML;
+}
+
+let checkinData = null;
+
+async function loadCheckin(){
+  try{
+    const r=await fetch('/api/checkin_status',{credentials:'include'});
+    if(r.status===401) return;
+    const d=await r.json();
+    if(!d.success) return;
+    checkinData = d;
+    const card=document.getElementById('checkinCard');
+    if(d.active){
+      card.style.display='block';
+      const doneCount=d.days.filter(x=>x.checked).length;
+      document.getElementById('checkinSub').textContent=d.todayCanCheckin&&!d.todayChecked?'今天可以签到，点击领取'+d.todayReward+' R币':'已签到'+doneCount+'/3天';
+      document.getElementById('checkinMiniDays').innerHTML=d.days.map(x=>'<span class="ci-day'+(x.checked?' done':'')+'">9.'+x.day+(x.checked?' ✓':'')+'</span>').join('');
+      document.getElementById('checkinDays').innerHTML=d.days.map(x=>{
+        const cls=x.checked?'done':(d.todayCanCheckin&&x.day===new Date(Date.now()+8*3600*1000).getUTCDate()?'today':'');
+        return '<div class="checkin-day-item '+cls+'"><div class="cd-date">9.'+x.day+'</div><div class="cd-reward">'+x.reward+' R币</div></div>';
+      }).join('');
+      const btn=document.getElementById('checkinBtn');
+      if(d.todayCanCheckin&&!d.todayChecked){
+        btn.disabled=false;
+        btn.textContent='今日签到 领'+d.todayReward+' R币';
+      }else if(d.todayChecked){
+        btn.disabled=true;
+        btn.textContent='今日已签到';
+      }else{
+        btn.disabled=true;
+        btn.textContent='今天不是签到日';
+      }
+    }else{
+      card.style.display='none';
+    }
+  }catch(e){}
+}
+
+function openCheckin(){
+  if(checkinData) document.getElementById('checkinMask').classList.add('show');
+}
+function closeCheckin(){
+  document.getElementById('checkinMask').classList.remove('show');
+}
+
+async function doCheckin(){
+  const btn=document.getElementById('checkinBtn');
+  btn.disabled=true;
+  btn.textContent='签到中...';
+  try{
+    const r=await fetch('/api/checkin',{method:'POST',credentials:'include'});
+    const d=await r.json();
+    if(d.success){
+      btn.textContent='签到成功 +'+d.reward+' R币';
+      loadRcoin();
+      loadCheckin();
+      setTimeout(closeCheckin,1500);
+    }else{
+      btn.textContent=d.message||'签到失败';
+      setTimeout(loadCheckin,1500);
+    }
+  }catch(e){
+    btn.textContent='网络错误';
+    btn.disabled=false;
+  }
 }
 
 async function loadRcoin(){
@@ -118,6 +222,7 @@ function doSearch(){
 
 loadRcoin();
 loadGames();
+loadCheckin();
 
 setInterval(loadRcoin, 1100);
 setInterval(()=>{
@@ -128,6 +233,7 @@ document.addEventListener('visibilitychange', function(){
   if(!document.hidden){
     loadRcoin();
     loadGames();
+    loadCheckin();
   }
 });
 </script>
