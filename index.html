@@ -155,8 +155,19 @@ async function doCheckin(){
   btn.disabled=true;
   btn.textContent='签到中...';
   try{
-    const r=await fetch('/api/checkin',{method:'POST',credentials:'include'});
-    const d=await r.json();
+    const r=await fetch('/api/checkin',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({}),
+      credentials:'include'
+    });
+    const text=await r.text();
+    let d;
+    try{ d=JSON.parse(text); }catch(e){
+      btn.textContent='服务异常('+r.status+')，请重新部署最新代码';
+      btn.disabled=false;
+      return;
+    }
     if(d.success){
       btn.textContent='签到成功 +'+d.reward+' R币';
       loadRcoin();
@@ -167,7 +178,7 @@ async function doCheckin(){
       setTimeout(loadCheckin,1500);
     }
   }catch(e){
-    btn.textContent='网络错误';
+    btn.textContent='网络错误: '+e.message;
     btn.disabled=false;
   }
 }
