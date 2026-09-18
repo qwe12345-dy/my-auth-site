@@ -100,7 +100,7 @@ a { text-decoration:none; color:inherit; }
 <div class="ad-overlay" id="adOverlay">
   <div class="ad-header">
     <span class="ad-tag">📶 广告</span>
-    <span class="ad-title">恭喜获得奖励！</span>
+    <span class="ad-title" id="adTitle">播放广告</span>
     <button class="ad-x" id="adCloseBtn" onclick="closeAd()">✕</button>
   </div>
   <div class="ad-container" id="adContainer">
@@ -176,6 +176,8 @@ function hideLoading() {
 }
 
 function loadAd(index) {
+  clearInterval(adTimer);
+  adFinished = false;
   const ad = adList[index];
   if (ad.type === 'vast') {
     playVastAd(ad.url);
@@ -211,6 +213,7 @@ function loadScriptAd(code) {
         clearInterval(adObserveTimer);
         adFailCount = 0;
         hideLoading();
+        startBannerCountdown();
       } else if (waited >= 9000) {
         clearInterval(adObserveTimer);
         adFailCount++;
@@ -264,7 +267,7 @@ async function playVastAd(url) {
     video.className = 'ad-video';
     video.src = videoUrl;
     video.autoplay = true;
-    video.muted = true;
+    video.muted = false;
     video.playsInline = true;
     video.setAttribute('playsinline', '');
     video.setAttribute('webkit-playsinline', '');
@@ -272,11 +275,15 @@ async function playVastAd(url) {
     slide.style.opacity = '1';
 
     video.addEventListener('play', () => {
+      video.muted = false;
+      video.volume = 1;
       xml.querySelectorAll('Tracking[event="start"]').forEach(t => new Image().src = t.textContent);
       hideLoading();
+      startVideoProgress(video);
     });
     video.addEventListener('ended', () => {
       xml.querySelectorAll('Tracking[event="complete"]').forEach(t => new Image().src = t.textContent);
+      finishAd();
     });
 
     let waited = 0;
@@ -302,6 +309,54 @@ function retryAd() {
   loadAd(currentAdIndex);
 }
 
+function setBar(p) {
+  const bar = document.getElementById('adProgressBar');
+  bar.style.transition = 'none';
+  bar.style.transform = 'scaleX(' + p + ')';
+}
+
+function finishAd() {
+  if (adFinished) return;
+  adFinished = true;
+  clearInterval(adTimer);
+  setBar(1);
+  const btn = document.getElementById('adRewardBtn');
+  btn.disabled = false;
+  btn.innerHTML = '🎉 领取奖励';
+  document.getElementById('adCloseBtn').classList.add('ready');
+  document.getElementById('adTitle').textContent = '恭喜获得奖励！';
+  document.getElementById('adHint').textContent = '广告观看完成，可领取奖励';
+}
+
+function startBannerCountdown() {
+  clearInterval(adTimer);
+  let count = 20;
+  const btn = document.getElementById('adRewardBtn');
+  btn.innerHTML = '🎉 领取奖励（<span id="adCountdown">20</span>s）';
+  setBar(0);
+  adTimer = setInterval(() => {
+    count--;
+    setBar((20 - count) / 20);
+    const cd = document.getElementById('adCountdown');
+    if (cd) cd.textContent = count > 0 ? count : 0;
+    if (count <= 0) finishAd();
+  }, 1000);
+}
+
+function startVideoProgress(video) {
+  clearInterval(adTimer);
+  const btn = document.getElementById('adRewardBtn');
+  btn.innerHTML = '🎉 播放中';
+  setBar(0);
+  video.ontimeupdate = () => {
+    const d = video.duration;
+    if (!isNaN(d) && d > 0) {
+      setBar(Math.min(1, video.currentTime / d));
+      if (video.currentTime >= d - 0.5) finishAd();
+    }
+  };
+}
+
 function showAd() {
   adFinished = false;
   adFailCount = 0;
@@ -309,35 +364,12 @@ function showAd() {
   document.getElementById('adOverlay').classList.add('show');
   const btn = document.getElementById('adRewardBtn');
   btn.disabled = true;
-  btn.innerHTML = '🎉 领取奖励（<span id="adCountdown">30</span>s）';
-  const x = document.getElementById('adCloseBtn');
-  x.classList.remove('ready');
-  document.getElementById('adHint').textContent = '观看满30秒可领取奖励，左右滑动切换广告';
-
+  btn.innerHTML = '🎉 领取奖励';
+  document.getElementById('adCloseBtn').classList.remove('ready');
+  document.getElementById('adTitle').textContent = '播放广告';
+  document.getElementById('adHint').textContent = '观看广告后即可领取奖励';
+  setBar(0);
   loadAd(currentAdIndex);
-
-  let count = 30;
-  const bar = document.getElementById('adProgressBar');
-  bar.style.transition = 'none';
-  bar.style.transform = 'scaleX(0)';
-  void bar.offsetWidth;
-  bar.style.transition = 'transform 30s linear';
-  bar.style.transform = 'scaleX(1)';
-
-  if (adTimer) clearInterval(adTimer);
-  adTimer = setInterval(() => {
-    count--;
-    const cd = document.getElementById('adCountdown');
-    if (cd) cd.textContent = count > 0 ? count : 0;
-    if (count <= 0) {
-      clearInterval(adTimer);
-      adFinished = true;
-      btn.disabled = false;
-      btn.innerHTML = '🎉 领取奖励';
-      x.classList.add('ready');
-      document.getElementById('adHint').textContent = '广告观看完成，可领取奖励';
-    }
-  }, 1000);
 }
 
 const adContainer = document.getElementById('adContainer');
