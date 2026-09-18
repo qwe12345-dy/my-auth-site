@@ -297,24 +297,30 @@ function checkEmailDomain(email) {
 }
 
 async function sendEmailJS(toEmail, code) {
-  const data = {
-    service_id: 'service_pj60jer',
-    template_id: 'template_19nbgn9',
-    user_id: 'JyM2FaCOfdCyNkunC',
-    template_params: {
-      to_email: toEmail,
-      to_name: '用户',
-      code: code,
-      subject: '【龙黑化】注册验证码'
-    }
-  };
+  const html = '<div style="font-family:Arial,sans-serif;padding:24px;background:#f5f5f5;">' +
+    '<div style="background:#fff;border-radius:8px;padding:24px;max-width:400px;margin:0 auto;">' +
+    '<h2 style="margin:0 0 16px;color:#333;font-size:20px;">验证码</h2>' +
+    '<p style="margin:0 0 12px;color:#666;font-size:14px;">你的验证码是：</p>' +
+    '<p style="margin:0 0 16px;font-size:32px;font-weight:bold;color:#1a73e8;letter-spacing:6px;">' + code + '</p>' +
+    '<p style="margin:0;color:#999;font-size:12px;">10分钟内有效，请勿泄露给他人。</p>' +
+    '</div></div>';
+  const params = new URLSearchParams({
+    apikey: '25267332D7D113C6C2A2A0EFEF4EAD3F7B8CD5AFC852F9F25AF616BD04B6778AEDD63454A6B9CA4E2C8D172094FB738B',
+    from: 'longhei2026@theyuse.ccwu.cc',
+    fromName: '创造工坊',
+    to: toEmail,
+    subject: '你的验证码',
+    bodyHtml: html,
+    isTransactional: 'true'
+  });
   try {
-    const resp = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+    const resp = await fetch('https://api.elasticemail.com/v2/email/send', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString()
     });
-    return resp.ok;
+    const data = await resp.json();
+    return data.success === true;
   } catch (e) {
     return false;
   }
