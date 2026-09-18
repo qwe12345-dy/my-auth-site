@@ -91,8 +91,8 @@ a { text-decoration:none; color:inherit; }
   <div class="tip-card">
     <b>获取规则：</b><br>
     · 每观看1次广告，可获得 <b>20~60</b> 随机R币<br>
-    · 广告时长约30秒，看完后即可领取奖励<br>
-    · 未满30秒关闭无法获得奖励<br>
+    · 看完整个广告视频后即可领取奖励<br>
+    · 中途关闭无法获得奖励<br>
     · R币可用于平台内各种消费和兑换
   </div>
 </div>
@@ -113,7 +113,7 @@ a { text-decoration:none; color:inherit; }
   </div>
   <div class="ad-bottom">
     <div class="ad-progress"><div class="ad-progress-bar" id="adProgressBar"></div></div>
-    <div class="ad-hint" id="adHint">观看满30秒可领取奖励，左右滑动切换广告</div>
+    <div class="ad-hint" id="adHint">观看广告后即可领取奖励，左右滑动切换</div>
     <button class="ad-reward-btn" id="adRewardBtn" disabled onclick="claimReward()">🎉 领取奖励（<span id="adCountdown">30</span>s）</button>
   </div>
 </div>
@@ -125,6 +125,16 @@ a { text-decoration:none; color:inherit; }
     <p>R币已存入钱包</p>
     <div class="custom-modal-btns">
       <button class="btn-ok" onclick="closeRewardModal()">确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="custom-modal" id="alertModal">
+  <div class="custom-modal-box">
+    <h3>提示</h3>
+    <p id="alertMsg"></p>
+    <div class="custom-modal-btns">
+      <button class="btn-ok" onclick="closeAlert()">确定</button>
     </div>
   </div>
 </div>
@@ -144,13 +154,6 @@ async function loadBalance() {
 }
 
 const adList = [
-  { type:'script', code:'<script async="async" data-cfasync="false" src="https://pl31356914.profitableratecpmnetwork.com/f5dd40fadb29d86f55fdcb0a98d37cef/invoke.js"><\/script><div id="container-f5dd40fadb29d86f55fdcb0a98d37cef"></div>' },
-  { type:'script', code:'<script>atOptions={key:"137e04638c29bad86e022b2ca0643d61",format:"iframe",height:600,width:160,params:{}};<\/script><script src="https://www.highrevenueformat.com/137e04638c29bad86e022b2ca0643d61/invoke.js"><\/script>' },
-  { type:'script', code:'<script src="https://pl31356911.profitableratecpmnetwork.com/48/c6/15/48c6156abe3b9260340ebb331f2e6782.js"><\/script>' },
-  { type:'script', code:'<script src="https://pl31364013.profitableratecpmnetwork.com/80/b6/9a/80b69a0f6a8171774f8aae8068f29220.js"><\/script>' },
-  { type:'script', code:'<script>atOptions={key:"299db08c2e7264690bedb334429bf691",format:"iframe",height:300,width:160,params:{}};<\/script><script src="https://www.highrevenueformat.com/299db08c2e7264690bedb334429bf691/invoke.js"><\/script>' },
-  { type:'script', code:'<script>atOptions={key:"de836417d6f07c050ca49b339970b284",format:"iframe",height:60,width:468,params:{}};<\/script><script src="https://www.highrevenueformat.com/de836417d6f07c050ca49b339970b284/invoke.js"><\/script>' },
-  { type:'script', code:'<script>atOptions={key:"31f7e7ff227bc01476f96e9f66adf3ad",format:"iframe",height:250,width:300,params:{}};<\/script><script src="https://www.highrevenueformat.com/31f7e7ff227bc01476f96e9f66adf3ad/invoke.js"><\/script>' },
   { type:'vast', url:'https://smooth-survey.com/d/m/FMz.d/GYNAvNZyG/U_/CeLmi9YuZZeUNlvk/PPTscd0bMZz/gKxJOlTFMztdNGz/QfzgOzDDEL5/NdyjZjsGaEWx1_pcd/DO0FxM' },
   { type:'vast', url:'https://smooth-survey.com/dcmdF.zTdcGvNzvEZ/GMUM/cehmv9huvZ/UrlIkDPOT/c/0IMBzpgkx/N/j/k/tDN/zcQvzNOuDjEp3KM/y/ZislakWG1cpQdmD/0Yxq' },
   { type:'vast', url:'https://smooth-survey.com/d/m-Faz/d.GMNIvRZ/GqUL/we/mw9/ucZZURl/kRP/TScv0IMszpgGx/N/j/kjthNuzKQmzqOoDEEy3vMawD' }
@@ -267,7 +270,7 @@ async function playVastAd(url) {
     video.className = 'ad-video';
     video.src = videoUrl;
     video.autoplay = true;
-    video.muted = false;
+    video.muted = true;
     video.playsInline = true;
     video.setAttribute('playsinline', '');
     video.setAttribute('webkit-playsinline', '');
@@ -285,6 +288,7 @@ async function playVastAd(url) {
       xml.querySelectorAll('Tracking[event="complete"]').forEach(t => new Image().src = t.textContent);
       finishAd();
     });
+    video.play().catch(() => {});
 
     let waited = 0;
     adObserveTimer = setInterval(() => {
@@ -394,7 +398,7 @@ adContainer.addEventListener('touchend', function(e) {
 
 async function claimReward() {
   if (!adFinished) {
-    showAlert('请观看满30秒广告后再领取奖励');
+    showAlert('请先看完广告再领取奖励');
     return;
   }
   const btn = document.getElementById('adRewardBtn');
@@ -427,7 +431,7 @@ async function claimReward() {
 
 function closeAd() {
   if (!adFinished) {
-    document.getElementById('adHint').textContent = '广告未满30秒，暂不能关闭';
+    document.getElementById('adHint').textContent = '请先看完广告，暂不能关闭';
     return;
   }
   if (adTimer) clearInterval(adTimer);
@@ -438,6 +442,15 @@ function closeAd() {
 
 function closeRewardModal() {
   document.getElementById('rewardModal').classList.remove('show');
+}
+
+function showAlert(msg) {
+  document.getElementById('alertMsg').textContent = msg;
+  document.getElementById('alertModal').classList.add('show');
+}
+
+function closeAlert() {
+  document.getElementById('alertModal').classList.remove('show');
 }
 
 loadBalance();
