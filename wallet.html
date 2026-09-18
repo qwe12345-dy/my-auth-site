@@ -35,21 +35,30 @@ a { text-decoration:none; color:inherit; }
 .get-btn:disabled { background:#ccc; color:#999; box-shadow:none; }
 .tip-card { background:rgba(255,255,255,.8); backdrop-filter:blur(10px); border-radius:12px; padding:14px 16px; font-size:13px; color:#666; line-height:1.6; }
 .tip-card b { color:#333; }
-.ad-overlay { display:none; position:fixed; inset:0; background:#000; z-index:999; }
-.ad-overlay.show { display:block; }
-.ad-header { position:absolute; top:0; left:0; right:0; background:rgba(0,0,0,.8); color:#fff; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; font-size:14px; z-index:10; }
-.ad-header .countdown { font-weight:700; font-size:16px; }
-.ad-container { position:absolute; top:44px; left:0; right:0; bottom:0; overflow:hidden; background:#fff; touch-action:pan-y; }
-.ad-slide { position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; transition:transform .3s ease; }
-.ad-slide iframe { transform:scale(1.8); transform-origin:center center; max-width:none !important; }
+.ad-overlay { display:none; position:fixed; inset:0; background:#000; z-index:999; flex-direction:column; }
+.ad-overlay.show { display:flex; }
+.ad-header { background:#111; color:#fff; height:50px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:0 14px; position:relative; }
+.ad-header .ad-tag { display:flex; align-items:center; gap:5px; font-size:13px; color:#aaa; width:33%; }
+.ad-header .ad-title { position:absolute; left:50%; transform:translateX(-50%); font-size:16px; font-weight:600; color:#fff; white-space:nowrap; }
+.ad-header .ad-x { width:33%; display:flex; justify-content:flex-end; background:none; border:none; color:#fff; font-size:22px; cursor:pointer; padding:0; line-height:1; opacity:.35; }
+.ad-header .ad-x.ready { opacity:1; }
+.ad-container { flex:1; position:relative; overflow:hidden; background:#fff; touch-action:pan-y; min-height:0; }
+.ad-slide { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; transition:opacity .2s ease; }
+.ad-slide iframe { transform:scale(1.8); transform-origin:center center; max-width:none !important; border:none; }
 .ad-slide > div { transform:scale(1.8); transform-origin:center center; }
-.ad-hint-swipe { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:#ccc; font-size:14px; pointer-events:none; z-index:1; }
-.ad-bottom { position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,.8); padding:12px 16px; z-index:10; }
-.ad-reward-btn { width:100%; padding:14px; background:linear-gradient(135deg,#4caf50,#388e3c); color:#fff; border:none; font-size:16px; font-weight:600; cursor:pointer; border-radius:8px; }
+.ad-slide video.ad-video { width:100%; height:100%; object-fit:contain; background:#000; border:none; transform:none; }
+.ad-loading { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; background:#fff; z-index:5; }
+.ad-spinner { width:40px; height:40px; border:4px solid #eee; border-top-color:#4a7dff; border-radius:50%; animation:adspin .8s linear infinite; }
+@keyframes adspin { to { transform:rotate(360deg); } }
+.ad-loading .lt { font-size:14px; color:#999; }
+.ad-loading .retry { margin-top:4px; padding:8px 22px; border:1px solid #4a7dff; background:#fff; color:#4a7dff; border-radius:20px; font-size:13px; cursor:pointer; display:none; }
+.ad-bottom { background:#111; padding:10px 16px calc(12px + env(safe-area-inset-bottom)); flex-shrink:0; }
+.ad-progress { height:4px; background:#333; border-radius:2px; overflow:hidden; margin-bottom:10px; }
+.ad-progress-bar { height:100%; width:100%; background:linear-gradient(90deg,#4caf50,#8bc34a); transform-origin:left center; transform:scaleX(0); }
+.ad-reward-btn { width:100%; padding:14px; background:linear-gradient(135deg,#4caf50,#388e3c); color:#fff; border:none; font-size:16px; font-weight:600; cursor:pointer; border-radius:10px; }
 .ad-reward-btn:active { transform:scale(.98); }
-.ad-reward-btn:disabled { background:#555; color:#888; }
-.ad-close-btn { width:100%; padding:10px; background:transparent; color:#999; border:none; font-size:14px; cursor:pointer; margin-top:8px; }
-.ad-hint { text-align:center; color:#fff; font-size:13px; margin-bottom:8px; }
+.ad-reward-btn:disabled { background:#3a3a3a; color:#888; }
+.ad-hint { text-align:center; color:#bbb; font-size:12px; margin-bottom:8px; }
 .custom-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
 .custom-modal.show { display:flex; }
 .custom-modal-box { background:#fff; border-radius:16px; padding:24px; width:80%; max-width:300px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,.2); }
@@ -90,16 +99,22 @@ a { text-decoration:none; color:inherit; }
 
 <div class="ad-overlay" id="adOverlay">
   <div class="ad-header">
-    <span>广告</span>
-    <span class="countdown" id="adCountdown">30s</span>
+    <span class="ad-tag">📶 广告</span>
+    <span class="ad-title">恭喜获得奖励！</span>
+    <button class="ad-x" id="adCloseBtn" onclick="closeAd()">✕</button>
   </div>
   <div class="ad-container" id="adContainer">
     <div class="ad-slide" id="adSlide"></div>
+    <div class="ad-loading" id="adLoading">
+      <div class="ad-spinner"></div>
+      <div class="lt" id="adLoadingText">广告加载中...</div>
+      <button class="retry" id="adRetryBtn" onclick="retryAd()">重新加载</button>
+    </div>
   </div>
   <div class="ad-bottom">
-    <div class="ad-hint" id="adHint">观看满30秒可领取奖励</div>
-    <button class="ad-reward-btn" id="adRewardBtn" disabled onclick="claimReward()">🎉 领取奖励</button>
-    <button class="ad-close-btn" id="adCloseBtn" style="display:none" onclick="closeAd()">关闭</button>
+    <div class="ad-progress"><div class="ad-progress-bar" id="adProgressBar"></div></div>
+    <div class="ad-hint" id="adHint">观看满30秒可领取奖励，左右滑动切换广告</div>
+    <button class="ad-reward-btn" id="adRewardBtn" disabled onclick="claimReward()">🎉 领取奖励（<span id="adCountdown">30</span>s）</button>
   </div>
 </div>
 
@@ -128,14 +143,17 @@ async function loadBalance() {
   } catch (e) {}
 }
 
-const adCodes = [
-  '<script async="async" data-cfasync="false" src="https://pl31356914.profitableratecpmnetwork.com/f5dd40fadb29d86f55fdcb0a98d37cef/invoke.js"><\/script><div id="container-f5dd40fadb29d86f55fdcb0a98d37cef"></div>',
-  '<script>atOptions={key:"137e04638c29bad86e022b2ca0643d61",format:"iframe",height:600,width:160,params:{}};<\/script><script src="https://www.highrevenueformat.com/137e04638c29bad86e022b2ca0643d61/invoke.js"><\/script>',
-  '<script src="https://pl31356911.profitableratecpmnetwork.com/48/c6/15/48c6156abe3b9260340ebb331f2e6782.js"><\/script>',
-  '<script src="https://pl31364013.profitableratecpmnetwork.com/80/b6/9a/80b69a0f6a8171774f8aae8068f29220.js"><\/script>',
-  '<script>atOptions={key:"299db08c2e7264690bedb334429bf691",format:"iframe",height:300,width:160,params:{}};<\/script><script src="https://www.highrevenueformat.com/299db08c2e7264690bedb334429bf691/invoke.js"><\/script>',
-  '<script>atOptions={key:"de836417d6f07c050ca49b339970b284",format:"iframe",height:60,width:468,params:{}};<\/script><script src="https://www.highrevenueformat.com/de836417d6f07c050ca49b339970b284/invoke.js"><\/script>',
-  '<script>atOptions={key:"31f7e7ff227bc01476f96e9f66adf3ad",format:"iframe",height:250,width:300,params:{}};<\/script><script src="https://www.highrevenueformat.com/31f7e7ff227bc01476f96e9f66adf3ad/invoke.js"><\/script>'
+const adList = [
+  { type:'script', code:'<script async="async" data-cfasync="false" src="https://pl31356914.profitableratecpmnetwork.com/f5dd40fadb29d86f55fdcb0a98d37cef/invoke.js"><\/script><div id="container-f5dd40fadb29d86f55fdcb0a98d37cef"></div>' },
+  { type:'script', code:'<script>atOptions={key:"137e04638c29bad86e022b2ca0643d61",format:"iframe",height:600,width:160,params:{}};<\/script><script src="https://www.highrevenueformat.com/137e04638c29bad86e022b2ca0643d61/invoke.js"><\/script>' },
+  { type:'script', code:'<script src="https://pl31356911.profitableratecpmnetwork.com/48/c6/15/48c6156abe3b9260340ebb331f2e6782.js"><\/script>' },
+  { type:'script', code:'<script src="https://pl31364013.profitableratecpmnetwork.com/80/b6/9a/80b69a0f6a8171774f8aae8068f29220.js"><\/script>' },
+  { type:'script', code:'<script>atOptions={key:"299db08c2e7264690bedb334429bf691",format:"iframe",height:300,width:160,params:{}};<\/script><script src="https://www.highrevenueformat.com/299db08c2e7264690bedb334429bf691/invoke.js"><\/script>' },
+  { type:'script', code:'<script>atOptions={key:"de836417d6f07c050ca49b339970b284",format:"iframe",height:60,width:468,params:{}};<\/script><script src="https://www.highrevenueformat.com/de836417d6f07c050ca49b339970b284/invoke.js"><\/script>' },
+  { type:'script', code:'<script>atOptions={key:"31f7e7ff227bc01476f96e9f66adf3ad",format:"iframe",height:250,width:300,params:{}};<\/script><script src="https://www.highrevenueformat.com/31f7e7ff227bc01476f96e9f66adf3ad/invoke.js"><\/script>' },
+  { type:'vast', url:'https://smooth-survey.com/d/m/FMz.d/GYNAvNZyG/U_/CeLmi9YuZZeUNlvk/PPTscd0bMZz/gKxJOlTFMztdNGz/QfzgOzDDEL5/NdyjZjsGaEWx1_pcd/DO0FxM' },
+  { type:'vast', url:'https://smooth-survey.com/dcmdF.zTdcGvNzvEZ/GMUM/cehmv9huvZ/UrlIkDPOT/c/0IMBzpgkx/N/j/k/tDN/zcQvzNOuDjEp3KM/y/ZislakWG1cpQdmD/0Yxq' },
+  { type:'vast', url:'https://smooth-survey.com/d/m-Faz/d.GMNIvRZ/GqUL/we/mw9/ucZZURl/kRP/TScv0IMszpgGx/N/j/kjthNuzKQmzqOoDEEy3vMawD' }
 ];
 
 let adTimer = null;
@@ -143,12 +161,37 @@ let adFinished = false;
 let currentAdIndex = 0;
 let touchStartX = 0;
 let touchStartY = 0;
+let adObserveTimer = null;
+let adFailCount = 0;
+
+function setLoading(failed) {
+  const loading = document.getElementById('adLoading');
+  loading.style.display = 'flex';
+  document.getElementById('adLoadingText').textContent = failed ? '广告加载失败，请重试' : '广告加载中...';
+  document.getElementById('adRetryBtn').style.display = failed ? 'block' : 'none';
+  document.querySelector('.ad-spinner').style.display = failed ? 'none' : 'block';
+}
+function hideLoading() {
+  document.getElementById('adLoading').style.display = 'none';
+}
 
 function loadAd(index) {
+  const ad = adList[index];
+  if (ad.type === 'vast') {
+    playVastAd(ad.url);
+  } else {
+    loadScriptAd(ad.code);
+  }
+}
+
+function loadScriptAd(code) {
   const slide = document.getElementById('adSlide');
+  setLoading(false);
   slide.style.opacity = '0';
+  slide.innerHTML = '';
+  clearInterval(adObserveTimer);
   setTimeout(() => {
-    slide.innerHTML = adCodes[index];
+    slide.innerHTML = code;
     const scripts = slide.querySelectorAll('script');
     scripts.forEach(oldScript => {
       const newScript = document.createElement('script');
@@ -159,33 +202,140 @@ function loadAd(index) {
       oldScript.parentNode.replaceChild(newScript, oldScript);
     });
     slide.style.opacity = '1';
+
+    let waited = 0;
+    adObserveTimer = setInterval(() => {
+      waited += 500;
+      const iframe = slide.querySelector('iframe');
+      if (iframe && iframe.offsetWidth > 0 && iframe.offsetHeight > 0) {
+        clearInterval(adObserveTimer);
+        adFailCount = 0;
+        hideLoading();
+      } else if (waited >= 9000) {
+        clearInterval(adObserveTimer);
+        adFailCount++;
+        if (adFailCount < adList.length) {
+          currentAdIndex = (currentAdIndex + 1) % adList.length;
+          loadAd(currentAdIndex);
+        } else {
+          adFailCount = 0;
+          setLoading(true);
+        }
+      }
+    }, 500);
   }, 150);
+}
+
+function nextAdOrFail() {
+  adFailCount++;
+  if (adFailCount < adList.length) {
+    currentAdIndex = (currentAdIndex + 1) % adList.length;
+    loadAd(currentAdIndex);
+  } else {
+    adFailCount = 0;
+    setLoading(true);
+  }
+}
+
+async function playVastAd(url) {
+  const slide = document.getElementById('adSlide');
+  setLoading(false);
+  slide.style.opacity = '0';
+  slide.innerHTML = '';
+  clearInterval(adObserveTimer);
+  try {
+    const resp = await fetch('/api/vast?url=' + encodeURIComponent(url));
+    const text = await resp.text();
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(text, 'text/xml');
+
+    const imp = xml.querySelector('Impression');
+    if (imp && imp.textContent) new Image().src = imp.textContent;
+
+    const mfs = xml.querySelectorAll('MediaFile');
+    let videoUrl = '';
+    for (const mf of mfs) {
+      if ((mf.getAttribute('type') || '').indexOf('mp4') >= 0) { videoUrl = mf.textContent; break; }
+    }
+    if (!videoUrl && mfs.length) videoUrl = mfs[0].textContent;
+    if (!videoUrl) throw new Error('no video');
+
+    const video = document.createElement('video');
+    video.className = 'ad-video';
+    video.src = videoUrl;
+    video.autoplay = true;
+    video.muted = true;
+    video.playsInline = true;
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
+    slide.appendChild(video);
+    slide.style.opacity = '1';
+
+    video.addEventListener('play', () => {
+      xml.querySelectorAll('Tracking[event="start"]').forEach(t => new Image().src = t.textContent);
+      hideLoading();
+    });
+    video.addEventListener('ended', () => {
+      xml.querySelectorAll('Tracking[event="complete"]').forEach(t => new Image().src = t.textContent);
+    });
+
+    let waited = 0;
+    adObserveTimer = setInterval(() => {
+      waited += 500;
+      if (video.readyState >= 2) {
+        clearInterval(adObserveTimer);
+        adFailCount = 0;
+        hideLoading();
+      } else if (waited >= 9000) {
+        clearInterval(adObserveTimer);
+        nextAdOrFail();
+      }
+    }, 500);
+  } catch (e) {
+    nextAdOrFail();
+  }
+}
+
+function retryAd() {
+  adFailCount = 0;
+  currentAdIndex = Math.floor(Math.random() * adList.length);
+  loadAd(currentAdIndex);
 }
 
 function showAd() {
   adFinished = false;
-  currentAdIndex = Math.floor(Math.random() * adCodes.length);
+  adFailCount = 0;
+  currentAdIndex = Math.floor(Math.random() * adList.length);
   document.getElementById('adOverlay').classList.add('show');
-  document.getElementById('adRewardBtn').disabled = true;
-  document.getElementById('adRewardBtn').textContent = '🎉 领取奖励';
-  document.getElementById('adCloseBtn').style.display = 'none';
+  const btn = document.getElementById('adRewardBtn');
+  btn.disabled = true;
+  btn.innerHTML = '🎉 领取奖励（<span id="adCountdown">30</span>s）';
+  const x = document.getElementById('adCloseBtn');
+  x.classList.remove('ready');
   document.getElementById('adHint').textContent = '观看满30秒可领取奖励，左右滑动切换广告';
 
   loadAd(currentAdIndex);
 
   let count = 30;
-  document.getElementById('adCountdown').textContent = count + 's';
+  const bar = document.getElementById('adProgressBar');
+  bar.style.transition = 'none';
+  bar.style.transform = 'scaleX(0)';
+  void bar.offsetWidth;
+  bar.style.transition = 'transform 30s linear';
+  bar.style.transform = 'scaleX(1)';
+
   if (adTimer) clearInterval(adTimer);
   adTimer = setInterval(() => {
     count--;
-    document.getElementById('adCountdown').textContent = count + 's';
+    const cd = document.getElementById('adCountdown');
+    if (cd) cd.textContent = count > 0 ? count : 0;
     if (count <= 0) {
       clearInterval(adTimer);
       adFinished = true;
-      document.getElementById('adCountdown').textContent = '完成';
+      btn.disabled = false;
+      btn.innerHTML = '🎉 领取奖励';
+      x.classList.add('ready');
       document.getElementById('adHint').textContent = '广告观看完成，可领取奖励';
-      document.getElementById('adRewardBtn').disabled = false;
-      document.getElementById('adCloseBtn').style.display = 'block';
     }
   }, 1000);
 }
@@ -203,9 +353,9 @@ adContainer.addEventListener('touchend', function(e) {
   const absDy = Math.abs(dy);
   if (Math.max(absDx, absDy) < 50) return;
   if (absDx > absDy) {
-    currentAdIndex = dx < 0 ? (currentAdIndex + 1) % adCodes.length : (currentAdIndex - 1 + adCodes.length) % adCodes.length;
+    currentAdIndex = dx < 0 ? (currentAdIndex + 1) % adList.length : (currentAdIndex - 1 + adList.length) % adList.length;
   } else {
-    currentAdIndex = dy < 0 ? (currentAdIndex + 1) % adCodes.length : (currentAdIndex - 1 + adCodes.length) % adCodes.length;
+    currentAdIndex = dy < 0 ? (currentAdIndex + 1) % adList.length : (currentAdIndex - 1 + adList.length) % adList.length;
   }
   loadAd(currentAdIndex);
 }, { passive: true });
@@ -231,6 +381,8 @@ async function claimReward() {
       document.getElementById('rewardAmount').textContent = '+' + d.amount;
       document.getElementById('rewardModal').classList.add('show');
       document.getElementById('adOverlay').classList.remove('show');
+      clearInterval(adObserveTimer);
+      document.getElementById('adSlide').innerHTML = '';
     } else {
       showAlert(d.message);
     }
@@ -242,7 +394,12 @@ async function claimReward() {
 }
 
 function closeAd() {
+  if (!adFinished) {
+    document.getElementById('adHint').textContent = '广告未满30秒，暂不能关闭';
+    return;
+  }
   if (adTimer) clearInterval(adTimer);
+  clearInterval(adObserveTimer);
   document.getElementById('adOverlay').classList.remove('show');
   document.getElementById('adSlide').innerHTML = '';
 }
