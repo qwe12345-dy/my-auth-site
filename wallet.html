@@ -87,11 +87,12 @@ a { text-decoration:none; color:inherit; }
       </div>
     </div>
   </div>
-  <button class="get-btn" onclick="showAd()">🎬 看广告获取R币</button>
+  <button class="get-btn" id="watchAdBtn" onclick="showAd()">🎬 看广告获取R币<span style="font-size:13px;opacity:.9;font-weight:400;">（今日剩余 <span id="adRemaining">15</span> 次）</span></button>
   <div class="tip-card">
     <b>获取规则：</b><br>
     · 每观看1次广告，可获得 <b>20~60</b> 随机R币<br>
     · 看完整个广告视频后即可领取奖励<br>
+    · 每天最多观看 <b>15</b> 次广告，次日0点重置<br>
     · 中途关闭无法获得奖励<br>
     · R币可用于平台内各种消费和兑换
   </div>
@@ -141,6 +142,7 @@ a { text-decoration:none; color:inherit; }
 
 <script>
 let currentBalance = 0;
+let adRemainingLeft = 15;
 
 async function loadBalance() {
   try {
@@ -149,8 +151,28 @@ async function loadBalance() {
     if (d.success) {
       currentBalance = d.balance;
       document.getElementById('balance').textContent = d.balance;
+      updateAdRemaining(d.ad_remaining);
     }
   } catch (e) {}
+}
+
+function updateAdRemaining(remaining) {
+  if (remaining === undefined || remaining === null) return;
+  adRemainingLeft = remaining;
+  const txt = document.getElementById('adRemaining');
+  const btn = document.getElementById('watchAdBtn');
+  if (txt) txt.textContent = remaining;
+  if (btn) {
+    if (remaining <= 0) {
+      btn.disabled = true;
+      btn.style.opacity = '0.55';
+      btn.style.cursor = 'not-allowed';
+    } else {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+    }
+  }
 }
 
 const adList = [
@@ -364,6 +386,10 @@ function startVideoProgress(video) {
 }
 
 function showAd() {
+  if (adRemainingLeft <= 0) {
+    showAlert('今日广告次数已用完（15/15），明天再来吧');
+    return;
+  }
   adFinished = false;
   adFailCount = 0;
   currentAdIndex = Math.floor(Math.random() * adList.length);
@@ -416,12 +442,14 @@ async function claimReward() {
     if (d.success) {
       currentBalance = d.balance;
       document.getElementById('balance').textContent = d.balance;
+      updateAdRemaining(d.remaining);
       document.getElementById('rewardAmount').textContent = '+' + d.amount;
       document.getElementById('rewardModal').classList.add('show');
       document.getElementById('adOverlay').classList.remove('show');
       clearInterval(adObserveTimer);
       document.getElementById('adSlide').innerHTML = '';
     } else {
+      if (d.remaining !== undefined) updateAdRemaining(d.remaining);
       showAlert(d.message);
     }
   } catch (e) {
