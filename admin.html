@@ -207,9 +207,17 @@ async function api(path, opts){
   opts = opts || {};
   opts.credentials = 'include';
   opts.headers = Object.assign({'Content-Type':'application/json'}, opts.headers||{});
-  const r = await fetch('/api/admin/'+path, opts);
-  if(r.status === 401){ showLogin(); throw new Error('unauth'); }
-  return r.json();
+  let r;
+  try { r = await fetch('/api/admin/'+path, opts); }
+  catch(e){ throw { friendly:'无法连接服务器，请检查网络后重试' }; }
+  const ct = r.headers.get('Content-Type')||'';
+  if(ct.indexOf('application/json') < 0){
+    if(r.status === 404) throw { friendly:'后台接口不存在(404)：最新代码还没部署成功，请等 Pages 部署完成后重试' };
+    throw { friendly:'服务器异常('+r.status+')，请确认最新代码已重新部署' };
+  }
+  const data = await r.json();
+  if(r.status === 401 && path !== 'login'){ showLogin(); throw { friendly:'登录已过期，请重新登录' }; }
+  return data;
 }
 
 function showLogin(){ $('adminView').classList.add('hidden'); $('loginView').style.display='flex'; }
@@ -223,7 +231,7 @@ async function doLogin(){
     const d = await api('login', { method:'POST', body: JSON.stringify({username:u, password:p}) });
     if(d.success){ toast('登录成功'); showAdmin(); switchTab('dashboard'); $('adminPass').value=''; }
     else $('loginErr').textContent = d.message || '登录失败';
-  }catch(e){ if(e.message!=='unauth') $('loginErr').textContent='网络错误'; }
+  }catch(e){ $('loginErr').textContent = e.friendly || '登录失败，请重试'; }
 }
 async function doLogout(){
   try{ await api('logout',{method:'POST'}); }catch(e){}
