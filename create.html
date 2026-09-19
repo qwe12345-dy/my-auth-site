@@ -21,7 +21,7 @@ a { text-decoration:none; color:inherit; }
 .edit-header { background:rgba(255,255,255,.85); backdrop-filter:blur(10px); padding:14px 16px; display:flex; align-items:center; position:sticky; top:0; z-index:100; }
 .edit-header .back { font-size:20px; color:#333; margin-right:12px; cursor:pointer; }
 .edit-header h2 { font-size:17px; font-weight:600; }
-.create-form { padding:16px; }
+.create-form { padding:16px 16px 130px; }
 .form-group { margin-bottom:18px; }
 .form-group label { display:block; font-size:14px; color:#666; margin-bottom:8px; font-weight:500; }
 .icon-upload { width:80px; height:80px; border-radius:16px; background:#fff; border:2px dashed #ccc; display:flex; align-items:center; justify-content:center; cursor:pointer; overflow:hidden; position:relative; }
@@ -70,7 +70,7 @@ a { text-decoration:none; color:inherit; }
   <h2 id="pageTitle">上传游戏</h2>
 </div>
 <div id="msg"></div>
-<img src="assets/create-guide.jpg" alt="" style="display:block;height:118px;width:calc(100% - 32px);margin:2px auto 14px;object-fit:cover;border-radius:16px;box-shadow:0 6px 18px rgba(74,125,255,.18)">
+<img src="assets/create-guide.jpg" alt="" style="display:block;height:78px;width:calc(100% - 32px);margin:2px auto 12px;object-fit:cover;border-radius:14px;box-shadow:0 6px 18px rgba(74,125,255,.18)">
 <div class="create-form">
   <div class="form-group">
     <label>游戏图标</label>
@@ -232,7 +232,8 @@ async function submitGame() {
 </script>
 <nav class="bottom-nav">
   <a href="index.html"><span class="icon"><img src="assets/nav-home.png" alt=""></span>主页</a>
-  <a href="create.html" class="fab active">+</a>
+  <a href="community.html"><span class="icon"><img src="assets/nav-community.png" alt=""></span>社区</a>
+  <a href="create.html" class="fab active"><img src="assets/nav-create.png" alt=""></a>
   <a href="profile.html"><span class="icon"><img src="assets/nav-me.png" alt=""></span>我的</a>
 </nav>
 </body>

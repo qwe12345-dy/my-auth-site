@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<link rel="icon" type="image/png" href="favicon.png">
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>动态详情 - 创造工坊</title>
+<script src="assets/auth.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { -webkit-text-size-adjust:100%; }
+body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; color:#1a1a1a; min-height:100vh; font-size:16px; line-height:1.5; background:#f0f2f8; overflow-x:hidden; padding-bottom:110px; }
+input,button,textarea { font-family:inherit; font-size:16px; }
+a { text-decoration:none; color:inherit; }
+.app-bg { position:fixed; inset:0; z-index:-1; background:linear-gradient(135deg,#e8ecf5 0%,#f0f2f8 40%,#f5f0f8 100%); }
+.edit-header { background:rgba(255,255,255,.85); backdrop-filter:blur(10px); padding:14px 16px; display:flex; align-items:center; position:sticky; top:0; z-index:100; }
+.edit-header .back { font-size:20px; color:#333; margin-right:12px; cursor:pointer; }
+.edit-header h2 { font-size:17px; font-weight:600; }
+.wrap { padding:14px; }
+.post-main { background:rgba(255,255,255,.85); border-radius:16px; padding:16px; margin-bottom:12px; }
+.pm-head { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.pm-avatar { width:40px; height:40px; border-radius:50%; overflow:hidden; background:#ddd; flex-shrink:0; }
+.pm-avatar img { width:100%; height:100%; object-fit:cover; }
+.pm-name { font-size:14px; font-weight:600; }
+.pm-time { font-size:11px; color:#999; margin-left:auto; }
+.pm-title { font-size:19px; font-weight:700; margin-bottom:8px; }
+.pm-content { font-size:15px; color:#333; line-height:1.7; white-space:pre-wrap; word-break:break-word; }
+.pm-img { margin-top:12px; border-radius:12px; overflow:hidden; }
+.pm-img img { width:100%; max-height:360px; object-fit:cover; display:block; }
+.comments-section { background:rgba(255,255,255,.85); border-radius:16px; padding:16px; }
+.comments-title { font-size:16px; font-weight:600; margin-bottom:6px; }
+.comment-item { padding:12px 0; border-bottom:1px solid #f0f0f0; position:relative; }
+.comment-item:last-child { border-bottom:none; }
+.comment-header { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.comment-avatar { width:28px; height:28px; border-radius:50%; overflow:hidden; background:#ddd; flex-shrink:0; }
+.comment-avatar img { width:100%; height:100%; object-fit:cover; }
+.comment-user { font-size:14px; font-weight:600; }
+.comment-time { font-size:11px; color:#999; margin-left:auto; flex-shrink:0; }
+.comment-content { font-size:14px; color:#333; line-height:1.5; padding-left:36px; word-break:break-word; }
+.comment-actions { position:absolute; right:0; top:8px; background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.12); padding:4px 0; display:none; z-index:10; }
+.comment-actions.show { display:block; }
+.comment-actions button { display:block; width:100%; padding:8px 16px; border:none; background:none; font-size:13px; cursor:pointer; text-align:left; white-space:nowrap; }
+.comment-actions button.del { color:#e74c3c; }
+.comment-actions button.report { color:#666; }
+.comment-input-row { display:flex; gap:8px; margin-top:14px; padding-top:14px; border-top:1px solid #f0f0f0; }
+.comment-input-row input { flex:1; min-width:0; padding:10px 14px; border:1px solid #e0e0e0; border-radius:20px; font-size:14px; background:#fafafa; }
+.comment-input-row input:focus { outline:none; border-color:#4a7dff; background:#fff; }
+.comment-input-row button { flex-shrink:0; padding:10px 16px; background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; border:none; border-radius:20px; font-size:14px; font-weight:600; cursor:pointer; }
+.loading { text-align:center; padding:60px 20px; color:#999; }
+.custom-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:999; align-items:center; justify-content:center; }
+.custom-modal.show { display:flex; }
+.custom-modal-box { background:#fff; border-radius:16px; padding:24px; width:80%; max-width:300px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,.2); }
+.custom-modal-box h3 { font-size:17px; margin-bottom:12px; color:#333; }
+.custom-modal-box p { font-size:14px; color:#666; margin-bottom:20px; line-height:1.5; }
+.custom-modal-btns { display:flex; gap:10px; justify-content:center; }
+.custom-modal-btns button { padding:10px 20px; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; }
+.btn-ok { background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; }
+.btn-danger { background:#e74c3c; color:#fff; }
+.bottom-nav { position:fixed; bottom:12px; left:12px; right:12px; background:rgba(255,255,255,.75); backdrop-filter:blur(20px); border-radius:24px; display:flex; justify-content:space-around; align-items:center; padding:10px 8px; padding-bottom:calc(10px + env(safe-area-inset-bottom)); box-shadow:0 4px 20px rgba(0,0,0,.08); z-index:200; }
+.bottom-nav a { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px 4px; color:#999; font-size:11px; text-decoration:none; border-radius:16px; }
+.bottom-nav a.active { color:#1a1a1a; background:rgba(0,0,0,.06); }
+.bottom-nav .fab { flex:0 0 auto; width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,#4a7dff,#3b5fe0); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(74,125,255,.4); margin:0 4px; }
+.bottom-nav a .icon img { width:24px; height:24px; display:block; }
+.bottom-nav a:not(.active) .icon img { filter:grayscale(1); opacity:.4; }
+.bottom-nav a.active .icon img { filter:none; opacity:1; }
+.bottom-nav .fab img { width:26px; height:26px; display:block; filter:brightness(0) invert(1); }
+@media(max-width:480px){.bottom-nav a .icon img{width:22px;height:22px}.bottom-nav .fab img{width:23px;height:23px}}
+</style>
+</head>
+<body>
+<div class="app-bg"></div>
+<div class="custom-modal" id="customModal">
+  <div class="custom-modal-box">
+    <h3 id="modalTitle">提示</h3>
+    <p id="modalText"></p>
+    <div class="custom-modal-btns">
+      <button class="btn-ok" onclick="closeModal()">确定</button>
+      <button class="btn-danger" id="confirmOkBtn" style="display:none">确定</button>
+    </div>
+  </div>
+</div>
+<div class="edit-header">
+  <span class="back" onclick="history.back()">←</span>
+  <h2>动态详情</h2>
+</div>
+<div class="wrap">
+  <div id="loading" class="loading">加载中...</div>
+  <div id="main" style="display:none">
+    <div class="post-main" id="postMain"></div>
+    <div class="comments-section">
+      <div class="comments-title">评论 <span id="commentCount" style="color:#999;font-weight:normal;font-size:13px"></span></div>
+      <div id="commentList"></div>
+      <div class="comment-input-row">
+        <input type="text" id="commentInput" placeholder="说点什么..." maxlength="500">
+        <button onclick="sendComment()">发送</button>
+      </div>
+    </div>
+  </div>
+</div>
+<nav class="bottom-nav">
+  <a href="index.html"><span class="icon"><img src="assets/nav-home.png" alt=""></span>主页</a>
+  <a href="community.html" class="active"><span class="icon"><img src="assets/nav-community.png" alt=""></span>社区</a>
+  <a href="create.html" class="fab"><img src="assets/nav-create.png" alt=""></a>
+  <a href="profile.html"><span class="icon"><img src="assets/nav-me.png" alt=""></span>我的</a>
+</nav>
+<script>
+let postId = new URLSearchParams(location.search).get('id');
+let currentUserId = null;
+let pressTimer = null, actionTimer = null;
+
+function showAlert(text, title){
+  document.getElementById('modalTitle').textContent = title || '提示';
+  document.getElementById('modalText').textContent = text;
+  document.querySelector('.btn-ok').style.display = 'inline-block';
+  document.getElementById('confirmOkBtn').style.display = 'none';
+  document.getElementById('customModal').classList.add('show');
+}
+function showConfirm(text, onOk){
+  document.getElementById('modalTitle').textContent = '确认';
+  document.getElementById('modalText').textContent = text;
+  document.querySelector('.btn-ok').style.display = 'none';
+  const b = document.getElementById('confirmOkBtn');
+  b.style.display = 'inline-block';
+  b.onclick = function(){ closeModal(); if(onOk) onOk(); };
+  document.getElementById('customModal').classList.add('show');
+}
+function closeModal(){ document.getElementById('customModal').classList.remove('show'); }
+function escapeHtml(t){ const d=document.createElement('div'); d.textContent=t==null?'':t; return d.innerHTML; }
+
+async function loadUser(){
+  try{ const r=await fetch('/api/user',{credentials:'include'}); const d=await r.json(); if(d.success) currentUserId=d.user.id; }catch(e){}
+}
+
+async function loadPost(){
+  if(!postId){ showAlert('动态不存在'); return; }
+  await loadUser();
+  try{
+    const r = await fetch('/api/post?id='+postId,{credentials:'include'});
+    const d = await r.json();
+    if(!d.success){ document.getElementById('loading').textContent = d.message; return; }
+    const p = d.post;
+    document.getElementById('loading').style.display='none';
+    document.getElementById('main').style.display='block';
+    const avatar = p.author_avatar ? '<img src="'+p.author_avatar+'">' : '<img src="assets/default-avatar.jpg">';
+    const img = p.image ? '<div class="pm-img"><img src="'+p.image+'"></div>' : '';
+    document.getElementById('postMain').innerHTML =
+      '<div class="pm-head"><div class="pm-avatar">'+avatar+'</div>'+
+      '<div><div class="pm-name">'+escapeHtml(p.author_name||'')+'</div></div>'+
+      '<span class="pm-time">'+(p.created_at||'').substring(5,16)+'</span></div>'+
+      '<div class="pm-title">'+escapeHtml(p.title)+'</div>'+
+      '<div class="pm-content">'+escapeHtml(p.content)+'</div>'+img;
+    loadComments();
+  }catch(e){ document.getElementById('loading').textContent='加载失败'; }
+}
+
+async function loadComments(){
+  try{
+    const r = await fetch('/api/post_comments?post_id='+postId);
+    const d = await r.json();
+    const list = document.getElementById('commentList');
+    if(!d.success || d.comments.length===0){
+      list.innerHTML = '<div style="text-align:center;padding:20px;color:#bbb;font-size:13px">暂无评论，快来抢沙发</div>';
+      document.getElementById('commentCount').textContent='0条';
+      return;
+    }
+    document.getElementById('commentCount').textContent = d.comments.length+'条';
+    list.innerHTML = d.comments.map(c=>{
+      const isSelf = currentUserId && c.user_id === currentUserId;
+      const avatar = c.avatar ? '<img src="'+c.avatar+'">' : '<img src="assets/default-avatar.jpg">';
+      return '<div class="comment-item" data-id="'+c.id+'">'+
+        '<div class="comment-header"><div class="comment-avatar">'+avatar+'</div>'+
+        '<span class="comment-user">'+escapeHtml(c.username||'')+'</span>'+
+        '<span class="comment-time">'+(c.created_at||'').substring(5,16)+'</span></div>'+
+        '<div class="comment-content">'+escapeHtml(c.content)+'</div>'+
+        '<div class="comment-actions" id="ca_'+c.id+'">'+
+          (isSelf ? '<button class="del" onclick="delComment('+c.id+')">删除</button>'
+                  : '<button class="report" onclick="reportComment('+c.id+')">举报</button>')+
+        '</div></div>';
+    }).join('');
+    document.querySelectorAll('.comment-item').forEach(item=>{
+      item.addEventListener('touchstart',handleLong);
+      item.addEventListener('mousedown',handleLong);
+    });
+  }catch(e){}
+}
+
+function handleLong(e){
+  const item = e.currentTarget; const id = item.dataset.id;
+  clearTimeout(pressTimer);
+  pressTimer = setTimeout(()=>{
+    document.querySelectorAll('.comment-actions').forEach(a=>a.classList.remove('show'));
+    document.getElementById('ca_'+id).classList.add('show');
+    clearTimeout(actionTimer);
+    actionTimer = setTimeout(()=>{ document.getElementById('ca_'+id).classList.remove('show'); },2500);
+  },500);
+}
+document.addEventListener('touchend',()=>clearTimeout(pressTimer));
+document.addEventListener('mouseup',()=>clearTimeout(pressTimer));
+
+async function sendComment(){
+  const input = document.getElementById('commentInput');
+  const content = input.value.trim();
+  if(!content){ showAlert('评论内容不能为空'); return; }
+  try{
+    const r = await fetch('/api/add_post_comment',{
+      method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include',
+      body: JSON.stringify({post_id: postId, content: content})
+    });
+    const d = await r.json();
+    if(d.success){ input.value=''; loadComments(); }
+    else showAlert(d.message||'评论失败');
+  }catch(e){ showAlert('网络错误，请重试'); }
+}
+
+async function delComment(id){
+  showConfirm('确定删除这条评论吗？', async ()=>{
+    try{
+      const r = await fetch('/api/delete_post_comment',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({comment_id:id})});
+      const d = await r.json();
+      if(d.success) loadComments(); else showAlert(d.message||'删除失败');
+    }catch(e){ showAlert('网络错误'); }
+  });
+}
+async function reportComment(id){
+  showConfirm('确定举报这条评论吗？', async ()=>{
+    try{
+      const r = await fetch('/api/report_post_comment',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({comment_id:id})});
+      const d = await r.json();
+      showAlert(d.message||'已提交');
+    }catch(e){ showAlert('网络错误'); }
+  });
+}
+
+loadPost();
+</script>
+</body>
+</html>

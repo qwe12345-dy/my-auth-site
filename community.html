@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<link rel="icon" type="image/png" href="favicon.png">
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>社区 - 创造工坊</title>
+<script src="assets/auth.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { -webkit-text-size-adjust:100%; }
+body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; color:#1a1a1a; min-height:100vh; font-size:16px; line-height:1.5; background:#f0f2f8; overflow-x:hidden; padding-bottom:110px; }
+input,button,textarea { font-family:inherit; font-size:16px; }
+a { text-decoration:none; color:inherit; }
+.app-bg { position:fixed; inset:0; z-index:-1; background:linear-gradient(135deg,#e8ecf5 0%,#f0f2f8 40%,#f5f0f8 100%); }
+.app-bg::before { content:''; position:absolute; top:-100px; right:-80px; width:300px; height:300px; background:radial-gradient(circle,rgba(120,140,255,.25) 0%,transparent 70%); border-radius:50%; }
+.app-header { background:rgba(255,255,255,.85); backdrop-filter:blur(10px); padding:14px 16px; display:flex; align-items:center; position:sticky; top:0; z-index:100; }
+.app-header h1 { font-size:19px; font-weight:700; flex:1; }
+.add-btn { width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; border:none; font-size:24px; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 3px 10px rgba(74,125,255,.4); }
+.feed { padding:14px 14px 0; }
+.post-card { background:#fff; border-radius:16px; padding:14px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.05); }
+.pc-head { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.pc-avatar { width:38px; height:38px; border-radius:50%; overflow:hidden; background:#ddd; flex-shrink:0; }
+.pc-avatar img { width:100%; height:100%; object-fit:cover; }
+.pc-name { font-size:14px; font-weight:600; }
+.pc-time { font-size:11px; color:#999; margin-left:auto; }
+.pc-title { font-size:16px; font-weight:700; margin-bottom:6px; }
+.pc-content { font-size:14px; color:#444; line-height:1.6; white-space:pre-wrap; word-break:break-word; }
+.pc-img { margin-top:10px; width:100%; border-radius:12px; overflow:hidden; }
+.pc-img img { width:100%; max-height:300px; object-fit:cover; display:block; }
+.pc-foot { margin-top:10px; padding-top:10px; border-top:1px solid #f3f3f3; font-size:12px; color:#999; display:flex; align-items:center; gap:5px; }
+.pc-foot img { width:14px; height:14px; }
+.empty { text-align:center; padding:50px 20px; color:#bbb; }
+.empty img { width:150px; height:150px; object-fit:cover; border-radius:20px; margin:0 auto 12px; display:block; box-shadow:0 8px 24px rgba(102,126,234,.18); }
+.loading { text-align:center; padding:50px; color:#999; }
+.composer-mask { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:300; align-items:flex-end; }
+.composer-mask.show { display:flex; }
+.composer { background:#fff; width:100%; border-radius:24px 24px 0 0; padding:20px 18px calc(20px + env(safe-area-inset-bottom)); max-height:90vh; overflow-y:auto; }
+.composer h3 { font-size:17px; margin-bottom:14px; }
+.cp-label { font-size:13px; color:#888; margin:12px 0 6px; }
+.cp-input { width:100%; padding:11px 14px; border:1px solid #e2e2e2; border-radius:12px; font-size:15px; background:#fafafa; }
+.cp-input:focus { outline:none; border-color:#4a7dff; background:#fff; }
+textarea.cp-input { min-height:110px; resize:vertical; line-height:1.6; }
+.cp-img-preview { margin-top:10px; display:none; border-radius:12px; overflow:hidden; position:relative; }
+.cp-img-preview img { width:100%; max-height:220px; object-fit:cover; display:block; }
+.cp-img-remove { position:absolute; top:8px; right:8px; width:28px; height:28px; border-radius:50%; background:rgba(0,0,0,.6); color:#fff; border:none; font-size:16px; cursor:pointer; }
+.cp-row { display:flex; gap:10px; margin-top:16px; }
+.cp-upload { flex:1; padding:12px; border:1px dashed #c5cfe8; border-radius:12px; background:#f6f8ff; color:#4a7dff; font-size:14px; text-align:center; cursor:pointer; }
+.cp-submit { flex:1.4; padding:12px; border:none; border-radius:12px; background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; font-size:15px; font-weight:600; cursor:pointer; }
+.cp-submit:disabled { opacity:.5; }
+.custom-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:400; align-items:center; justify-content:center; }
+.custom-modal.show { display:flex; }
+.custom-modal-box { background:#fff; border-radius:18px; padding:24px 22px; width:84%; max-width:320px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,.25); }
+.custom-modal-box .warn-img { width:76px; height:76px; border-radius:50%; object-fit:cover; margin:0 auto 14px; display:block; }
+.custom-modal-box h3 { font-size:16px; margin-bottom:10px; color:#333; }
+.custom-modal-box p { font-size:13.5px; color:#666; line-height:1.7; margin-bottom:18px; }
+.custom-modal-btns button { display:block; width:100%; padding:12px; border:none; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; margin-top:10px; }
+.btn-ok { background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; }
+.btn-cancel { background:#f0f0f0; color:#666; }
+.bottom-nav { position:fixed; bottom:12px; left:12px; right:12px; background:rgba(255,255,255,.75); backdrop-filter:blur(20px); border-radius:24px; display:flex; justify-content:space-around; align-items:center; padding:10px 8px; padding-bottom:calc(10px + env(safe-area-inset-bottom)); box-shadow:0 4px 20px rgba(0,0,0,.08); z-index:200; }
+.bottom-nav a { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px 4px; color:#999; font-size:11px; text-decoration:none; border-radius:16px; }
+.bottom-nav a.active { color:#1a1a1a; background:rgba(0,0,0,.06); }
+.bottom-nav .fab { flex:0 0 auto; width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,#4a7dff,#3b5fe0); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(74,125,255,.4); margin:0 4px; }
+.bottom-nav a .icon img { width:24px; height:24px; display:block; }
+.bottom-nav a:not(.active) .icon img { filter:grayscale(1); opacity:.4; }
+.bottom-nav a.active .icon img { filter:none; opacity:1; }
+.bottom-nav .fab img { width:26px; height:26px; display:block; filter:brightness(0) invert(1); }
+@media(max-width:480px){.bottom-nav a .icon img{width:22px;height:22px}.bottom-nav .fab img{width:23px;height:23px}}
+</style>
+</head>
+<body>
+<div class="app-bg"></div>
+
+<div class="app-header">
+  <h1>社区</h1>
+  <button class="add-btn" onclick="openComposer()">+</button>
+</div>
+
+<div id="feed" class="feed"><div class="loading">加载中...</div></div>
+
+<nav class="bottom-nav">
+  <a href="index.html"><span class="icon"><img src="assets/nav-home.png" alt=""></span>主页</a>
+  <a href="community.html" class="active"><span class="icon"><img src="assets/nav-community.png" alt=""></span>社区</a>
+  <a href="create.html" class="fab"><img src="assets/nav-create.png" alt=""></a>
+  <a href="profile.html"><span class="icon"><img src="assets/nav-me.png" alt=""></span>我的</a>
+</nav>
+
+<div class="composer-mask" id="composerMask">
+  <div class="composer">
+    <h3>发送动态</h3>
+    <div class="cp-label">请输入标题</div>
+    <input class="cp-input" id="cpTitle" maxlength="50" placeholder="给动态起个标题">
+    <div class="cp-label">请输入内容</div>
+    <textarea class="cp-input" id="cpContent" maxlength="1000" placeholder="分享点什么..."></textarea>
+    <div class="cp-label">添加图片（可选）</div>
+    <div class="cp-img-preview" id="cpPreview">
+      <img id="cpPreviewImg" alt="">
+      <button class="cp-img-remove" onclick="removeImg()">✕</button>
+    </div>
+    <input type="file" id="cpFile" accept="image/*" style="display:none" onchange="pickImg(event)">
+    <div class="cp-row">
+      <div class="cp-upload" onclick="document.getElementById('cpFile').click()">上传图片</div>
+      <button class="cp-submit" id="cpSubmit" onclick="submitPost()">发送动态</button>
+    </div>
+    <div class="cp-row" style="margin-top:10px">
+      <button class="cp-submit" style="background:#f0f0f0;color:#666;flex:1" onclick="closeComposer()">取消</button>
+    </div>
+  </div>
+</div>
+
+<div class="custom-modal" id="customModal">
+  <div class="custom-modal-box">
+    <img class="warn-img" src="assets/warn.jpg" alt="!">
+    <h3>提示</h3>
+    <p>亲爱的用户，你的账户没有实名认证，请你实名认证后再进行操作！因为中国法律规定需要进行实名认证才能上网！</p>
+    <div class="custom-modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">取消</button>
+      <button class="btn-ok" onclick="goRealname()">实名认证</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let postImage = '';
+
+async function loadFeed(){
+  try{
+    const r = await fetch('/api/posts',{credentials:'include'});
+    const d = await r.json();
+    const feed = document.getElementById('feed');
+    if(!d.success || !d.posts || d.posts.length===0){
+      feed.innerHTML = '<div class="empty"><img src="assets/empty.jpg"><div>还没有动态，快来发第一条吧</div></div>';
+      return;
+    }
+    feed.innerHTML = d.posts.map(p=>{
+      const avatar = p.author_avatar ? '<img src="'+p.author_avatar+'">' : '<img src="assets/default-avatar.jpg">';
+      const img = p.image ? '<div class="pc-img"><img src="'+p.image+'"></div>' : '';
+      const time = (p.created_at||'').substring(5,16);
+      return '<div class="post-card" onclick="location.href=\'post.html?id='+p.id+'\'">'+
+        '<div class="pc-head"><div class="pc-avatar">'+avatar+'</div>'+
+        '<div><div class="pc-name">'+escapeHtml(p.author_name||'')+'</div></div>'+
+        '<span class="pc-time">'+time+'</span></div>'+
+        '<div class="pc-title">'+escapeHtml(p.title)+'</div>'+
+        '<div class="pc-content">'+escapeHtml(p.content)+'</div>'+
+        img+
+        '<div class="pc-foot"><img src="assets/ic-comment.png">'+(p.comments_count||0)+' 条评论</div>'+
+      '</div>';
+    }).join('');
+  }catch(e){
+    document.getElementById('feed').innerHTML = '<div class="empty">加载失败，请下拉刷新</div>';
+  }
+}
+
+function escapeHtml(t){ const d=document.createElement('div'); d.textContent=t==null?'':t; return d.innerHTML; }
+
+function openComposer(){
+  document.getElementById('composerMask').classList.add('show');
+}
+function closeComposer(){
+  document.getElementById('composerMask').classList.remove('show');
+}
+function pickImg(e){
+  const f = e.target.files[0];
+  if(!f) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    postImage = ev.target.result;
+    const pv = document.getElementById('cpPreview');
+    document.getElementById('cpPreviewImg').src = postImage;
+    pv.style.display = 'block';
+  };
+  reader.readAsDataURL(f);
+}
+function removeImg(){
+  postImage = '';
+  document.getElementById('cpPreview').style.display = 'none';
+  document.getElementById('cpFile').value = '';
+}
+
+async function submitPost(){
+  const title = document.getElementById('cpTitle').value.trim();
+  const content = document.getElementById('cpContent').value.trim();
+  if(!title){ showSimple('请输入标题'); return; }
+  if(!content){ showSimple('请输入内容'); return; }
+  const btn = document.getElementById('cpSubmit');
+  btn.disabled = true; btn.textContent = '发布中...';
+  try{
+    const r = await fetch('/api/create_post',{
+      method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include',
+      body: JSON.stringify({title:title, content:content, image:postImage})
+    });
+    const d = await r.json();
+    if(d.success){
+      closeComposer();
+      document.getElementById('cpTitle').value='';
+      document.getElementById('cpContent').value='';
+      removeImg();
+      loadFeed();
+    }else if(d.code === 'NEED_REALNAME'){
+      closeComposer();
+      showRealnameModal();
+    }else{
+      showSimple(d.message || '发布失败');
+    }
+  }catch(e){ showSimple('网络错误，请重试'); }
+  btn.disabled = false; btn.textContent = '发送动态';
+}
+
+function showSimple(text){
+  document.getElementById('customModal').querySelector('h3').textContent = '提示';
+  document.getElementById('customModal').querySelector('p').textContent = text;
+  document.querySelector('.custom-modal-btns .btn-ok').style.display = 'none';
+  document.querySelector('.custom-modal-btns .btn-cancel').textContent = '确定';
+  document.getElementById('customModal').classList.add('show');
+}
+function showRealnameModal(){
+  document.getElementById('customModal').querySelector('h3').textContent = '需要实名认证';
+  document.getElementById('customModal').querySelector('p').textContent = '亲爱的用户，你的账户没有实名认证，请你实名认证后再进行操作！因为中国法律规定需要进行实名认证才能上网！';
+  document.querySelector('.custom-modal-btns .btn-ok').style.display = 'block';
+  document.querySelector('.custom-modal-btns .btn-ok').textContent = '实名认证';
+  document.querySelector('.custom-modal-btns .btn-cancel').textContent = '取消';
+  document.getElementById('customModal').classList.add('show');
+}
+function closeModal(){ document.getElementById('customModal').classList.remove('show'); }
+function goRealname(){ closeModal(); location.href = 'edit-profile.html'; }
+
+loadFeed();
+</script>
+</body>
+</html>

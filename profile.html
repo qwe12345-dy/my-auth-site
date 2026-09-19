@@ -152,6 +152,7 @@ a { text-decoration:none; color:inherit; }
 
 <nav class="bottom-nav">
   <a href="index.html"><span class="icon"><img src="assets/nav-home.png" alt=""></span>主页</a>
+  <a href="community.html"><span class="icon"><img src="assets/nav-community.png" alt=""></span>社区</a>
   <a href="create.html" class="fab"><img src="assets/nav-create.png" alt=""></a>
   <a href="profile.html" class="active"><span class="icon"><img src="assets/nav-me.png" alt=""></span>我的</a>
 </nav>
@@ -270,6 +271,7 @@ function handleLongPress(e){
   const id=card.dataset.id;
   clearTimeout(pressTimer);
   pressTimer=setTimeout(()=>{
+    isLongPress=true;
     selectedGameId=id;
     const menu=document.getElementById('workActionMenu');
     const rect=card.getBoundingClientRect();
@@ -287,7 +289,9 @@ document.addEventListener('click',(e)=>{
   }
 });
 
+let isLongPress=false;
 function openGame(id){
+  if(isLongPress){isLongPress=false;return;}
   if(pressTimer){clearTimeout(pressTimer);}
   location.href='game.html?id='+id;
 }
