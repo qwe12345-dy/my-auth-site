@@ -22,6 +22,9 @@ export async function onRequestPost(context) {
     if (!valid) {
       return jsonResponse({ success: false, message: '密码错误' }, 400);
     }
+    if (user.banned === 1) {
+      return jsonResponse({ success: false, message: '该账号已被封禁，如有疑问请联系管理员' }, 403);
+    }
     const token = generateToken();
     const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
     await env.DB.prepare('INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)').bind(user.id, token, expires).run();
