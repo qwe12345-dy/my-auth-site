@@ -358,4 +358,70 @@ function moderateContent(text) {
   return { passed: true, reason: '' };
 }
 
-export { hashPassword, verifyPassword, generateToken, generateCode, jsonResponse, getUserFromRequest, getChinaTime, checkEmailDomain, sendEmailJS, moderateContent };
+function validateRealName(name) {
+  if (!name) return false;
+  name = name.trim();
+  if (name.length < 2 || name.length > 20) return false;
+  return /^[一-龥·]{2,20}$/.test(name);
+}
+
+function validateIdCard(idCard) {
+  if (!idCard) return false;
+  idCard = String(idCard).trim().toUpperCase();
+  if (!/^\d{17}[\dX]$/.test(idCard)) return false;
+  const province = parseInt(idCard.substring(0, 2), 10);
+  if (province < 11 || province > 82) return false;
+  const year = parseInt(idCard.substring(6, 10), 10);
+  const month = parseInt(idCard.substring(10, 12), 10);
+  const day = parseInt(idCard.substring(12, 14), 10);
+  if (year < 1900 || year > new Date().getFullYear()) return false;
+  if (month < 1 || month > 12 || day < 1 || day > 31) return false;
+  const date = new Date(year, month - 1, day);
+  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return false;
+  const weights = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+  const codes = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2'];
+  let sum = 0;
+  for (let i = 0; i < 17; i++) sum += parseInt(idCard[i], 10) * weights[i];
+  return idCard[17] === codes[sum % 11];
+}
+
+function maskIdCard(idCard) {
+  idCard = String(idCard).trim().toUpperCase();
+  if (idCard.length !== 18) return '';
+  return idCard.substring(0, 6) + '********' + idCard.substring(14);
+}
+
+async function getIdentityKey(env) {
+  const secret = (env && env.IDENTITY_SECRET) || 'czgf-identity-secret-2026-please-change-in-pages-settings';
+  const enc = new TextEncoder();
+  const digest = await crypto.subtle.digest('SHA-256', enc.encode(secret));
+  return crypto.subtle.importKey('raw', digest, { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']);
+}
+
+async function encryptIdCard(idCard, env) {
+  const key = await getIdentityKey(env);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const enc = new TextEncoder();
+  const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(String(idCard).trim().toUpperCase()));
+  const combined = new Uint8Array(iv.length + cipher.byteLength);
+  combined.set(iv, 0);
+  combined.set(new Uint8Array(cipher), iv.length);
+  let bin = '';
+  for (let i = 0; i < combined.length; i++) bin += String.fromCharCode(combined[i]);
+  return btoa(bin);
+}
+
+async function decryptIdCard(encB64, env) {
+  try {
+    const key = await getIdentityKey(env);
+    const bytes = Uint8Array.from(atob(encB64), c => c.charCodeAt(0));
+    const iv = bytes.slice(0, 12);
+    const cipher = bytes.slice(12);
+    const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipher);
+    return new TextDecoder().decode(plain);
+  } catch (e) {
+    return '';
+  }
+}
+
+export { hashPassword, verifyPassword, generateToken, generateCode, jsonResponse, getUserFromRequest, getChinaTime, checkEmailDomain, sendEmailJS, moderateContent, validateRealName, validateIdCard, maskIdCard, encryptIdCard, decryptIdCard };
