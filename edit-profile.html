@@ -115,6 +115,25 @@ a { text-decoration:none; color:inherit; }
 .bio-status.rejected { background:#f8d7da; color:#721c24; }
 .bio-status.approved { background:#d4edda; color:#155724; }
 
+.id-verify-card { margin:20px 16px 0; padding:16px; background:#fff; border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,.06); display:flex; align-items:center; justify-content:space-between; cursor:pointer; }
+.id-verify-card:active { background:#f8f8f8; }
+.idv-left { display:flex; align-items:center; gap:12px; }
+.idv-icon { font-size:26px; }
+.idv-title { font-size:15px; font-weight:600; color:#333; }
+.idv-status { font-size:12px; margin-top:3px; }
+.idv-status.none { color:#e6a23c; }
+.idv-status.pending { color:#856404; }
+.idv-status.approved { color:#155724; }
+.idv-status.rejected { color:#c33; }
+.idv-arrow { font-size:22px; color:#ccc; }
+.id-modal-box { text-align:left !important; }
+.id-modal-box h3 { text-align:center; }
+.id-modal-box .id-input { width:100%; padding:12px; border:1px solid #e0e0e0; border-radius:10px; font-size:15px; background:#fafafa; margin-top:12px; box-sizing:border-box; }
+.id-modal-box .id-input:focus { outline:none; border-color:#667eea; background:#fff; }
+.id-modal-tip { font-size:12px; color:#999; line-height:1.6; margin:12px 0 0; }
+.id-result { text-align:center; padding:8px 0; }
+.id-result .big { font-size:34px; margin-bottom:8px; }
+
 @media (max-width:480px) {
   .profile-page { padding:50px 16px 16px; }
   .profile-avatar-lg { width:64px; height:64px; font-size:24px; }
@@ -160,6 +179,43 @@ a { text-decoration:none; color:inherit; }
   <textarea id="bioInput" placeholder="介绍一下你自己吧（不超过500字）" maxlength="500" oninput="updateCharCount()"></textarea>
   <div class="char-count"><span id="charCount">0</span>/500</div>
   <button class="save-btn" id="saveBtn" onclick="saveProfile()">确定</button>
+</div>
+
+<div class="id-verify-card" onclick="openIdModal()">
+  <div class="idv-left">
+    <span class="idv-icon">🪪</span>
+    <div>
+      <div class="idv-title">实名认证</div>
+      <div class="idv-status none" id="idVerifyStatus">未认证</div>
+    </div>
+  </div>
+  <span class="idv-arrow">›</span>
+</div>
+
+<div class="custom-modal" id="idModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center;">
+  <div class="custom-modal-box id-modal-box" style="background:#fff;border-radius:16px;padding:24px;width:82%;max-width:320px;box-shadow:0 10px 40px rgba(0,0,0,.2);">
+    <h3 style="font-size:17px;margin-bottom:8px;color:#333;">实名认证</h3>
+    <div id="idFormArea">
+      <input class="id-input" id="realNameInput" placeholder="请输入真实姓名" maxlength="20">
+      <input class="id-input" id="idCardInput" placeholder="请输入身份证号码" maxlength="18" style="letter-spacing:1px;">
+      <div id="idFormError" style="color:#e74c3c;font-size:13px;margin-top:10px;line-height:1.5;display:none;"></div>
+      <p class="id-modal-tip">信息仅用于身份核验并加密存储，不会公开显示。提交后将在24小时内完成审核。</p>
+      <div class="custom-modal-btns" style="display:flex;gap:10px;justify-content:center;margin-top:18px;">
+        <button onclick="closeIdModal()" style="padding:10px 20px;border:none;border-radius:8px;font-size:14px;font-weight:600;background:#f0f0f0;color:#666;">取消</button>
+        <button id="idSubmitBtn" onclick="submitIdentity()" style="padding:10px 20px;border:none;border-radius:8px;font-size:14px;font-weight:600;background:linear-gradient(135deg,#4a7dff,#3b5fe0);color:#fff;">提交</button>
+      </div>
+    </div>
+    <div id="idResultArea" style="display:none;">
+      <div class="id-result">
+        <div class="big" id="idResultIcon">⏳</div>
+        <div id="idResultText" style="font-size:15px;color:#333;font-weight:600;margin-bottom:6px;"></div>
+        <div id="idResultSub" style="font-size:13px;color:#999;line-height:1.6;"></div>
+      </div>
+      <div class="custom-modal-btns" style="display:flex;gap:10px;justify-content:center;margin-top:18px;">
+        <button onclick="closeIdModal()" style="padding:10px 24px;border:none;border-radius:8px;font-size:14px;font-weight:600;background:linear-gradient(135deg,#4a7dff,#3b5fe0);color:#fff;">确定</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <input type="hidden" id="avatarBase64" value="">
@@ -267,6 +323,86 @@ async function saveProfile(){
   btn.disabled=false;
   btn.textContent='确定';
 }
+let idStatus='none';
+async function loadIdentity(){
+  try{
+    const r=await fetch('/api/get_identity',{credentials:'include'});
+    const d=await r.json();
+    const el=document.getElementById('idVerifyStatus');
+    el.classList.remove('none','pending','approved','rejected');
+    if(d.success&&d.verified&&(d.status==='approved'||d.status==='pending'||d.status==='rejected')){
+      idStatus=d.status;
+      if(d.status==='approved'){ el.textContent='已认证'; el.classList.add('approved'); }
+      else if(d.status==='pending'){ el.textContent='审核中（24小时内）'; el.classList.add('pending'); }
+      else { el.textContent='未通过，点击重新提交'; el.classList.add('rejected'); }
+    }else{
+      idStatus='none';
+      el.textContent='未认证'; el.classList.add('none');
+    }
+  }catch(e){}
+}
+function openIdModal(){
+  const modal=document.getElementById('idModal');
+  const form=document.getElementById('idFormArea');
+  const result=document.getElementById('idResultArea');
+  document.getElementById('idFormError').style.display='none';
+  if(idStatus==='pending'){
+    form.style.display='none'; result.style.display='block';
+    document.getElementById('idResultIcon').textContent='⏳';
+    document.getElementById('idResultText').textContent='审核中';
+    document.getElementById('idResultSub').textContent='你的实名认证正在审核，将在24小时内完成';
+  }else if(idStatus==='approved'){
+    form.style.display='none'; result.style.display='block';
+    document.getElementById('idResultIcon').textContent='✅';
+    document.getElementById('idResultText').textContent='已完成实名认证';
+    document.getElementById('idResultSub').textContent='你的账号已通过实名认证';
+  }else{
+    form.style.display='block'; result.style.display='none';
+    document.getElementById('realNameInput').value='';
+    document.getElementById('idCardInput').value='';
+  }
+  modal.style.display='flex';
+}
+function closeIdModal(){
+  document.getElementById('idModal').style.display='none';
+}
+function showIdError(msg){
+  const e=document.getElementById('idFormError');
+  e.textContent=msg; e.style.display='block';
+}
+async function submitIdentity(){
+  const realName=document.getElementById('realNameInput').value.trim();
+  const idCard=document.getElementById('idCardInput').value.trim().toUpperCase();
+  document.getElementById('idFormError').style.display='none';
+  if(!realName){ showIdError('请输入真实姓名'); return; }
+  if(!idCard){ showIdError('请输入身份证号码'); return; }
+  const btn=document.getElementById('idSubmitBtn');
+  btn.disabled=true; btn.textContent='提交中...';
+  try{
+    const r=await fetch('/api/submit_identity',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      credentials:'include',
+      body:JSON.stringify({real_name:realName,id_card:idCard})
+    });
+    const d=await r.json();
+    if(d.success){
+      document.getElementById('idFormArea').style.display='none';
+      document.getElementById('idResultArea').style.display='block';
+      document.getElementById('idResultIcon').textContent='⏳';
+      document.getElementById('idResultText').textContent='提交成功';
+      document.getElementById('idResultSub').textContent='将在24小时内完成审核，请耐心等待';
+      idStatus='pending';
+      loadIdentity();
+    }else{
+      showIdError(d.message||'提交失败，请重试');
+    }
+  }catch(e){
+    showIdError('提交失败，请重试');
+  }
+  btn.disabled=false; btn.textContent='提交';
+}
+loadIdentity();
 loadCurrent();
 </script>
 </body>

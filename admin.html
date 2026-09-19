@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-store">
+<title>管理后台</title>
+<link rel="icon" href="favicon.png">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif; background:#f2f3f7; color:#222; font-size:15px; }
+input,button,textarea { font-family:inherit; font-size:15px; }
+button { cursor:pointer; }
+.hidden { display:none !important; }
+
+/* 登录 */
+#loginView { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; background:linear-gradient(160deg,#667eea,#764ba2); }
+.login-card { background:#fff; border-radius:20px; padding:32px 26px; width:100%; max-width:340px; box-shadow:0 20px 60px rgba(0,0,0,.25); }
+.login-logo { width:64px; height:64px; margin:0 auto 14px; border-radius:18px; background:linear-gradient(135deg,#667eea,#764ba2); display:flex; align-items:center; justify-content:center; font-size:32px; }
+.login-card h1 { text-align:center; font-size:20px; margin-bottom:6px; }
+.login-card p.sub { text-align:center; color:#999; font-size:13px; margin-bottom:22px; }
+.login-card input { width:100%; padding:13px 14px; border:1px solid #e3e3e8; border-radius:11px; background:#fafafa; margin-bottom:12px; }
+.login-card input:focus { outline:none; border-color:#667eea; background:#fff; }
+.login-card button { width:100%; padding:13px; border:none; border-radius:11px; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; font-size:16px; font-weight:600; }
+.login-err { color:#e74c3c; font-size:13px; text-align:center; min-height:18px; margin-bottom:8px; }
+
+/* 顶栏 */
+.topbar { position:sticky; top:0; z-index:50; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 10px rgba(0,0,0,.12); }
+.topbar .t { font-size:17px; font-weight:700; }
+.topbar .logout { background:rgba(255,255,255,.2); border:none; color:#fff; padding:7px 14px; border-radius:8px; font-size:13px; }
+
+/* tabs */
+.tabs { display:flex; overflow-x:auto; background:#fff; position:sticky; top:51px; z-index:40; box-shadow:0 1px 6px rgba(0,0,0,.05); }
+.tabs button { flex:0 0 auto; border:none; background:none; padding:14px 16px; font-size:14px; color:#888; border-bottom:2px solid transparent; white-space:nowrap; }
+.tabs button.active { color:#667eea; border-bottom-color:#667eea; font-weight:600; }
+.tabs .badge { display:inline-block; background:#e74c3c; color:#fff; border-radius:10px; font-size:11px; padding:0 6px; margin-left:3px; vertical-align:middle; }
+
+.main { padding:14px; padding-bottom:60px; }
+.section { display:none; }
+.section.active { display:block; }
+
+/* 统计卡片 */
+.stat-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:11px; }
+.stat-card { background:#fff; border-radius:14px; padding:15px; box-shadow:0 1px 6px rgba(0,0,0,.05); }
+.stat-card .n { font-size:23px; font-weight:700; color:#333; }
+.stat-card .l { font-size:12px; color:#999; margin-top:4px; }
+.stat-card.warn .n { color:#e6a23c; }
+.stat-card.danger .n { color:#e74c3c; }
+.stat-card.ok .n { color:#27ae60; }
+.stat-card.primary .n { color:#667eea; }
+
+/* 工具条 */
+.toolbar { display:flex; gap:8px; margin-bottom:12px; }
+.toolbar input { flex:1; padding:10px 12px; border:1px solid #e3e3e8; border-radius:10px; background:#fff; min-width:0; }
+.filter-row { display:flex; gap:7px; margin-bottom:12px; overflow-x:auto; }
+.filter-row button { flex:0 0 auto; border:1px solid #e3e3e8; background:#fff; color:#666; padding:7px 14px; border-radius:16px; font-size:13px; }
+.filter-row button.active { background:#667eea; color:#fff; border-color:#667eea; }
+
+/* 列表卡片 */
+.card { background:#fff; border-radius:13px; padding:13px; margin-bottom:10px; box-shadow:0 1px 5px rgba(0,0,0,.04); }
+.card .row1 { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+.card .title { font-size:15px; font-weight:600; color:#222; word-break:break-all; }
+.card .meta { font-size:12px; color:#999; margin-top:4px; line-height:1.6; word-break:break-all; }
+.card .desc { font-size:13px; color:#666; margin-top:6px; line-height:1.5; word-break:break-all; }
+.tag { display:inline-block; font-size:11px; padding:2px 8px; border-radius:5px; margin-left:6px; vertical-align:middle; }
+.tag.approved { background:#d4edda; color:#155724; }
+.tag.pending { background:#fff3cd; color:#856404; }
+.tag.rejected { background:#f8d7da; color:#721c24; }
+.tag.banned { background:#f8d7da; color:#721c24; }
+.tag.normal { background:#e8eaf6; color:#3949ab; }
+.actions { display:flex; flex-wrap:wrap; gap:7px; margin-top:11px; }
+.actions button { border:none; border-radius:8px; padding:8px 12px; font-size:13px; font-weight:600; color:#fff; }
+.btn-green { background:#27ae60; }
+.btn-red { background:#e74c3c; }
+.btn-gray { background:#95a5a6; }
+.btn-blue { background:#4a7dff; }
+.btn-orange { background:#e67e22; }
+.btn-line { background:#fff; color:#666; border:1px solid #ddd !important; }
+
+.empty { text-align:center; color:#bbb; padding:50px 0; font-size:14px; }
+.loading-txt { text-align:center; color:#aaa; padding:30px 0; font-size:14px; }
+.pager { display:flex; justify-content:center; align-items:center; gap:16px; margin-top:14px; }
+.pager button { border:1px solid #ddd; background:#fff; border-radius:8px; padding:8px 18px; font-size:14px; }
+.pager span { font-size:13px; color:#888; }
+
+/* 弹窗 */
+.modal-mask { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:200; align-items:center; justify-content:center; padding:24px; }
+.modal-mask.show { display:flex; }
+.modal-box { background:#fff; border-radius:16px; padding:22px; width:100%; max-width:340px; max-height:84vh; overflow-y:auto; }
+.modal-box h3 { font-size:17px; margin-bottom:12px; }
+.modal-box p { font-size:14px; color:#666; line-height:1.6; margin-bottom:8px; word-break:break-all; }
+.modal-box input,.modal-box textarea { width:100%; padding:11px 12px; border:1px solid #e3e3e8; border-radius:9px; background:#fafafa; margin-top:8px; }
+.modal-box textarea { min-height:70px; resize:vertical; }
+.modal-box pre { background:#f6f7fa; border-radius:9px; padding:11px; font-size:11px; line-height:1.5; white-space:pre-wrap; word-break:break-all; max-height:46vh; overflow:auto; margin:8px 0; }
+.modal-btns { display:flex; gap:10px; justify-content:flex-end; margin-top:16px; }
+.modal-btns button { border:none; border-radius:9px; padding:10px 18px; font-size:14px; font-weight:600; }
+.m-cancel { background:#f0f0f0; color:#666; }
+.m-ok { background:#667eea; color:#fff; }
+.m-danger { background:#e74c3c; color:#fff; }
+
+/* toast */
+#toast { position:fixed; left:50%; bottom:70px; transform:translateX(-50%); background:rgba(0,0,0,.82); color:#fff; padding:10px 20px; border-radius:22px; font-size:14px; z-index:300; opacity:0; pointer-events:none; transition:opacity .25s; max-width:86%; text-align:center; }
+#toast.show { opacity:1; }
+.id-full { font-size:16px; font-weight:700; letter-spacing:1px; color:#333; background:#f0f3ff; padding:8px 10px; border-radius:8px; margin-top:6px; }
+</style>
+</head>
+<body>
+
+<div id="loginView">
+  <div class="login-card">
+    <div class="login-logo">🛠️</div>
+    <h1>创造工坊管理后台</h1>
+    <p class="sub">仅限管理员登录</p>
+    <input id="adminUser" placeholder="管理员账号" autocomplete="username">
+    <input id="adminPass" type="password" placeholder="管理员密码" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <div class="login-err" id="loginErr"></div>
+    <button onclick="doLogin()">登 录</button>
+  </div>
+</div>
+
+<div id="adminView" class="hidden">
+  <div class="topbar">
+    <span class="t">🛠️ 管理后台</span>
+    <button class="logout" onclick="doLogout()">退出登录</button>
+  </div>
+  <div class="tabs">
+    <button data-tab="dashboard" class="active" onclick="switchTab('dashboard')">总览</button>
+    <button data-tab="users" onclick="switchTab('users')">用户</button>
+    <button data-tab="games" onclick="switchTab('games')">游戏<span class="badge hidden" id="gameBadge"></span></button>
+    <button data-tab="comments" onclick="switchTab('comments')">评论</button>
+    <button data-tab="identities" onclick="switchTab('identities')">实名<span class="badge" id="idBadge"></span></button>
+  </div>
+
+  <div class="main">
+    <div class="section active" id="sec-dashboard"><div id="statBox" class="stat-grid"></div></div>
+
+    <div class="section" id="sec-users">
+      <div class="toolbar">
+        <input id="userSearch" placeholder="搜索用户名 / 邮箱 / ID" onkeydown="if(event.key==='Enter')loadUsers(1)">
+        <button class="btn-blue" style="border:none;border-radius:10px;padding:0 16px;color:#fff;" onclick="loadUsers(1)">搜索</button>
+      </div>
+      <div id="userList"></div>
+      <div class="pager" id="userPager"></div>
+    </div>
+
+    <div class="section" id="sec-games">
+      <div class="filter-row" id="gameFilter">
+        <button data-st="all" onclick="filterGames('all')">全部</button>
+        <button data-st="pending" class="active" onclick="filterGames('pending')">待审核</button>
+        <button data-st="approved" onclick="filterGames('approved')">已通过</button>
+        <button data-st="rejected" onclick="filterGames('rejected')">违规</button>
+      </div>
+      <div id="gameList"></div>
+      <div class="pager" id="gamePager"></div>
+    </div>
+
+    <div class="section" id="sec-comments">
+      <div id="commentList"></div>
+      <div class="pager" id="commentPager"></div>
+    </div>
+
+    <div class="section" id="sec-identities">
+      <div class="filter-row" id="idFilter">
+        <button data-st="pending" class="active" onclick="filterIds('pending')">待审核</button>
+        <button data-st="approved" onclick="filterIds('approved')">已通过</button>
+        <button data-st="rejected" onclick="filterIds('rejected')">已驳回</button>
+        <button data-st="all" onclick="filterIds('all')">全部</button>
+      </div>
+      <div id="idList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-mask" id="modalMask"><div class="modal-box" id="modalBox"></div></div>
+<div id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+let curTab = 'dashboard';
+let userPage = 1, gamePage = 1, commentPage = 1;
+let gameStatus = 'pending', idStatus = 'pending';
+let confirmCb = null;
+
+function toast(msg){
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._tm); t._tm = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtTime(t){ return t ? String(t).replace('T',' ').substring(0,16) : ''; }
+
+function showModal(html){
+  $('modalBox').innerHTML = html;
+  $('modalMask').classList.add('show');
+}
+function closeModal(){ $('modalMask').classList.remove('show'); confirmCb = null; }
+$('modalMask').addEventListener('click', e => { if(e.target.id==='modalMask') closeModal(); });
+
+function showConfirm(title, text, cb, danger){
+  confirmCb = cb;
+  showModal('<h3>'+esc(title)+'</h3><p>'+esc(text)+'</p>'+
+    '<div class="modal-btns"><button class="m-cancel" onclick="closeModal()">取消</button>'+
+    '<button class="'+(danger?'m-danger':'m-ok')+'" id="confirmOk">确定</button></div>');
+  $('confirmOk').onclick = () => { const fn = confirmCb; closeModal(); if(fn) fn(); };
+}
+
+async function api(path, opts){
+  opts = opts || {};
+  opts.credentials = 'include';
+  opts.headers = Object.assign({'Content-Type':'application/json'}, opts.headers||{});
+  const r = await fetch('/api/admin/'+path, opts);
+  if(r.status === 401){ showLogin(); throw new Error('unauth'); }
+  return r.json();
+}
+
+function showLogin(){ $('adminView').classList.add('hidden'); $('loginView').style.display='flex'; }
+function showAdmin(){ $('loginView').style.display='none'; $('adminView').classList.remove('hidden'); }
+
+async function doLogin(){
+  const u = $('adminUser').value.trim(), p = $('adminPass').value;
+  $('loginErr').textContent = '';
+  if(!u || !p){ $('loginErr').textContent='请输入账号和密码'; return; }
+  try{
+    const d = await api('login', { method:'POST', body: JSON.stringify({username:u, password:p}) });
+    if(d.success){ toast('登录成功'); showAdmin(); switchTab('dashboard'); $('adminPass').value=''; }
+    else $('loginErr').textContent = d.message || '登录失败';
+  }catch(e){ if(e.message!=='unauth') $('loginErr').textContent='网络错误'; }
+}
+async function doLogout(){
+  try{ await api('logout',{method:'POST'}); }catch(e){}
+  showLogin();
+}
+async function checkAuth(){
+  try{
+    const r = await fetch('/api/admin/check',{credentials:'include'});
+    const d = await r.json();
+    if(d.logged){ showAdmin(); switchTab('dashboard'); } else showLogin();
+  }catch(e){ showLogin(); }
+}
+
+function switchTab(tab){
+  curTab = tab;
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  $('sec-'+tab).classList.add('active');
+  if(tab==='dashboard') loadStats();
+  if(tab==='users') loadUsers(userPage);
+  if(tab==='games') loadGames(gamePage);
+  if(tab==='comments') loadComments(commentPage);
+  if(tab==='identities') loadIds();
+}
+
+/* 总览 */
+async function loadStats(){
+  $('statBox').innerHTML = '<div class="loading-txt" style="grid-column:1/-1;">加载中...</div>';
+  try{
+    const d = await api('stats');
+    if(!d.success){ $('statBox').innerHTML='<div class="empty">加载失败</div>'; return; }
+    const s = d.stats;
+    $('gameBadge').textContent = s.pendingGames; $('gameBadge').classList.toggle('hidden', s.pendingGames===0);
+    $('idBadge').textContent = s.pendingIds; $('idBadge').classList.toggle('hidden', s.pendingIds===0);
+    const cards = [
+      ['primary', s.users, '注册用户（今日+'+s.newUsersToday+'）'],
+      ['danger', s.bannedUsers, '封禁用户'],
+      ['', s.totalCoins, 'R币总流通'],
+      ['primary', s.games, '游戏作品'],
+      ['warn', s.pendingGames, '游戏待审核'],
+      ['danger', s.rejectedGames, '违规游戏'],
+      ['', s.comments, '评论总数'],
+      ['', s.totalPlays, '总游玩量'],
+      ['', s.totalLikes, '总点赞'],
+      ['', s.totalFavs, '总收藏'],
+      ['warn', s.pendingIds, '实名待审核'],
+      ['ok', s.approvedIds, '已实名用户'],
+      ['', s.adTotal, '广告总观看（今日'+s.adToday+'）']
+    ];
+    $('statBox').innerHTML = cards.map(c=>'<div class="stat-card '+c[0]+'"><div class="n">'+c[1]+'</div><div class="l">'+c[2]+'</div></div>').join('');
+  }catch(e){}
+}
+
+/* 用户 */
+async function loadUsers(page){
+  userPage = page||1;
+  const kw = $('userSearch').value.trim();
+  $('userList').innerHTML = '<div class="loading-txt">加载中...</div>';
+  try{
+    const q = 'users?page='+userPage+(kw?'&search='+encodeURIComponent(kw):'');
+    const d = await api(q);
+    if(!d.success){ $('userList').innerHTML='<div class="empty">加载失败</div>'; return; }
+    if(!d.users.length){ $('userList').innerHTML='<div class="empty">没有用户</div>'; $('userPager').innerHTML=''; return; }
+    $('userList').innerHTML = d.users.map(u=>{
+      const idTag = u.id_status ? '<span class="tag '+({approved:'approved',pending:'pending',rejected:'rejected'}[u.id_status]||'normal')+'">实名'+({approved:'✓',pending:'…',rejected:'×'}[u.id_status]||'')+'</span>' : '';
+      const banTag = u.banned===1 ? '<span class="tag banned">已封禁</span>' : '';
+      return '<div class="card"><div class="row1"><div style="flex:1;min-width:0;">'+
+        '<div class="title">#'+u.id+' '+esc(u.username)+idTag+banTag+'</div>'+
+        '<div class="meta">'+esc(u.email)+'<br>R币：<b>'+u.r_coins+'</b> ｜ 作品：'+u.game_count+' ｜ 注册：'+fmtTime(u.created_at)+'</div></div></div>'+
+        '<div class="actions">'+
+        '<button class="btn-blue" onclick="coinDialog('+u.id+','+u.r_coins+')">改R币</button>'+
+        (u.banned===1 ? '<button class="btn-green" onclick="userAction(\'unban\','+u.id+')">解封</button>'
+                      : '<button class="btn-orange" onclick="userAction(\'ban\','+u.id+')">封禁</button>')+
+        '<button class="btn-red" onclick="userAction(\'delete\','+u.id+')">删除</button>'+
+        '</div></div>';
+    }).join('');
+    renderPager('userPager', d, 'loadUsers');
+  }catch(e){}
+}
+function renderPager(elId, d, fn){
+  if(d.pages<=1){ $(elId).innerHTML=''; return; }
+  $(elId).innerHTML = '<button onclick="'+fn+'('+(d.page-1)+')" '+(d.page<=1?'disabled':'')+'>上一页</button><span>'+d.page+' / '+d.pages+'（共'+d.total+'）</span><button onclick="'+fn+'('+(d.page+1)+')" '+(d.page>=d.pages?'disabled':'')+'>下一页</button>';
+}
+function coinDialog(id, cur){
+  showModal('<h3>调整 R币</h3><p>用户 #'+id+'，当前：'+cur+' R币</p>'+
+    '<input id="coinVal" type="number" inputmode="numeric" placeholder="输入数量" style="margin-top:4px;">'+
+    '<div class="modal-btns"><button class="m-cancel" onclick="closeModal()">取消</button>'+
+    '<button class="m-ok" onclick="coinSubmit('+id+',\'add_coins\')">增减</button>'+
+    '<button class="m-danger" onclick="coinSubmit('+id+',\'set_coins\')">直接设置</button></div>');
+}
+async function coinSubmit(id, action){
+  const v = parseInt($('coinVal').value,10);
+  if(isNaN(v)){ toast('请输入数字'); return; }
+  closeModal();
+  const d = await api('user_action',{method:'POST',body:JSON.stringify({action,user_id:id,coins:v})});
+  toast(d.message); if(d.success) loadUsers(userPage);
+}
+async function userAction(action, id){
+  const map = { ban:['确认封禁？','封禁后该用户立即下线且无法登录，确定吗？'], unban:['确认解封？','确定解封该用户吗？'], delete:['确认删除用户？','将删除该用户的全部游戏、评论、实名等数据，不可恢复！'] };
+  showConfirm(map[action][0], map[action][1], async()=>{
+    const d = await api('user_action',{method:'POST',body:JSON.stringify({action,user_id:id})});
+    toast(d.message); if(d.success) loadUsers(userPage);
+  }, action!=='unban');
+}
+
+/* 游戏 */
+function filterGames(st){
+  gameStatus = st;
+  document.querySelectorAll('#gameFilter button').forEach(b=>b.classList.toggle('active', b.dataset.st===st));
+  loadGames(1);
+}
+async function loadGames(page){
+  gamePage = page||1;
+  $('gameList').innerHTML = '<div class="loading-txt">加载中...</div>';
+  try{
+    const d = await api('games?status='+gameStatus+'&page='+gamePage);
+    if(!d.success){ $('gameList').innerHTML='<div class="empty">加载失败</div>'; return; }
+    if(!d.games.length){ $('gameList').innerHTML='<div class="empty">没有游戏</div>'; $('gamePager').innerHTML=''; return; }
+    const stMap = {approved:['approved','已通过'],pending:['pending','待审核'],rejected:['rejected','违规']};
+    $('gameList').innerHTML = d.games.map(g=>{
+      const tg = stMap[g.status]||['normal',g.status];
+      return '<div class="card"><div class="row1"><div style="flex:1;min-width:0;">'+
+        '<div class="title">#'+g.id+' '+esc(g.title)+' <span class="tag '+tg[0]+'">'+tg[1]+'</span></div>'+
+        '<div class="meta">作者：'+esc(g.author_name)+'（#'+g.user_id+'）｜ '+fmtTime(g.created_at)+'<br>'+
+        '👍'+g.likes_count+' ⭐'+g.favorites_count+' 💬'+g.comments_count+' ▶'+g.play_count+'</div>'+
+        (g.description?'<div class="desc">'+esc(g.description.substring(0,120))+'</div>':'')+
+        (g.status==='rejected'&&g.reject_reason?'<div class="desc" style="color:#c33;">违规原因：'+esc(g.reject_reason)+'</div>':'')+
+        '</div></div><div class="actions">'+
+        '<button class="btn-line" onclick="viewGame('+g.id+')">查看代码</button>'+
+        (g.status!=='approved'?'<button class="btn-green" onclick="gameAction(\'approve\','+g.id+')">通过</button>':'')+
+        (g.status!=='rejected'?'<button class="btn-orange" onclick="rejectGame('+g.id+')">标记违规</button>':'')+
+        '<button class="btn-red" onclick="gameAction(\'delete\','+g.id+')">删除</button>'+
+        '</div></div>';
+    }).join('');
+    renderPager('gamePager', d, 'loadGames');
+  }catch(e){}
+}
+async function viewGame(id){
+  try{
+    const d = await api('game_detail?id='+id);
+    if(!d.success){ toast(d.message); return; }
+    const g = d.game;
+    showModal('<h3>#'+g.id+' '+esc(g.title)+'</h3><p>作者：'+esc(g.author_name)+'</p>'+
+      '<p>'+esc(g.description||'（无介绍）')+'</p>'+
+      '<p style="margin-top:8px;">HTML代码：</p><pre>'+esc(g.html_code)+'</pre>'+
+      '<div class="modal-btns"><button class="m-ok" onclick="closeModal()">关闭</button></div>');
+  }catch(e){}
+}
+function rejectGame(id){
+  showModal('<h3>标记违规</h3><p>请填写违规原因（作者可见）：</p>'+
+    '<textarea id="rejectReason" placeholder="例如：包含违规内容/恶意代码"></textarea>'+
+    '<div class="modal-btns"><button class="m-cancel" onclick="closeModal()">取消</button>'+
+    '<button class="m-danger" onclick="rejectSubmit('+id+')">确定标记</button></div>');
+}
+async function rejectSubmit(id){
+  const reason = $('rejectReason').value.trim() || '内容违规';
+  closeModal();
+  const d = await api('game_action',{method:'POST',body:JSON.stringify({action:'reject',game_id:id,reason})});
+  toast(d.message); if(d.success) loadGames(gamePage);
+}
+async function gameAction(action, id){
+  if(action==='delete'){
+    showConfirm('确认删除游戏？','将同时删除该游戏的评论、点赞、收藏，不可恢复！', async()=>{
+      const d = await api('game_action',{method:'POST',body:JSON.stringify({action,game_id:id})});
+      toast(d.message); if(d.success){ loadGames(gamePage); loadStats(); }
+    }, true);
+  }else if(action==='approve'){
+    const d = await api('game_action',{method:'POST',body:JSON.stringify({action,game_id:id})});
+    toast(d.message); if(d.success){ loadGames(gamePage); loadStats(); }
+  }
+}
+
+/* 评论 */
+async function loadComments(page){
+  commentPage = page||1;
+  $('commentList').innerHTML = '<div class="loading-txt">加载中...</div>';
+  try{
+    const d = await api('comments?page='+commentPage);
+    if(!d.success){ $('commentList').innerHTML='<div class="empty">加载失败</div>'; return; }
+    if(!d.comments.length){ $('commentList').innerHTML='<div class="empty">没有评论</div>'; $('commentPager').innerHTML=''; return; }
+    $('commentList').innerHTML = d.comments.map(c=>
+      '<div class="card"><div class="row1"><div style="flex:1;min-width:0;">'+
+      '<div class="title">'+esc(c.author_name)+' <span style="font-weight:400;color:#999;font-size:12px;">#'+c.user_id+'</span></div>'+
+      '<div class="meta">游戏：'+esc(c.game_title)+'（#'+c.game_id+'）｜ '+fmtTime(c.created_at)+'</div>'+
+      '<div class="desc">'+esc(c.content)+'</div></div></div>'+
+      '<div class="actions"><button class="btn-red" onclick="deleteComment('+c.id+')">删除评论</button></div></div>'
+    ).join('');
+    renderPager('commentPager', d, 'loadComments');
+  }catch(e){}
+}
+async function deleteComment(id){
+  showConfirm('删除这条评论？','删除后不可恢复', async()=>{
+    const d = await api('comment_action',{method:'POST',body:JSON.stringify({comment_id:id})});
+    toast(d.message); if(d.success){ loadComments(commentPage); loadStats(); }
+  }, true);
+}
+
+/* 实名 */
+function filterIds(st){
+  idStatus = st;
+  document.querySelectorAll('#idFilter button').forEach(b=>b.classList.toggle('active', b.dataset.st===st));
+  loadIds();
+}
+async function loadIds(){
+  $('idList').innerHTML = '<div class="loading-txt">加载中...</div>';
+  try{
+    const d = await api('identities?status='+idStatus);
+    if(!d.success){ $('idList').innerHTML='<div class="empty">加载失败</div>'; return; }
+    if(!d.identities.length){ $('idList').innerHTML='<div class="empty">暂无数据</div>'; return; }
+    const stMap = {approved:['approved','已通过'],pending:['pending','审核中'],rejected:['rejected','已驳回']};
+    $('idList').innerHTML = d.identities.map(v=>{
+      const tg = stMap[v.status]||['normal',v.status];
+      return '<div class="card"><div class="row1"><div style="flex:1;min-width:0;">'+
+        '<div class="title">'+esc(v.real_name)+' <span class="tag '+tg[0]+'">'+tg[1]+'</span></div>'+
+        '<div class="meta">账号：'+esc(v.username)+'（#'+v.user_id+'） '+esc(v.email)+'<br>提交：'+fmtTime(v.created_at)+'</div>'+
+        '<div class="id-full">🪪 '+esc(v.id_card)+'</div>'+
+        (v.status==='rejected'&&v.reject_reason?'<div class="desc" style="color:#c33;">驳回原因：'+esc(v.reject_reason)+'</div>':'')+
+        '</div></div><div class="actions">'+
+        (v.status!=='approved'?'<button class="btn-green" onclick="idAction(\'approve\','+v.user_id+')">通过</button>':'')+
+        (v.status!=='rejected'?'<button class="btn-red" onclick="rejectId('+v.user_id+')">驳回</button>':'')+
+        '</div></div>';
+    }).join('');
+  }catch(e){}
+}
+function rejectId(uid){
+  showModal('<h3>驳回实名认证</h3><p>驳回原因（用户可见）：</p>'+
+    '<textarea id="idRejectReason" placeholder="例如：身份信息不真实/照片不清晰"></textarea>'+
+    '<div class="modal-btns"><button class="m-cancel" onclick="closeModal()">取消</button>'+
+    '<button class="m-danger" onclick="idRejectSubmit('+uid+')">确定驳回</button></div>');
+}
+async function idRejectSubmit(uid){
+  const reason = $('idRejectReason').value.trim() || '身份信息不真实';
+  closeModal();
+  const d = await api('identity_action',{method:'POST',body:JSON.stringify({action:'reject',user_id:uid,reason})});
+  toast(d.message); if(d.success) loadIds();
+}
+async function idAction(action, uid){
+  if(action==='approve'){
+    const d = await api('identity_action',{method:'POST',body:JSON.stringify({action,user_id:uid})});
+    toast(d.message); if(d.success){ loadIds(); loadStats(); }
+  }
+}
+
+checkAuth();
+</script>
+</body>
+</html>
