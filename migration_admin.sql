@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS ad_views (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  view_date TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_ad_views_user ON ad_views(user_id, view_date);
+CREATE TABLE IF NOT EXISTS identities (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL UNIQUE,
+  real_name TEXT NOT NULL,
+  id_card_enc TEXT NOT NULL,
+  id_card_mask TEXT DEFAULT '',
+  status TEXT DEFAULT 'pending',
+  reject_reason TEXT DEFAULT '',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_identities_user ON identities(user_id);
+ALTER TABLE users ADD COLUMN banned INTEGER DEFAULT 0;

@@ -29,6 +29,9 @@ a { text-decoration:none; color:inherit; }
 .game-card .game-title { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .game-card .game-meta { font-size:11px; color:#999; margin-top:2px; display:flex; gap:8px; }
 .game-empty { grid-column:1/-1; text-align:center; padding:60px 20px; color:#bbb; font-size:14px; }
+.game-empty img { width:170px; height:170px; object-fit:cover; border-radius:20px; display:block; margin:0 auto 14px; box-shadow:0 8px 24px rgba(102,126,234,.18); }
+.game-meta span { display:inline-flex; align-items:center; gap:2px; }
+.game-meta img { width:12px; height:12px; object-fit:contain; }
 .bottom-nav { position:fixed; bottom:12px; left:12px; right:12px; background:rgba(255,255,255,.75); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-radius:24px; display:flex; justify-content:space-around; align-items:center; padding:10px 8px; padding-bottom:calc(10px + env(safe-area-inset-bottom)); box-shadow:0 4px 20px rgba(0,0,0,.08); z-index:200; }
 .bottom-nav a { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px 4px; color:#999; font-size:11px; text-decoration:none; border-radius:16px; transition:all .2s; }
 .bottom-nav a .icon { font-size:22px; margin-bottom:2px; }
@@ -42,9 +45,9 @@ a { text-decoration:none; color:inherit; }
 .rcoin-display .num { font-size:14px; font-weight:700; color:#1a237e; }
 .search-box { margin:0 16px 12px; position:relative; z-index:5; }
 .search-box input { width:100%; padding:10px 14px 10px 38px; border:none; border-radius:12px; background:rgba(255,255,255,.9); font-size:14px; outline:none; box-shadow:0 2px 8px rgba(0,0,0,.06); }
-.search-box::before { content:'🔍'; position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px; }
+.search-box::before { content:''; position:absolute; left:12px; top:50%; transform:translateY(-50%); width:16px; height:16px; background:url(assets/ic-search.png) center/contain no-repeat; opacity:.5; }
 .checkin-card { margin:0 16px 14px; background:linear-gradient(135deg,#c0392b,#e74c3c 50%,#d35400); border-radius:16px; padding:16px; color:#fff; position:relative; overflow:hidden; cursor:pointer; box-shadow:0 6px 18px rgba(192,57,43,.35); z-index:5; }
-.checkin-card::after { content:'🌕'; position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:42px; opacity:.85; }
+.checkin-card::after { content:''; position:absolute; right:16px; top:50%; transform:translateY(-50%); width:44px; height:44px; border-radius:50%; background:radial-gradient(circle at 34% 32%,#fffbe8,#f6dc74 70%,#ecc548); box-shadow:0 0 18px rgba(255,236,150,.7); opacity:.92; }
 .checkin-card .ci-title { font-size:17px; font-weight:700; margin-bottom:4px; }
 .checkin-card .ci-sub { font-size:13px; opacity:.92; }
 .checkin-card .ci-days { display:flex; gap:8px; margin-top:10px; position:relative; z-index:2; }
@@ -66,6 +69,13 @@ a { text-decoration:none; color:inherit; }
 .checkin-btn { width:100%; padding:13px; border:none; border-radius:10px; font-size:16px; font-weight:700; cursor:pointer; background:linear-gradient(135deg,#e74c3c,#c0392b); color:#fff; }
 .checkin-btn:disabled { background:#ccc; }
 .checkin-close { width:100%; padding:10px; border:none; background:none; color:#999; font-size:14px; cursor:pointer; margin-top:6px; }
+
+.bottom-nav a .icon img{width:24px;height:24px;display:block}
+.bottom-nav a:not(.active) .icon img{filter:grayscale(1);opacity:.4}
+.bottom-nav a.active .icon img{filter:none;opacity:1}
+.bottom-nav .fab img{width:26px;height:26px;display:block;filter:brightness(0) invert(1)}
+@media(max-width:480px){.bottom-nav a .icon img{width:22px;height:22px}.bottom-nav .fab img{width:23px;height:23px}}
+
 </style>
 </head>
 <body>
@@ -81,7 +91,7 @@ a { text-decoration:none; color:inherit; }
     <input type="text" id="searchInput" placeholder="搜索游戏..." oninput="doSearch()">
   </div>
   <div class="checkin-card" id="checkinCard" style="display:none" onclick="openCheckin()">
-    <div class="ci-title">🥮 中秋签到活动</div>
+    <div class="ci-title">中秋签到活动</div>
     <div class="ci-sub" id="checkinSub">点击签到，领取R币奖励</div>
     <div class="ci-days" id="checkinMiniDays"></div>
   </div>
@@ -90,14 +100,14 @@ a { text-decoration:none; color:inherit; }
 </div>
 
 <nav class="bottom-nav">
-  <a href="index.html" class="active"><span class="icon">🏠</span>主页</a>
-  <a href="create.html" class="fab">+</a>
-  <a href="profile.html"><span class="icon">👤</span>我的</a>
+  <a href="index.html" class="active"><span class="icon"><img src="assets/nav-home.png" alt=""></span>主页</a>
+  <a href="create.html" class="fab"><img src="assets/nav-create.png" alt=""></a>
+  <a href="profile.html"><span class="icon"><img src="assets/nav-me.png" alt=""></span>我的</a>
 </nav>
 
 <div class="checkin-mask" id="checkinMask">
   <div class="checkin-modal">
-    <h3>🥮 中秋签到</h3>
+    <h3>中秋签到</h3>
     <div class="cm-sub">9月17日 - 9月20日 限时活动</div>
     <div class="checkin-days" id="checkinDays"></div>
     <button class="checkin-btn" id="checkinBtn" onclick="doCheckin()">今日签到</button>
@@ -209,16 +219,16 @@ async function loadGames(){
     const grid=document.getElementById('gameGrid');
     grid.style.display='grid';
     if(!d.success||d.games.length===0){
-      grid.innerHTML='<div class="game-empty">'+(searchKeyword?'没有找到相关游戏':'暂无游戏，点击下方+号创作第一个游戏吧')+'</div>';
+      grid.innerHTML='<div class="game-empty">'+(searchKeyword?'没有找到相关游戏':'<img src="assets/empty.jpg" alt="">暂无游戏，点击下方 + 号创作第一个游戏吧')+'</div>';
       return;
     }
     grid.innerHTML=d.games.map(g=>{
-      const iconHtml=g.icon?'<img src="'+g.icon+'">':'<span>🎮</span>';
+      const iconHtml='<img src="'+(g.icon||'assets/default-game.jpg')+'">';
       return '<div class="game-card" onclick="location.href=\'game.html?id='+g.id+'\'">'+
         '<div class="game-icon">'+iconHtml+'</div>'+
         '<div class="game-info">'+
           '<div class="game-title">'+escapeHtml(g.title)+'</div>'+
-          '<div class="game-meta"><span>❤️'+g.likes_count+'</span><span>🎮'+(g.play_count||0)+'</span><span>💬'+g.comments_count+'</span></div>'+
+          '<div class="game-meta"><span><img src="assets/ic-liked.png">'+g.likes_count+'</span><span><img src="assets/ic-play.png">'+(g.play_count||0)+'</span><span><img src="assets/ic-comment.png">'+g.comments_count+'</span></div>'+
         '</div>'+
       '</div>';
     }).join('');

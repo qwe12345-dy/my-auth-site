@@ -108,7 +108,7 @@ button { cursor:pointer; }
 
 <div id="loginView">
   <div class="login-card">
-    <div class="login-logo">🛠️</div>
+    <div class="login-logo"><img src="assets/favicon.png" alt="" style="width:100%;height:100%;border-radius:20px;object-fit:cover"></div>
     <h1>创造工坊管理后台</h1>
     <p class="sub">仅限管理员登录</p>
     <input id="adminUser" placeholder="管理员账号" autocomplete="username">
@@ -120,7 +120,7 @@ button { cursor:pointer; }
 
 <div id="adminView" class="hidden">
   <div class="topbar">
-    <span class="t">🛠️ 管理后台</span>
+    <span class="t">管理后台</span>
     <button class="logout" onclick="doLogout()">退出登录</button>
   </div>
   <div class="tabs">
@@ -356,7 +356,7 @@ async function loadGames(page){
       return '<div class="card"><div class="row1"><div style="flex:1;min-width:0;">'+
         '<div class="title">#'+g.id+' '+esc(g.title)+' <span class="tag '+tg[0]+'">'+tg[1]+'</span></div>'+
         '<div class="meta">作者：'+esc(g.author_name)+'（#'+g.user_id+'）｜ '+fmtTime(g.created_at)+'<br>'+
-        '👍'+g.likes_count+' ⭐'+g.favorites_count+' 💬'+g.comments_count+' ▶'+g.play_count+'</div>'+
+        '<img src="assets/ic-liked.png" style="width:13px;height:13px;vertical-align:-2px;">'+g.likes_count+' <img src="assets/ic-faved.png" style="width:13px;height:13px;vertical-align:-2px;">'+g.favorites_count+' <img src="assets/ic-comment.png" style="width:13px;height:13px;vertical-align:-2px;">'+g.comments_count+' <img src="assets/ic-play.png" style="width:13px;height:13px;vertical-align:-2px;">'+g.play_count+'</div>'+
         (g.description?'<div class="desc">'+esc(g.description.substring(0,120))+'</div>':'')+
         (g.status==='rejected'&&g.reject_reason?'<div class="desc" style="color:#c33;">违规原因：'+esc(g.reject_reason)+'</div>':'')+
         '</div></div><div class="actions">'+
@@ -447,7 +447,7 @@ async function loadIds(){
       return '<div class="card"><div class="row1"><div style="flex:1;min-width:0;">'+
         '<div class="title">'+esc(v.real_name)+' <span class="tag '+tg[0]+'">'+tg[1]+'</span></div>'+
         '<div class="meta">账号：'+esc(v.username)+'（#'+v.user_id+'） '+esc(v.email)+'<br>提交：'+fmtTime(v.created_at)+'</div>'+
-        '<div class="id-full">🪪 '+esc(v.id_card)+'</div>'+
+        '<div class="id-full">证件号：'+esc(v.id_card)+'</div>'+
         (v.status==='rejected'&&v.reject_reason?'<div class="desc" style="color:#c33;">驳回原因：'+esc(v.reject_reason)+'</div>':'')+
         '</div></div><div class="actions">'+
         (v.status!=='approved'?'<button class="btn-green" onclick="idAction(\'approve\','+v.user_id+')">通过</button>':'')+

@@ -45,6 +45,10 @@ a { text-decoration:none; color:inherit; }
 .work-card .work-meta { font-size:11px; color:#999; margin-top:2px; }
 .work-card .reject-badge { position:absolute; top:8px; left:8px; background:#e74c3c; color:#fff; font-size:10px; padding:2px 8px; border-radius:4px; cursor:pointer; z-index:5; }
 .work-empty { grid-column:1/-1; text-align:center; padding:40px 20px; color:#bbb; font-size:14px; }
+.work-empty img { width:170px; height:170px; object-fit:cover; border-radius:20px; display:block; margin:0 auto 14px; box-shadow:0 8px 24px rgba(102,126,234,.18); }
+.work-meta { display:flex; gap:8px; }
+.work-meta span { display:inline-flex; align-items:center; gap:2px; }
+.work-meta img { width:12px; height:12px; object-fit:contain; }
 .bottom-nav { position:fixed; bottom:12px; left:12px; right:12px; background:rgba(255,255,255,.75); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-radius:24px; display:flex; justify-content:space-around; align-items:center; padding:10px 8px; padding-bottom:calc(10px + env(safe-area-inset-bottom)); box-shadow:0 4px 20px rgba(0,0,0,.08); z-index:200; }
 .bottom-nav a { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:6px 4px; color:#999; font-size:11px; text-decoration:none; border-radius:16px; transition:all .2s; }
 .bottom-nav a .icon { font-size:22px; margin-bottom:2px; }
@@ -71,6 +75,13 @@ a { text-decoration:none; color:inherit; }
 .custom-modal-btns .btn-ok { background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; }
 .custom-modal-btns .btn-cancel { background:#f0f0f0; color:#666; }
 .custom-modal-btns .btn-danger { background:#e74c3c; color:#fff; }
+
+.bottom-nav a .icon img{width:24px;height:24px;display:block}
+.bottom-nav a:not(.active) .icon img{filter:grayscale(1);opacity:.4}
+.bottom-nav a.active .icon img{filter:none;opacity:1}
+.bottom-nav .fab img{width:26px;height:26px;display:block;filter:brightness(0) invert(1)}
+@media(max-width:480px){.bottom-nav a .icon img{width:22px;height:22px}.bottom-nav .fab img{width:23px;height:23px}}
+
 </style>
 </head>
 <body>
@@ -124,7 +135,8 @@ a { text-decoration:none; color:inherit; }
 
     <div id="worksTab">
       <div class="work-grid" id="workGrid">
-        <div class="work-empty">还没有作品，去创作吧</div>
+        <div class="work-empty"><img src="assets/empty.jpg" alt="">还没有作品，去创作吧</div>
+      </div>
       </div>
     </div>
     <div id="dynamicTab" style="display:none">
@@ -134,14 +146,14 @@ a { text-decoration:none; color:inherit; }
 </div>
 
 <div class="work-action-menu" id="workActionMenu">
-  <button class="edit" onclick="editGame()">✏️ 更新与编辑</button>
-  <button class="del" onclick="deleteGame()">🗑️ 删除作品</button>
+  <button class="edit" onclick="editGame()">更新与编辑</button>
+  <button class="del" onclick="deleteGame()">删除作品</button>
 </div>
 
 <nav class="bottom-nav">
-  <a href="index.html"><span class="icon">🏠</span>主页</a>
-  <a href="create.html" class="fab">+</a>
-  <a href="profile.html" class="active"><span class="icon">👤</span>我的</a>
+  <a href="index.html"><span class="icon"><img src="assets/nav-home.png" alt=""></span>主页</a>
+  <a href="create.html" class="fab"><img src="assets/nav-create.png" alt=""></a>
+  <a href="profile.html" class="active"><span class="icon"><img src="assets/nav-me.png" alt=""></span>我的</a>
 </nav>
 
 <script>
@@ -194,13 +206,10 @@ async function loadProfile(){
     document.getElementById('loading').style.display='none';
     document.getElementById('profileContent').style.display='block';
     document.getElementById('userName').textContent=u.username;
-    if(u.avatar&&u.avatar.startsWith('data:')){
-      document.getElementById('avatarImg').src=u.avatar;
-      document.getElementById('avatarImg').style.display='block';
-      document.getElementById('avatarText').style.display='none';
-    }else{
-      document.getElementById('avatarText').textContent=u.username.charAt(0).toUpperCase();
-    }
+    const avImg=document.getElementById('avatarImg');
+    avImg.src=(u.avatar&&u.avatar.startsWith('data:'))?u.avatar:'assets/default-avatar.jpg';
+    avImg.style.display='block';
+    document.getElementById('avatarText').style.display='none';
     if(u.cover&&u.cover.startsWith('data:')){
       document.getElementById('coverImg').src=u.cover;
       document.getElementById('coverImg').style.display='block';
@@ -226,20 +235,20 @@ async function loadGames(){
     const d=await r.json();
     const grid=document.getElementById('workGrid');
     if(!d.success||d.games.length===0){
-      grid.innerHTML='<div class="work-empty">还没有作品，去创作吧</div>';
+      grid.innerHTML='<div class="work-empty"><img src="assets/empty.jpg" alt="">还没有作品，去创作吧</div>';
       document.getElementById('workCount').textContent='0';
       return;
     }
     document.getElementById('workCount').textContent=d.games.length;
     grid.innerHTML=d.games.map(g=>{
-      const iconHtml=g.icon?'<img src="'+g.icon+'">':'<span>🎮</span>';
+      const iconHtml='<img src="'+(g.icon||'assets/default-game.jpg')+'">';
       const rejectBadge=g.status==='rejected'?'<div class="reject-badge" onclick="event.stopPropagation();showReject(\''+(g.reject_reason||'').replace(/'/g,"\\'")+'\')">违规</div>':'';
       return '<div class="work-card" data-id="'+g.id+'" onclick="openGame('+g.id+')">'+
         rejectBadge+
         '<div class="work-icon">'+iconHtml+'</div>'+
         '<div class="work-info">'+
           '<div class="work-title">'+escapeHtml(g.title)+'</div>'+
-          '<div class="work-meta">❤️'+g.likes_count+' 💬'+g.comments_count+'</div>'+
+          '<div class="work-meta"><span><img src="assets/ic-liked.png">'+g.likes_count+'</span><span><img src="assets/ic-comment.png">'+g.comments_count+'</span></div>'+
         '</div>'+
       '</div>';
     }).join('');

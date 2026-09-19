@@ -54,6 +54,13 @@ a { text-decoration:none; color:inherit; }
 .bottom-nav .fab { flex:0 0 auto; width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; display:flex; align-items:center; justify-content:center; font-size:28px; box-shadow:0 4px 12px rgba(74,125,255,.4); margin:0 4px; }
 .bottom-nav .fab:active { transform:scale(.95); }
 .create-page { padding-bottom:90px; }
+
+.bottom-nav a .icon img{width:24px;height:24px;display:block}
+.bottom-nav a:not(.active) .icon img{filter:grayscale(1);opacity:.4}
+.bottom-nav a.active .icon img{filter:none;opacity:1}
+.bottom-nav .fab img{width:26px;height:26px;display:block;filter:brightness(0) invert(1)}
+@media(max-width:480px){.bottom-nav a .icon img{width:22px;height:22px}.bottom-nav .fab img{width:23px;height:23px}}
+
 </style>
 </head>
 <body>
@@ -63,6 +70,7 @@ a { text-decoration:none; color:inherit; }
   <h2 id="pageTitle">上传游戏</h2>
 </div>
 <div id="msg"></div>
+<img src="assets/create-guide.jpg" alt="" style="display:block;height:118px;width:calc(100% - 32px);margin:2px auto 14px;object-fit:cover;border-radius:16px;box-shadow:0 6px 18px rgba(74,125,255,.18)">
 <div class="create-form">
   <div class="form-group">
     <label>游戏图标</label>
@@ -85,7 +93,7 @@ a { text-decoration:none; color:inherit; }
   <div class="form-group">
     <label>HTML代码</label>
     <textarea id="htmlCode" placeholder="粘贴你的HTML游戏代码，或点击下方上传HTML文件"></textarea>
-    <span class="upload-btn" onclick="document.getElementById('htmlFileInput').click()">📁 上传HTML文件</span>
+    <span class="upload-btn" onclick="document.getElementById('htmlFileInput').click()">上传 HTML 文件</span>
     <input type="file" id="htmlFileInput" accept=".html,.htm" style="display:none" onchange="handleHtmlUpload(event)">
   </div>
   <button class="submit-btn" id="submitBtn" onclick="submitGame()">上传游戏</button>
@@ -223,9 +231,9 @@ async function submitGame() {
 }
 </script>
 <nav class="bottom-nav">
-  <a href="index.html"><span class="icon">🏠</span>主页</a>
+  <a href="index.html"><span class="icon"><img src="assets/nav-home.png" alt=""></span>主页</a>
   <a href="create.html" class="fab active">+</a>
-  <a href="profile.html"><span class="icon">👤</span>我的</a>
+  <a href="profile.html"><span class="icon"><img src="assets/nav-me.png" alt=""></span>我的</a>
 </nav>
 </body>
 </html>

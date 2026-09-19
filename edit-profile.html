@@ -118,7 +118,7 @@ a { text-decoration:none; color:inherit; }
 .id-verify-card { margin:20px 16px 0; padding:16px; background:#fff; border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,.06); display:flex; align-items:center; justify-content:space-between; cursor:pointer; }
 .id-verify-card:active { background:#f8f8f8; }
 .idv-left { display:flex; align-items:center; gap:12px; }
-.idv-icon { font-size:26px; }
+.idv-icon { width:40px; height:40px; border-radius:11px; object-fit:cover; flex-shrink:0; }
 .idv-title { font-size:15px; font-weight:600; color:#333; }
 .idv-status { font-size:12px; margin-top:3px; }
 .idv-status.none { color:#e6a23c; }
@@ -183,7 +183,7 @@ a { text-decoration:none; color:inherit; }
 
 <div class="id-verify-card" onclick="openIdModal()">
   <div class="idv-left">
-    <span class="idv-icon">🪪</span>
+    <img class="idv-icon" src="assets/verify.jpg" alt="实名认证">
     <div>
       <div class="idv-title">实名认证</div>
       <div class="idv-status none" id="idVerifyStatus">未认证</div>
@@ -207,7 +207,7 @@ a { text-decoration:none; color:inherit; }
     </div>
     <div id="idResultArea" style="display:none;">
       <div class="id-result">
-        <div class="big" id="idResultIcon">⏳</div>
+        <img id="idResultIcon" src="assets/verify.jpg" alt="" style="width:76px;height:76px;border-radius:18px;object-fit:cover;margin:0 auto 12px;display:block;box-shadow:0 8px 22px rgba(102,126,234,.25)">
         <div id="idResultText" style="font-size:15px;color:#333;font-weight:600;margin-bottom:6px;"></div>
         <div id="idResultSub" style="font-size:13px;color:#999;line-height:1.6;"></div>
       </div>
@@ -348,12 +348,10 @@ function openIdModal(){
   document.getElementById('idFormError').style.display='none';
   if(idStatus==='pending'){
     form.style.display='none'; result.style.display='block';
-    document.getElementById('idResultIcon').textContent='⏳';
     document.getElementById('idResultText').textContent='审核中';
     document.getElementById('idResultSub').textContent='你的实名认证正在审核，将在24小时内完成';
   }else if(idStatus==='approved'){
     form.style.display='none'; result.style.display='block';
-    document.getElementById('idResultIcon').textContent='✅';
     document.getElementById('idResultText').textContent='已完成实名认证';
     document.getElementById('idResultSub').textContent='你的账号已通过实名认证';
   }else{
@@ -389,7 +387,6 @@ async function submitIdentity(){
     if(d.success){
       document.getElementById('idFormArea').style.display='none';
       document.getElementById('idResultArea').style.display='block';
-      document.getElementById('idResultIcon').textContent='⏳';
       document.getElementById('idResultText').textContent='提交成功';
       document.getElementById('idResultSub').textContent='将在24小时内完成审核，请耐心等待';
       idStatus='pending';

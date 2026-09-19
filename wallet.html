@@ -87,7 +87,7 @@ a { text-decoration:none; color:inherit; }
       </div>
     </div>
   </div>
-  <button class="get-btn" id="watchAdBtn" onclick="showAd()">🎬 看广告获取R币<span style="font-size:13px;opacity:.9;font-weight:400;">（今日剩余 <span id="adRemaining">15</span> 次）</span></button>
+  <button class="get-btn" id="watchAdBtn" onclick="showAd()">看广告获取 R 币<span style="font-size:13px;opacity:.9;font-weight:400;">（今日剩余 <span id="adRemaining">15</span> 次）</span></button>
   <div class="tip-card">
     <b>获取规则：</b><br>
     · 每观看1次广告，可获得 <b>20~60</b> 随机R币<br>
@@ -100,7 +100,7 @@ a { text-decoration:none; color:inherit; }
 
 <div class="ad-overlay" id="adOverlay">
   <div class="ad-header">
-    <span class="ad-tag">📶 广告</span>
+    <span class="ad-tag">广告</span>
     <span class="ad-title" id="adTitle">播放广告</span>
     <button class="ad-x" id="adCloseBtn" onclick="closeAd()">✕</button>
   </div>
@@ -115,13 +115,14 @@ a { text-decoration:none; color:inherit; }
   <div class="ad-bottom">
     <div class="ad-progress"><div class="ad-progress-bar" id="adProgressBar"></div></div>
     <div class="ad-hint" id="adHint">观看广告后即可领取奖励，左右滑动切换</div>
-    <button class="ad-reward-btn" id="adRewardBtn" disabled onclick="claimReward()">🎉 领取奖励（<span id="adCountdown">30</span>s）</button>
+    <button class="ad-reward-btn" id="adRewardBtn" disabled onclick="claimReward()">领取奖励（<span id="adCountdown">30</span>s）</button>
   </div>
 </div>
 
 <div class="custom-modal" id="rewardModal">
   <div class="custom-modal-box">
-    <h3>🎉 恭喜获得</h3>
+    <img src="assets/reward.jpg" alt="" style="width:170px;height:170px;object-fit:cover;border-radius:18px;margin:2px auto 12px;display:block;box-shadow:0 10px 26px rgba(243,156,18,.28)">
+    <h3>恭喜获得</h3>
     <div class="reward-amount" id="rewardAmount">+0</div>
     <p>R币已存入钱包</p>
     <div class="custom-modal-btns">
@@ -350,7 +351,7 @@ function finishAd() {
   setBar(1);
   const btn = document.getElementById('adRewardBtn');
   btn.disabled = false;
-  btn.innerHTML = '🎉 领取奖励';
+  btn.innerHTML = '领取奖励';
   document.getElementById('adCloseBtn').classList.add('ready');
   document.getElementById('adTitle').textContent = '恭喜获得奖励！';
   document.getElementById('adHint').textContent = '广告观看完成，可领取奖励';
@@ -360,7 +361,7 @@ function startBannerCountdown() {
   clearInterval(adTimer);
   let count = 20;
   const btn = document.getElementById('adRewardBtn');
-  btn.innerHTML = '🎉 领取奖励（<span id="adCountdown">20</span>s）';
+  btn.innerHTML = '领取奖励（<span id="adCountdown">20</span>s）';
   setBar(0);
   adTimer = setInterval(() => {
     count--;
@@ -374,7 +375,7 @@ function startBannerCountdown() {
 function startVideoProgress(video) {
   clearInterval(adTimer);
   const btn = document.getElementById('adRewardBtn');
-  btn.innerHTML = '🎉 播放中';
+  btn.innerHTML = '播放中';
   setBar(0);
   video.ontimeupdate = () => {
     const d = video.duration;
@@ -396,7 +397,7 @@ function showAd() {
   document.getElementById('adOverlay').classList.add('show');
   const btn = document.getElementById('adRewardBtn');
   btn.disabled = true;
-  btn.innerHTML = '🎉 领取奖励';
+  btn.innerHTML = '领取奖励';
   document.getElementById('adCloseBtn').classList.remove('ready');
   document.getElementById('adTitle').textContent = '播放广告';
   document.getElementById('adHint').textContent = '观看广告后即可领取奖励';
@@ -456,7 +457,7 @@ async function claimReward() {
     showAlert('领取失败，请重试');
   }
   btn.disabled = false;
-  btn.textContent = '🎉 领取奖励';
+  btn.textContent = '领取奖励';
 }
 
 function closeAd() {
