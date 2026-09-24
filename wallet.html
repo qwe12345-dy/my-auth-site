@@ -35,6 +35,14 @@ a { text-decoration:none; color:inherit; }
 .get-btn:disabled { background:#ccc; color:#999; box-shadow:none; }
 .tip-card { background:rgba(255,255,255,.8); backdrop-filter:blur(10px); border-radius:12px; padding:14px 16px; font-size:13px; color:#666; line-height:1.6; }
 .tip-card b { color:#333; }
+.action-row { display:flex; gap:10px; margin-bottom:16px; }
+.action-row button { flex:1; padding:14px; border:none; border-radius:12px; font-size:15px; font-weight:600; cursor:pointer; }
+.btn-recharge { background:linear-gradient(135deg,#ff6b6b,#ee5a24); color:#fff; box-shadow:0 4px 12px rgba(238,90,36,.35); }
+.btn-redeem-entry { background:linear-gradient(135deg,#4a7dff,#3b5fe0); color:#fff; box-shadow:0 4px 12px rgba(74,125,255,.35); }
+.recharge-qr { width:200px; height:300px; object-fit:cover; border-radius:12px; margin:8px auto; display:block; box-shadow:0 4px 16px rgba(0,0,0,.12); }
+.recharge-tip { font-size:13px; color:#e67e22; line-height:1.6; margin:8px 0 4px; }
+.redeem-input { width:100%; padding:12px 14px; border:1px solid #e0e0e0; border-radius:10px; font-size:15px; text-align:center; letter-spacing:2px; text-transform:uppercase; margin:8px 0 14px; }
+.redeem-input:focus { outline:none; border-color:#4a7dff; }
 .ad-overlay { display:none; position:fixed; inset:0; background:#000; z-index:999; flex-direction:column; }
 .ad-overlay.show { display:flex; }
 .ad-header { background:#111; color:#fff; height:50px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:0 14px; position:relative; }
@@ -88,6 +96,10 @@ a { text-decoration:none; color:inherit; }
     </div>
   </div>
   <button class="get-btn" id="watchAdBtn" onclick="showAd()">看广告获取 R 币<span style="font-size:13px;opacity:.9;font-weight:400;">（今日剩余 <span id="adRemaining">15</span> 次）</span></button>
+  <div class="action-row">
+    <button class="btn-recharge" onclick="openRecharge()">充值 R币</button>
+    <button class="btn-redeem-entry" onclick="openRedeem()">兑换码</button>
+  </div>
   <div class="tip-card">
     <b>获取规则：</b><br>
     · 每观看1次广告，可获得 <b>20~60</b> 随机R币<br>
@@ -137,6 +149,28 @@ a { text-decoration:none; color:inherit; }
     <p id="alertMsg"></p>
     <div class="custom-modal-btns">
       <button class="btn-ok" onclick="closeAlert()">确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="custom-modal" id="rechargeModal">
+  <div class="custom-modal-box" style="max-width:320px;">
+    <h3>充值 R币</h3>
+    <img class="recharge-qr" src="assets/pay_qr.jpg" alt="支付宝收款码">
+    <p class="recharge-tip">请使用支付宝扫码支付<br>支付后请联系客服获取兑换码才可以获得R币</p>
+    <div class="custom-modal-btns">
+      <button class="btn-ok" onclick="closeRecharge()">我知道了</button>
+    </div>
+  </div>
+</div>
+
+<div class="custom-modal" id="redeemModal">
+  <div class="custom-modal-box">
+    <h3>输入兑换码</h3>
+    <input class="redeem-input" id="redeemCodeInput" placeholder="请输入兑换码" maxlength="32">
+    <div class="custom-modal-btns">
+      <button class="btn-ok" style="background:#f0f0f0;color:#666;" onclick="closeRedeem()">取消</button>
+      <button class="btn-ok" onclick="submitRedeem()">兑换</button>
     </div>
   </div>
 </div>
@@ -482,6 +516,40 @@ function showAlert(msg) {
 
 function closeAlert() {
   document.getElementById('alertModal').classList.remove('show');
+}
+
+function openRecharge() {
+  document.getElementById('rechargeModal').classList.add('show');
+}
+function closeRecharge() {
+  document.getElementById('rechargeModal').classList.remove('show');
+}
+function openRedeem() {
+  document.getElementById('redeemCodeInput').value = '';
+  document.getElementById('redeemModal').classList.add('show');
+}
+function closeRedeem() {
+  document.getElementById('redeemModal').classList.remove('show');
+}
+async function submitRedeem() {
+  const code = document.getElementById('redeemCodeInput').value.trim();
+  if (!code) { showAlert('请输入兑换码'); return; }
+  try {
+    const r = await fetch('/api/redeem_code', {
+      method: 'POST', headers: {'Content-Type':'application/json'}, credentials: 'include',
+      body: JSON.stringify({ code: code })
+    });
+    const d = await r.json();
+    if (d.success) {
+      closeRedeem();
+      showAlert(d.message);
+      loadBalance();
+    } else {
+      showAlert(d.message || '兑换失败');
+    }
+  } catch (e) {
+    showAlert('网络错误，请重试');
+  }
 }
 
 loadBalance();
